@@ -29,20 +29,21 @@ analyze-issue → plan-builder → execute-plan → **document**
 
 ## Overview
 
-이 스킬은 워크플로우에서 생성된 모든 아티팩트를 수집하여 프로젝트 문서를 체계적으로 업데이트하는 8단계 프로세스를 제공합니다:
+이 스킬은 워크플로우에서 생성된 모든 아티팩트를 수집하여 프로젝트 문서를 체계적으로 업데이트하는 9단계 프로세스를 제공합니다:
 
 1. **Discovery & Collection**: 워크플로우 아티팩트 찾기 및 수집
 2. **README Update**: 기능, API, 설정 등 프로젝트 README 업데이트
 3. **CHANGELOG Update**: Keep a Changelog 형식으로 변경 이력 추가
 4. **CLAUDE Documentation**: 아키텍처 결정사항 및 문제해결 가이드 업데이트
 5. **Serena Memory**: 기술 인사이트를 메모리에 저장
-6. **Additional Docs**: 필요시 마이그레이션 가이드, API 문서 등 생성
-7. **Verification**: 문서 품질 및 완성도 검증
-8. **Cleanup**: 워크플로우 아티팩트 정리 (아카이브 또는 삭제)
+6. **JIRA Issue Update**: JIRA 이슈에 구현 완료 사항 정리 및 코멘트 추가
+7. **Additional Docs**: 필요시 마이그레이션 가이드, API 문서 등 생성
+8. **Verification**: 문서 품질 및 완성도 검증
+9. **Cleanup**: 워크플로우 아티팩트 정리 (아카이브 또는 삭제)
 
 ---
 
-## Workflow: 8-Phase Documentation Process
+## Workflow: 9-Phase Documentation Process
 
 ### Phase 1: Discovery and Collection
 
@@ -399,7 +400,171 @@ mcp__serena__write_memory({
 
 ---
 
-### Phase 6: Additional Documentation
+### Phase 6: JIRA Issue Update
+
+**Objective**: JIRA 이슈에 구현 완료 사항을 정리하고 코멘트를 추가합니다.
+
+⚠️ **Important**: 워크플로우 아티팩트에서 JIRA 이슈 ID를 찾을 수 있는 경우에만 실행합니다.
+
+#### 6A. Extract JIRA Issue ID
+
+```typescript
+// From workflow artifacts, extract JIRA issue ID
+// Look for patterns like: ISSUE-123, PROJECT-456, etc.
+// Common locations:
+// - Report file name: ISSUE-123_REPORT.md
+// - Plan file "Based On" field
+// - Branch name: feature/ISSUE-123-description
+
+// Extract issue ID
+const issueId = extractedFromArtifacts; // e.g., "PROJECT-123"
+```
+
+#### 6B. Get Current Issue Status
+
+```typescript
+// Get issue details
+mcp__atlassian__getJiraIssue({
+  cloudId: cloudId,
+  issueIdOrKey: issueId
+})
+
+// Check current status:
+// - If "In Progress" → Can transition to "Done"
+// - If "To Do" → Should be "In Progress" first
+// - If "Done" → Just add comment
+```
+
+#### 6C. Prepare Implementation Summary
+
+워크플로우 아티팩트를 기반으로 구현 요약 작성:
+
+```markdown
+## 구현 완료 요약
+
+### 변경사항
+- ✅ [주요 기능 1]: [설명]
+- ✅ [주요 기능 2]: [설명]
+- ✅ [버그 수정]: [설명]
+
+### 구현 세부사항
+**파일 변경:**
+- `src/feature/module.ts`: [변경 내용]
+- `src/api/endpoint.ts`: [새 엔드포인트 추가]
+
+**테스트:**
+- ✅ 단위 테스트 추가 ([X]개)
+- ✅ 통합 테스트 추가 ([Y]개)
+- ✅ 모든 테스트 통과
+
+**문서:**
+- ✅ README 업데이트
+- ✅ CHANGELOG 업데이트
+- ✅ API 문서 업데이트
+
+### 관련 문서
+- README: [변경된 섹션]
+- CHANGELOG: [Unreleased] 섹션
+- 기술 문서: [링크 또는 위치]
+
+### 테스트 방법
+```bash
+# 테스트 실행 명령어
+npm test
+
+# 기능 확인 방법
+[실행 예제]
+```
+
+### 배포 노트
+- **Breaking Changes**: [있다면 명시]
+- **Dependencies**: [새로 추가된 의존성]
+- **Configuration**: [새 환경 변수나 설정]
+```
+
+#### 6D. Add Comment to JIRA Issue
+
+```typescript
+// Add comprehensive comment
+mcp__atlassian__addCommentToJiraIssue({
+  cloudId: cloudId,
+  issueIdOrKey: issueId,
+  commentBody: `
+## ✅ 구현 완료
+
+### 변경사항
+- ✅ [주요 기능 1]: [설명]
+- ✅ [주요 기능 2]: [설명]
+
+### 구현 세부사항
+**파일 변경:**
+- \`src/feature/module.ts\`: [변경 내용]
+
+**테스트:**
+- ✅ 단위 테스트: [X]개 추가
+- ✅ 통합 테스트: [Y]개 추가
+- ✅ 모든 테스트 통과
+
+**문서:**
+- ✅ README 업데이트 완료
+- ✅ CHANGELOG 업데이트 완료
+
+### 관련 커밋
+- [commit hash or PR link if available]
+
+### 테스트 방법
+\`\`\`bash
+npm test
+\`\`\`
+
+### 다음 단계
+- [ ] 코드 리뷰
+- [ ] QA 테스트
+- [ ] 프로덕션 배포
+
+---
+*문서 업데이트: ${new Date().toISOString().split('T')[0]}*
+`
+})
+```
+
+#### 6E. Transition Issue Status (Optional)
+
+```typescript
+// Get available transitions
+mcp__atlassian__getTransitionsForJiraIssue({
+  cloudId: cloudId,
+  issueIdOrKey: issueId
+})
+
+// If "Done" transition is available and appropriate:
+mcp__atlassian__transitionJiraIssue({
+  cloudId: cloudId,
+  issueIdOrKey: issueId,
+  transition: {
+    id: doneTransitionId  // From available transitions
+  }
+})
+```
+
+#### 6F. Verification
+
+```
+- ✅ JIRA 이슈 코멘트 추가됨
+- ✅ 구현 사항 상세히 기록됨
+- ✅ 테스트 정보 포함됨
+- ✅ 문서 링크 포함됨
+- ✅ 이슈 상태 업데이트됨 (if applicable)
+```
+
+**⚠️ Important Notes**:
+- JIRA 이슈 ID를 찾을 수 없으면 이 단계를 건너뜁니다
+- 이슈 상태 전환은 팀 워크플로우에 따라 선택적으로 수행
+- 민감한 정보(비밀번호, 키 등)는 코멘트에 포함하지 않기
+
+---
+
+### Phase 7: Additional Documentation
 
 **Objective**: 필요시 추가 문서를 생성합니다.
 
@@ -444,11 +609,11 @@ mcp__serena__write_memory({
 
 ---
 
-### Phase 7: Verification and Quality Check
+### Phase 8: Verification and Quality Check
 
 **Objective**: 문서화 품질을 검증합니다.
 
-#### 7A. Completeness Check
+#### 8A. Completeness Check
 
 ```
 - [ ] README reflects all new features
@@ -458,11 +623,12 @@ mcp__serena__write_memory({
 - [ ] CHANGELOG follows Keep a Changelog format
 - [ ] CLAUDE docs updated with decisions
 - [ ] Serena memories saved for key insights
+- [ ] JIRA issue updated (if applicable)
 - [ ] All code examples are correct
 - [ ] All links work properly
 ```
 
-#### 7B. Consistency Check
+#### 8B. Consistency Check
 
 ```
 - [ ] Terminology is consistent
@@ -472,7 +638,7 @@ mcp__serena__write_memory({
 - [ ] Language (Korean) used consistently
 ```
 
-#### 7C. Quality Check
+#### 8C. Quality Check
 
 ```
 - [ ] Information is clear and concise
@@ -484,13 +650,13 @@ mcp__serena__write_memory({
 
 ---
 
-### Phase 8: Cleanup Workflow Artifacts
+### Phase 9: Cleanup Workflow Artifacts
 
 **Objective**: 워크플로우 아티팩트를 정리합니다.
 
 ⚠️ **Note**: `execute-plan` 스킬이 이미 계획/리포트 파일을 정리했을 수 있습니다. 남아있는 파일만 처리합니다.
 
-#### 8A. Identify Remaining Files
+#### 9A. Identify Remaining Files
 
 ```typescript
 // Find remaining artifacts
@@ -499,7 +665,7 @@ Glob({pattern: "*_PLAN.md"})
 Glob({pattern: "*_REVIEW.md"})
 ```
 
-#### 8B. Confirm with User
+#### 9B. Confirm with User
 
 ```
 문서화가 완료되었습니다.
@@ -522,7 +688,7 @@ Glob({pattern: "*_REVIEW.md"})
 어떻게 처리할까요?
 ```
 
-#### 8C. Execute Cleanup
+#### 9C. Execute Cleanup
 
 Based on user choice:
 
@@ -573,6 +739,11 @@ Present comprehensive summary **in Korean**:
 - `code_patterns.md`: [저장된 패턴]
 - `dependencies_changelog.md`: [의존성 변경]
 - `testing_patterns.md`: [테스트 패턴]
+
+### 📋 JIRA Issue (if applicable)
+- **이슈**: [ISSUE-123]
+- **코멘트 추가**: 구현 완료 사항, 테스트 정보, 문서 링크
+- **상태 업데이트**: [In Progress → Done] (if applicable)
 
 ### 📚 추가 문서 (if created)
 - [Migration Guide]
@@ -681,9 +852,10 @@ This skill does not require additional resource directories (scripts/, reference
 1. Use Glob/Read tools to find and read artifacts
 2. Use Edit/Write tools to update documentation
 3. Use Serena MCP tools for memory storage
-4. Use Sequential Thinking for organization
-5. Follow the 8-phase systematic documentation process
-6. Maintain comprehensive documentation quality
-7. Handle cleanup with user confirmation
+4. Use Atlassian MCP tools for JIRA integration
+5. Use Sequential Thinking for organization
+6. Follow the 9-phase systematic documentation process
+7. Maintain comprehensive documentation quality
+8. Handle cleanup with user confirmation
 
 The skill is self-contained and ready for use without external dependencies.

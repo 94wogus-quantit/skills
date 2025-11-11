@@ -5,8 +5,8 @@
     "email": "94wogus@quantit.io"
   },
   "metadata": {
-    "description": "개인적으로 사용할 Claude Code skills 모음 - 이슈 분석, 계획 수립, 체계적 실행",
-    "version": "1.0.0"
+    "description": "개인적으로 사용할 Claude Code skills 모음 - 이슈 분석, 계획 수립, 체계적 실행, 종합 문서화",
+    "version": "1.1.0"
   },
   "plugins": [
     {

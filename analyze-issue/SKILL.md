@@ -5,6 +5,24 @@ description: Systematically analyze the root cause of bugs and issues using mult
 
 # Analyze Issue Root Cause
 
+## ⚠️ CRITICAL LANGUAGE POLICY
+
+**DEFAULT LANGUAGE: KOREAN (한국어)**
+
+ALL outputs, documentation, reports, and communications MUST be in **KOREAN** unless explicitly requested otherwise by the user.
+
+- ✅ **Report files**: Write in Korean
+- ✅ **Analysis**: Perform in Korean
+- ✅ **Comments**: Write in Korean
+- ✅ **Explanations**: Provide in Korean
+- ✅ **User communication**: Respond in Korean
+
+**Exception**: If the user writes in another language, match that language for responses.
+
+**This is a MANDATORY requirement. Do NOT default to English.**
+
+---
+
 ## Overview
 
 Systematically analyze bugs and issues to identify root causes using a structured, multi-perspective approach. This skill combines JIRA/Atlassian integration, Sentry error tracking, codebase investigation with Serena, and sequential thinking to produce comprehensive analysis reports.

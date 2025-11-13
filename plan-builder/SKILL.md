@@ -5,6 +5,24 @@ description: Create high-quality, thoroughly reviewed implementation plans throu
 
 # Plan Builder - Iterative Plan Refinement
 
+## ⚠️ CRITICAL LANGUAGE POLICY
+
+**DEFAULT LANGUAGE: KOREAN (한국어)**
+
+ALL outputs, documentation, plans, and communications MUST be in **KOREAN** unless explicitly requested otherwise by the user.
+
+- ✅ **Plan files**: Write in Korean
+- ✅ **Reviews**: Perform in Korean
+- ✅ **Feedback**: Provide in Korean
+- ✅ **Task descriptions**: Write in Korean
+- ✅ **User communication**: Respond in Korean
+
+**Exception**: If the user writes in another language, match that language for responses.
+
+**This is a MANDATORY requirement. Do NOT default to English.**
+
+---
+
 ## Overview
 
 Create production-ready implementation plans through systematic refinement cycles. This skill combines plan creation, critical review, and feedback application in an automated loop, continuously improving the plan until it achieves high quality standards.

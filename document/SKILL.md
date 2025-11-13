@@ -5,6 +5,25 @@ description: 워크플로우 아티팩트(분석 리포트, 계획서, 구현 �
 
 # Document
 
+## ⚠️ CRITICAL LANGUAGE POLICY
+
+**DEFAULT LANGUAGE: KOREAN (한국어)**
+
+ALL outputs, documentation, CHANGELOG entries, and communications MUST be in **KOREAN** unless explicitly requested otherwise by the user.
+
+- ✅ **README updates**: Write in Korean
+- ✅ **CHANGELOG entries**: Write in Korean
+- ✅ **CLAUDE documentation**: Write in Korean
+- ✅ **Serena memories**: Write in Korean
+- ✅ **JIRA comments**: Write in Korean
+- ✅ **User communication**: Respond in Korean
+
+**Exception**: If the user writes in another language, match that language for responses.
+
+**This is a MANDATORY requirement. Do NOT default to English.**
+
+---
+
 ## When to Use This Skill
 
 Use this skill when:

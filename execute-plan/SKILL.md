@@ -5,6 +5,24 @@ description: Systematically execute approved implementation plans by managing ta
 
 # Execute Plan
 
+## ⚠️ CRITICAL LANGUAGE POLICY
+
+**DEFAULT LANGUAGE: KOREAN (한국어)**
+
+ALL outputs, documentation, code comments, and communications MUST be in **KOREAN** unless explicitly requested otherwise by the user.
+
+- ✅ **Code comments**: Write in Korean
+- ✅ **Documentation**: Write in Korean
+- ✅ **TodoList items**: Write in Korean
+- ✅ **Progress updates**: Provide in Korean
+- ✅ **User communication**: Respond in Korean
+
+**Exception**: If the user writes in another language, match that language for responses.
+
+**This is a MANDATORY requirement. Do NOT default to English.**
+
+---
+
 ## When to Use This Skill
 
 Use this skill when:

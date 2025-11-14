@@ -55,14 +55,101 @@ Gather comprehensive context from all available sources:
   - Comments and discussion threads
 - Check for linked issues or sub-tasks
 
-**2. Sentry Error Investigation** (if mentioned)
-- Use `mcp__sentry__search_issues` to find related errors
-- Use `mcp__sentry__get_issue_details` for specific issue IDs
-- Extract:
-  - Stack traces and error messages
-  - Breadcrumbs and context
-  - Affected users and frequency
-  - Error patterns and trends
+**2. Sentry Error Investigation** (if Sentry URL or error mentioned)
+
+⚠️ **IMPORTANT**: ALWAYS search Sentry for related errors, even if not explicitly mentioned in JIRA.
+
+**A. Search for Related Errors by Natural Language**
+
+```typescript
+// Search for errors related to the issue description
+// Use natural language queries based on the issue
+mcp__sentry__search_events({
+  organizationSlug: 'your-org',
+  naturalLanguageQuery: 'database connection timeout errors in the last 7 days'
+  // or: 'authentication failures for user login'
+  // or: 'null pointer exceptions in payment service'
+})
+```
+
+**B. Search for Specific Error Patterns**
+
+```typescript
+// If you have error message or stack trace
+mcp__sentry__search_events({
+  organizationSlug: 'your-org',
+  naturalLanguageQuery: 'TypeError Cannot read property of undefined in checkout.js'
+})
+
+// Search by time range
+mcp__sentry__search_events({
+  organizationSlug: 'your-org',
+  naturalLanguageQuery: 'all errors in payment-service from last 24 hours'
+})
+```
+
+**C. Get Detailed Error Information**
+
+```typescript
+// If Sentry URL provided (e.g., https://sentry.io/issues/PROJECT-123/)
+mcp__sentry__get_issue_details({
+  issueUrl: 'https://sentry.io/issues/PROJECT-123/'
+})
+
+// Or use issue ID
+mcp__sentry__get_issue_details({
+  organizationSlug: 'your-org',
+  issueId: 'PROJECT-123'
+})
+```
+
+**D. Analyze Error Counts and Statistics**
+
+```typescript
+// Count frequency of specific errors
+mcp__sentry__search_events({
+  organizationSlug: 'your-org',
+  naturalLanguageQuery: 'count of database timeout errors today'
+})
+
+// Check error trends
+mcp__sentry__search_events({
+  organizationSlug: 'your-org',
+  naturalLanguageQuery: 'total errors in authentication module this week'
+})
+```
+
+**E. Extract Key Information**
+
+From Sentry results, extract:
+- **Stack traces**: 정확한 에러 발생 위치 (파일명, 라인 번호)
+- **Error messages**: 에러 메시지 및 타입
+- **Breadcrumbs**: 에러 발생 전 사용자 행동 추적
+- **Context**: 요청 정보, 환경 변수, 사용자 데이터
+- **Frequency**: 에러 발생 빈도 및 영향받는 사용자 수
+- **Trends**: 시간대별 에러 증감 패턴
+- **Related events**: 같은 사용자/세션의 다른 에러
+
+**F. Common Search Patterns**
+
+```typescript
+// By component/service
+'errors in payment-service'
+'exceptions in user-authentication'
+
+// By error type
+'TypeError exceptions'
+'database connection errors'
+'404 not found errors'
+
+// By time and severity
+'critical errors in the last hour'
+'all exceptions since deployment yesterday'
+
+// By user impact
+'errors affecting more than 100 users'
+'high frequency errors today'
+```
 
 **3. Additional Context**
 - Read any file paths or code references provided

@@ -1,6 +1,6 @@
 ---
 name: execute-plan
-description: Systematically execute approved implementation plans by managing task flow, tracking progress with TodoList, running tests, and ensuring all success criteria are met. Cleans up plan/report files after verification. Use this skill when you have an approved plan file (e.g., *_PLAN.md) and need to implement it step-by-step with comprehensive tracking and verification. README updates are handled by the 'document' skill.
+description: Systematically execute approved implementation plans by managing task flow, tracking progress with TodoList, running tests, and ensuring all success criteria are met. Focus purely on implementation and testing. Use this skill when you have an approved plan file (e.g., *_PLAN.md) and need to implement it step-by-step with comprehensive tracking and verification. Documentation and cleanup are handled by the 'document' skill.
 ---
 
 # Execute Plan
@@ -39,21 +39,20 @@ analyze-issue → plan-builder → **execute-plan** → document
 
 ## Overview
 
-This skill executes approved implementation plans through a 7-phase systematic process:
+This skill executes approved implementation plans through a 6-phase systematic process:
 
 1. **Plan Loading & Validation**: Load plan file, parse tasks, verify prerequisites
 2. **TodoList Setup**: Create comprehensive TodoList from all plan tasks
 3. **Task Execution**: Execute tasks sequentially, respecting dependencies
 4. **Testing & Verification**: Run tests and verify success criteria
 5. **Documentation**: Update code documentation and save learnings
-6. **Verification & Cleanup**: Verify plan completion, clean up plan/report files
-7. **Summary**: Present comprehensive execution report
+6. **Summary**: Present comprehensive execution report
 
-**Note**: README updates are handled by the `document` skill, not this skill.
+**Note**: Project documentation and file cleanup are handled by the `document` skill, not this skill.
 
 ---
 
-## Workflow: 7-Phase Execution Process
+## Workflow: 6-Phase Execution Process
 
 ### Phase 1: Plan Loading and Validation
 
@@ -414,134 +413,7 @@ mcp__serena__think_about_whether_you_are_done()
 - Documentation updated ✅
 - Learnings captured ✅
 
-### Phase 6: Verify and Cleanup Plan/Report Files
-
-**Objective**: Verify plan completion, then clean up temporary plan and report files.
-
-**⚠️ CRITICAL**: Do NOT skip this phase. Plan and report files must be cleaned up after verification.
-
-#### 6A. Verification Process
-
-1. **Re-read Plan File**
-   ```typescript
-   Read({file_path: planFilePath})
-   ```
-
-2. **Verify Plan Completion**
-   For each major item in the plan:
-   ```
-   Plan Item: [Feature/Task from plan]
-   - [ ] Implemented?
-   - [ ] Tests passing?
-   - [ ] Code reviewed?
-   - [ ] Acceptance criteria met?
-   ```
-
-3. **Final Verification Checklist**
-   ```
-   - [ ] All tasks completed
-   - [ ] All tests passing
-   - [ ] All success criteria met
-   - [ ] Code documentation updated
-   - [ ] Learnings captured in Serena memory
-   - [ ] JIRA issues updated (if applicable)
-   - [ ] No unresolved issues remain
-   ```
-
-**Note**: README updates will be handled by the `document` skill.
-
-#### 6B. Find Related Report Files
-
-```typescript
-// Search for analysis report files
-mcp__serena__list_dir({relative_path: ".", recursive: false})
-// Look for: *_REPORT.md files
-
-// Common patterns:
-// - [ISSUE_ID]_REPORT.md
-// - [FEATURE]_REPORT.md
-// - Files referenced in the plan's "Based On" field
-```
-
-#### 6C. Verify Report Information (If Reports Found)
-
-```typescript
-// Read report file
-Read({file_path: reportFilePath})
-
-// Verify:
-- [ ] Root cause addressed in implementation
-- [ ] Recommended fixes implemented
-- [ ] Identified code issues resolved
-- [ ] Suggested tests added
-- [ ] Related areas reviewed
-```
-
-#### 6D. Delete Plan and Report Files
-
-**Only after ALL verification passes**:
-
-1. **Confirm with User**:
-   ```
-   "✅ Verification Complete
-
-   Plan execution complete. All tasks have been implemented and verified.
-
-   Implementation summary:
-   - ✅ All tasks completed
-   - ✅ All tests passing
-   - ✅ Code documentation updated
-   - ✅ Learnings captured
-
-   Related analysis reports found:
-   - [REPORT_FILE]: Root cause addressed, all fixes implemented ✅
-
-   May I proceed to delete these temporary files?
-   - Plan file: [PLAN_FILE]
-   - Report file(s): [REPORT_FILE(s)]
-
-   Note: README updates will be handled by the 'document' skill.
-
-   (Type 'yes' to confirm deletion)"
-   ```
-
-2. **After User Confirmation**:
-   ```bash
-   # Delete plan file
-   rm [PLAN_FILE]
-
-   # Delete report files
-   rm [REPORT_FILE_1] [REPORT_FILE_2]
-
-   # Verify deletion
-   ls -la [PLAN_FILE] [REPORT_FILES]
-   # Should show: No such file or directory
-   ```
-
-3. **Confirm Deletion**:
-   ```
-   "✅ Cleanup Complete
-
-   Deleted files:
-   - ❌ [PLAN_FILE] (removed)
-   - ❌ [REPORT_FILE(s)] (removed)
-
-   All implementation details have been preserved in:
-   - ✅ Source code (implementation complete)
-   - ✅ Code documentation (inline comments and docs updated)
-   - ✅ Serena memory (learnings captured)
-   - ✅ JIRA (issue updated, if applicable)
-
-   Run the 'document' skill to update project documentation (README, CHANGELOG, etc.)
-   "
-   ```
-
-**What NOT to Delete**:
-- ❌ Do not delete if verification fails
-- ❌ Do not delete if user doesn't confirm
-- ❌ Do not delete if unresolved issues remain
-- ❌ Do not delete if tests are not passing
-- ❌ Do not delete reports if fixes not fully implemented
+**Next Step**: Run the `document` skill to update project documentation (README, CHANGELOG, CLAUDE.md) and clean up workflow artifact files.
 
 ---
 
@@ -746,25 +618,18 @@ Read({file_path: reportFilePath})
 - ✅ Best practices documented
 - ✅ Challenges and solutions captured
 
-**Note**: Project-level documentation (README, CHANGELOG) updates are handled by the 'document' skill
+**Note**: Project-level documentation (README, CHANGELOG) and file cleanup are handled by the 'document' skill
 
 ---
 
-## 🗑️ Plan and Report File Cleanup
+## 🔄 Next: Run Document Skill
 
-### Verification
-- ✅ Plan file reviewed: [PLAN_FILE]
-- ✅ Report file(s) reviewed: [REPORT_FILE(s)] (if applicable)
-- ✅ All tasks completed successfully
-- ✅ Root cause addressed (if from report)
-- ✅ Recommended fixes implemented (if from report)
-
-### Deletion
-- ✅ Plan file deleted: [PLAN_FILE] ❌ (removed)
-- ✅ Report file(s) deleted: [REPORT_FILE(s)] ❌ (removed, if applicable)
-- ✅ Deletion confirmed: Files no longer exist
-
-**Note**: Run the 'document' skill after this to update project documentation
+**IMPORTANT**: After execute-plan completes, run the `document` skill to:
+- ✅ Update README with new features
+- ✅ Add CHANGELOG entries
+- ✅ Update CLAUDE.md with architectural decisions
+- ✅ Clean up workflow artifacts (*_PLAN.md, *_REPORT.md)
+- ✅ Update JIRA issues (if applicable)
 
 ---
 

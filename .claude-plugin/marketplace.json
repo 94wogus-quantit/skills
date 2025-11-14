@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "개인적으로 사용할 Claude Code skills 모음 - 이슈 분석, 계획 수립, 체계적 실행, 종합 문서화 (한국어 기본)",
-    "version": "1.2.0"
+    "version": "1.3.0"
   },
   "plugins": [
     {

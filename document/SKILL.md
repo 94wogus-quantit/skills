@@ -62,6 +62,24 @@ analyze-issue → plan-builder → execute-plan → **document**
 
 ---
 
+## Documentation Strategy
+
+### Documentation Purpose and Audience
+
+| 문서 | 목적 | 대상 독자 | 업데이트 시점 |
+|------|------|-----------|---------------|
+| **README.md** | 프로젝트 개요 및 온보딩 | 신규 개발자 | 주요 아키텍처 변경 시 |
+| **CLAUDE.md** | AI 작업 가이드라인 | Claude Code | 워크플로우/컨벤션 변경 시 |
+| **CHANGELOG.md** | 상세 변경 히스토리 | 모든 개발자, PM | 모든 기능 구현/버그 수정 후 |
+| **Serena Memory** | 복잡한 기술 패턴 | Claude Code | 50줄 이상 코드 변경 시 |
+
+**Key Principles**:
+- 각 문서는 명확한 목적과 대상 독자를 가짐
+- 중복을 피하고 적절한 문서에 정보 배치
+- 유지보수 가능한 문서 구조 유지
+
+---
+
 ## Workflow: 9-Phase Documentation Process
 
 ### Phase 1: Discovery and Collection
@@ -673,7 +691,7 @@ mcp__atlassian__transitionJiraIssue({
 
 **Objective**: 워크플로우 아티팩트를 정리합니다.
 
-⚠️ **Note**: `execute-plan` 스킬이 이미 계획/리포트 파일을 정리했을 수 있습니다. 남아있는 파일만 처리합니다.
+⚠️ **Note**: `execute-plan` 스킬은 파일 정리를 하지 않습니다. 이 스킬에서 모든 워크플로우 아티팩트를 정리합니다.
 
 #### 9A. Identify Remaining Files
 

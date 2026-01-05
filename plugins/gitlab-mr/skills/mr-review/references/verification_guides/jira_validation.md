@@ -9,7 +9,7 @@ JIRA 티켓의 Acceptance Criteria와 요구사항이 MR 코드에 모두 구현
 ### 예시 1: Acceptance Criteria 1 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "JIRA Acceptance Criteria 1: '사용자는 이메일로 로그인할 수 있어야 한다' - 이 요구사항이 구현되었는가? 이메일 입력 필드, 로그인 API 호출, 인증 로직이 모두 포함되었는가?",
   thoughtNumber: 1,
   totalThoughts: 5,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 2: Acceptance Criteria 2 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "JIRA Acceptance Criteria 2: '비밀번호는 최소 8자 이상이어야 한다' - 검증 로직이 있는가? 프론트엔드와 백엔드 모두에서 검증하는가? 에러 메시지가 명확한가?",
   thoughtNumber: 2,
   totalThoughts: 5,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 3: Edge Case 요구사항 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "JIRA에 명시된 Edge Case: '잘못된 비밀번호 5회 입력 시 계정 잠금' - 이 요구사항이 구현되었는가? 시도 횟수 추적, 잠금 로직, 잠금 해제 방법이 있는가?",
   thoughtNumber: 3,
   totalThoughts: 5,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 4: 비기능적 요구사항 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "JIRA 비기능적 요구사항: '로그인 API 응답 시간은 500ms 이하여야 한다' - 성능 최적화가 되었는가? 캐싱, 인덱스, 쿼리 최적화가 적용되었는가?",
   thoughtNumber: 4,
   totalThoughts: 5,
@@ -55,7 +55,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 1: JIRA 이슈 조회
 
 ```typescript
-const issue = await mcp__plugin_workflow-skills_atlassian__jira_get_issue({
+const issue = await mcp__plugin_atlassian_atlassian__jira_get_issue({
   issue_key: 'PROJ-123'
 })
 ```
@@ -63,7 +63,7 @@ const issue = await mcp__plugin_workflow-skills_atlassian__jira_get_issue({
 ### 예시 2: JIRA 이슈 검색
 
 ```typescript
-const issues = await mcp__plugin_workflow-skills_atlassian__jira_search({
+const issues = await mcp__plugin_atlassian_atlassian__jira_search({
   jql: "project = PROJ AND status = 'In Progress'"
 })
 ```
@@ -71,7 +71,7 @@ const issues = await mcp__plugin_workflow-skills_atlassian__jira_search({
 ### 예시 3: JIRA 코멘트 추가
 
 ```typescript
-await mcp__plugin_workflow-skills_atlassian__jira_add_comment({
+await mcp__plugin_atlassian_atlassian__jira_add_comment({
   issue_key: 'PROJ-123',
   comment: 'MR 리뷰 완료: AC 모두 충족됨'
 })
@@ -82,7 +82,7 @@ await mcp__plugin_workflow-skills_atlassian__jira_add_comment({
 ### 예시 1: 요구사항 관련 코드 구현 확인
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__find_symbol({
+await mcp__plugin_serena_serena__find_symbol({
   name_path_pattern: "login",
   substring_matching: true
 })
@@ -91,7 +91,7 @@ await mcp__plugin_workflow-skills_serena__find_symbol({
 ### 예시 2: 관련 테스트 파일 검색
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__find_file({
+await mcp__plugin_serena_serena__find_file({
   file_mask: "login*.test.ts",
   relative_path: "."
 })
@@ -100,7 +100,7 @@ await mcp__plugin_workflow-skills_serena__find_file({
 ### 예시 3: 요구사항 관련 패턴 검색
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__search_for_pattern({
+await mcp__plugin_serena_serena__search_for_pattern({
   substring_pattern: "password.*validation|email.*login",
   paths_include_glob: "**/*.ts"
 })
@@ -344,7 +344,7 @@ export class AuthService {
 
 2. **Atlassian MCP로 JIRA 이슈 조회**
    ```typescript
-   const issue = await mcp__plugin_workflow-skills_atlassian__jira_get_issue({
+   const issue = await mcp__plugin_atlassian_atlassian__jira_get_issue({
      issue_key: issueId
    });
    ```
@@ -360,7 +360,7 @@ export class AuthService {
    - 누락된 AC가 있는지 체계적 검증
 
 5. **Serena로 관련 코드 구현 확인**
-   - `mcp__plugin_workflow-skills_serena__find_symbol()`로 AC 관련 함수/클래스 찾기
+   - `mcp__plugin_serena_serena__find_symbol()`로 AC 관련 함수/클래스 찾기
    - 요구사항이 코드로 구현되었는지 확인
 
 6. **테스트 코드 확인**

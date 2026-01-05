@@ -1,0 +1,9 @@
+{
+  "name": "gitlab-mr",
+  "version": "1.0.0",
+  "description": "GitLab MR 관리 도구 - MR 코드 리뷰, discussion 조회/수정/해결",
+  "author": {
+    "name": "94wogus",
+    "email": "94wogus@quantit.io"
+  }
+}

@@ -9,7 +9,7 @@ README.md와 CLAUDE.md의 코딩 컨벤션을 준수하는지 확인합니다.
 ### 예시 1: 네이밍 컨벤션 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "네이밍 컨벤션 검증: 변수명이 camelCase인가? 상수는 UPPER_CASE인가? 클래스는 PascalCase인가? 타입은 PascalCase + Type 접미사인가?",
   thoughtNumber: 1,
   totalThoughts: 5,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 2: 코드 스타일 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "코드 스타일 검증: import 순서가 프로젝트 가이드를 따르는가? (외부 라이브러리 → 내부 모듈 → 타입 순서) 들여쓰기는 2spaces/4spaces 중 어떤 것을 사용하는가?",
   thoughtNumber: 2,
   totalThoughts: 5,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 3: 주석 및 문서화 스타일 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "주석 및 문서화 검증: JSDoc이 필요한 public 함수에 작성되었는가? 주석이 코드의 '무엇'이 아닌 '왜'를 설명하는가?",
   thoughtNumber: 3,
   totalThoughts: 5,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 4: 에러 핸들링 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "에러 핸들링 패턴 검증: 프로젝트의 에러 핸들링 방식(try-catch vs Either 모나드)을 따르는가? Custom Error 클래스를 사용하는가?",
   thoughtNumber: 4,
   totalThoughts: 5,
@@ -55,7 +55,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 1: 코드 패턴 메모리 읽기
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__read_memory({
+await mcp__plugin_serena_serena__read_memory({
   memory_file_name: "code_patterns.md"
 })
 ```
@@ -63,7 +63,7 @@ await mcp__plugin_workflow-skills_serena__read_memory({
 ### 예시 2: 기존 유사 코드 패턴 검색
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__search_for_pattern({
+await mcp__plugin_serena_serena__search_for_pattern({
   pattern: "similar function patterns",
   file_mask: "*.ts"
 })
@@ -72,7 +72,7 @@ await mcp__plugin_workflow-skills_serena__search_for_pattern({
 ### 예시 3: 네이밍 컨벤션 확인용 심볼 검색
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__find_symbol({
+await mcp__plugin_serena_serena__find_symbol({
   symbol_name: "User.*Service|.*Controller|.*Repository"
 })
 ```
@@ -80,7 +80,7 @@ await mcp__plugin_workflow-skills_serena__find_symbol({
 ### 예시 4: Import 구조 패턴 검색
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__search_for_pattern({
+await mcp__plugin_serena_serena__search_for_pattern({
   pattern: "import.*from",
   file_mask: "*.ts"
 })
@@ -307,8 +307,8 @@ export class OrderService {
    - ESLint/Prettier 설정 파일 확인
 
 2. **Serena로 기존 패턴 파악**
-   - `mcp__plugin_workflow-skills_serena__read_memory()`로 코드 패턴 확인
-   - `mcp__plugin_workflow-skills_serena__search_for_pattern()`으로 유사 코드 검색
+   - `mcp__plugin_serena_serena__read_memory()`로 코드 패턴 확인
+   - `mcp__plugin_serena_serena__search_for_pattern()`으로 유사 코드 검색
 
 3. **Sequential Thinking으로 체계적 검증**
    - 네이밍 컨벤션 단계별 확인

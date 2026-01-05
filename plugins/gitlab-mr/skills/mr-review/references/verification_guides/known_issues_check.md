@@ -9,7 +9,7 @@
 ### 예시 1: Null Pointer 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "과거 known_issues에서 발견된 null pointer exception 패턴이 이번 MR 코드에 재현되지 않았는가? Optional chaining(?.) 또는 null check가 적절히 사용되었는가?",
   thoughtNumber: 1,
   totalThoughts: 6,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 2: Race Condition 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "과거 race condition 이슈가 있었던 비동기 처리 패턴이 반복되지 않았는가? Promise.all() 사용 시 에러 핸들링이 올바른가? async/await의 순서가 적절한가?",
   thoughtNumber: 2,
   totalThoughts: 6,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 3: Memory Leak 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "과거 memory leak 이슈가 있었던 패턴이 재현되지 않았는가? Event listener가 적절히 제거되는가? Subscription이 unsubscribe되는가?",
   thoughtNumber: 3,
   totalThoughts: 6,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 4: Off-by-One Error 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "과거 off-by-one error가 발생했던 loop/array 접근 패턴이 반복되지 않았는가? Array 인덱스 접근 시 경계 조건(< vs <=)이 올바른가?",
   thoughtNumber: 4,
   totalThoughts: 6,
@@ -55,7 +55,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 1: 알려진 이슈 메모리 읽기
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__read_memory({
+await mcp__plugin_serena_serena__read_memory({
   memory_file_name: "known_issues.md"
 })
 ```
@@ -63,7 +63,7 @@ await mcp__plugin_workflow-skills_serena__read_memory({
 ### 예시 2: 과거 버그 패턴 검색
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__search_for_pattern({
+await mcp__plugin_serena_serena__search_for_pattern({
   pattern: "null check patterns|async race conditions|memory leak patterns",
   file_mask: "*.ts"
 })
@@ -72,7 +72,7 @@ await mcp__plugin_workflow-skills_serena__search_for_pattern({
 ### 예시 3: 변경된 코드의 참조 추적 (영향 범위 파악)
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__find_referencing_symbols({
+await mcp__plugin_serena_serena__find_referencing_symbols({
   symbol_name: "processPayment" // 변경된 함수명
 })
 ```
@@ -80,7 +80,7 @@ await mcp__plugin_workflow-skills_serena__find_referencing_symbols({
 ### 예시 4: 특정 버그가 있었던 파일과 유사 패턴 검색
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__search_for_pattern({
+await mcp__plugin_serena_serena__search_for_pattern({
   pattern: "addEventListener.*without.*removeEventListener",
   file_mask: "*.ts"
 })
@@ -338,7 +338,7 @@ function processData(data: unknown): void {
 ## 실제 검증 절차
 
 1. **Serena로 알려진 이슈 확인**
-   - `mcp__plugin_workflow-skills_serena__read_memory()`로 `known_issues.md` 읽기
+   - `mcp__plugin_serena_serena__read_memory()`로 `known_issues.md` 읽기
    - 과거 버그 패턴, 취약점, 자주 발생하는 이슈 파악
 
 2. **Sequential Thinking으로 패턴 대조**
@@ -346,11 +346,11 @@ function processData(data: unknown): void {
    - MR 코드에 유사 패턴이 있는지 체계적 확인
 
 3. **Serena로 유사 패턴 검색**
-   - `mcp__plugin_workflow-skills_serena__search_for_pattern()`으로 버그 패턴 검색
+   - `mcp__plugin_serena_serena__search_for_pattern()`으로 버그 패턴 검색
    - 변경된 코드와 과거 버그 코드 비교
 
 4. **영향 범위 추적**
-   - `mcp__plugin_workflow-skills_serena__find_referencing_symbols()`로 변경 영향 범위 확인
+   - `mcp__plugin_serena_serena__find_referencing_symbols()`로 변경 영향 범위 확인
    - 과거 버그가 있었던 모듈에 영향을 주는지 검증
 
 5. **검증 결과 문서화**

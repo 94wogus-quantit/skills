@@ -9,7 +9,7 @@
 ### 예시 1: 단위 테스트 존재 여부 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "새로운 함수 createUser()에 대한 단위 테스트가 있는가? 성공 케이스, 실패 케이스, Edge case를 모두 테스트하는가? 각 테스트 케이스가 독립적으로 실행 가능한가?",
   thoughtNumber: 1,
   totalThoughts: 7,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 2: Edge Case 테스트 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "Edge Case 테스트: null, undefined, 빈 배열, 빈 문자열, 0, -1 등 특수 값에 대한 테스트가 있는가? Boundary 조건(최소값, 최대값)이 테스트되는가?",
   thoughtNumber: 2,
   totalThoughts: 7,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 3: 에러 케이스 테스트 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "에러 케이스 테스트: 예외 상황(네트워크 에러, DB 에러, validation 실패)이 올바르게 테스트되는가? 에러 메시지가 명확한가? 에러 핸들링이 적절한가?",
   thoughtNumber: 3,
   totalThoughts: 7,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 4: 통합 테스트 필요성 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "통합 테스트 필요성: 여러 모듈이 함께 동작하는 기능인가? API 엔드포인트의 전체 flow가 테스트되는가? 데이터베이스와의 연동이 테스트되는가?",
   thoughtNumber: 4,
   totalThoughts: 7,
@@ -53,7 +53,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 5: Mock/Stub 사용 적절성 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "Mock/Stub 사용: 외부 의존성(DB, API, File System)이 적절히 mocking되었는가? Mock이 과도하게 사용되어 실제 동작과 괴리가 발생하지 않는가?",
   thoughtNumber: 5,
   totalThoughts: 7,
@@ -64,7 +64,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 6: 테스트 가독성 및 유지보수성 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "테스트 품질: 테스트 이름이 명확한가? Given-When-Then 패턴을 따르는가? 테스트가 독립적이고 재실행 가능한가? 테스트가 너무 복잡하지 않은가?",
   thoughtNumber: 6,
   totalThoughts: 7,
@@ -75,7 +75,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 7: 커버리지 메트릭 검증
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "커버리지 메트릭: 코드 커버리지가 프로젝트 기준(예: 80%)을 충족하는가? 중요한 비즈니스 로직이 100% 커버되는가? 커버리지 도구(Jest, Istanbul)가 적절히 사용되는가?",
   thoughtNumber: 7,
   totalThoughts: 7,
@@ -88,7 +88,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### 예시 1: 테스트 파일 검색
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__find_file({
+await mcp__plugin_serena_serena__find_file({
   file_mask: "*.test.ts|*.spec.ts|*.test.tsx|*.spec.tsx",
   relative_path: "."
 })
@@ -97,7 +97,7 @@ await mcp__plugin_workflow-skills_serena__find_file({
 ### 예시 2: 테스트 패턴 메모리 읽기
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__read_memory({
+await mcp__plugin_serena_serena__read_memory({
   memory_file_name: "testing_patterns.md"
 })
 ```
@@ -105,7 +105,7 @@ await mcp__plugin_workflow-skills_serena__read_memory({
 ### 예시 3: 테스트되지 않은 함수 찾기
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__find_symbol({
+await mcp__plugin_serena_serena__find_symbol({
   symbol_name: "exported.*function.*without.*test"
 })
 ```
@@ -114,7 +114,7 @@ await mcp__plugin_workflow-skills_serena__find_symbol({
 
 ```typescript
 // user.service.ts -> user.service.test.ts 찾기
-await mcp__plugin_workflow-skills_serena__find_file({
+await mcp__plugin_serena_serena__find_file({
   file_mask: "user.service.test.ts|user.service.spec.ts",
   relative_path: "."
 })

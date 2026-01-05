@@ -2,7 +2,7 @@
 *.zip
 
 # Personal Configuration
-.claude/
+!./.claude/settings.json
 
 # macOS
 .DS_Store

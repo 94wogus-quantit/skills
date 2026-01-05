@@ -58,14 +58,14 @@ Analyzes GitLab MR (Merge Request) changes to perform context-based comprehensiv
 
 **Usage Examples**:
 ```typescript
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "Does the changed code comply with existing architecture layer separation principles? Does it follow the Controller → Service → Repository pattern?",
   thoughtNumber: 1,
   totalThoughts: 7,
   nextThoughtNeeded: true
 })
 
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "SQL Injection vulnerability: Is user input used directly in queries? Are Prepared Statements being used?",
   thoughtNumber: 3,
   totalThoughts: 10,
@@ -92,18 +92,18 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 **Usage Examples**:
 ```typescript
 // Read historical issue patterns from memory
-mcp__plugin_workflow-skills_serena__read_memory({
+mcp__plugin_serena_serena__read_memory({
   memory_file_name: "known_issues.md"
 })
 
 // Search symbol dependencies
-mcp__plugin_workflow-skills_serena__find_referencing_symbols({
+mcp__plugin_serena_serena__find_referencing_symbols({
   name_path: "UserService",
   relative_path: "src/services/user.service.ts"
 })
 
 // Search code patterns
-mcp__plugin_workflow-skills_serena__search_for_pattern({
+mcp__plugin_serena_serena__search_for_pattern({
   substring_pattern: "async.*await",
   paths_include_glob: "**/*.ts"
 })
@@ -126,12 +126,12 @@ mcp__plugin_workflow-skills_serena__search_for_pattern({
 **Usage Examples**:
 ```typescript
 // Query JIRA issue
-mcp__plugin_workflow-skills_atlassian__jira_get_issue({
+mcp__plugin_atlassian_atlassian__jira_get_issue({
   issue_key: "PROJ-123"
 })
 
 // Search Confluence
-mcp__plugin_workflow-skills_atlassian__confluence_search({
+mcp__plugin_atlassian_atlassian__confluence_search({
   query: "title ~ \"API Spec\" AND space = \"TECH\""
 })
 ```
@@ -202,14 +202,14 @@ claude-code exec "Use mr-review skill to review this MR. Branch: feature/user-au
    **1-3. Query JIRA issue details (Atlassian MCP)**
    ```typescript
    // Query JIRA issue
-   mcp__plugin_workflow-skills_atlassian__jira_get_issue({
+   mcp__plugin_atlassian_atlassian__jira_get_issue({
      issue_key: "PROJ-123"
    })
    ```
 
    **1-4. Organize branch objectives (Sequential Thinking)**
    ```typescript
-   mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+   mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
      thought: "Branch objective analysis: What is the purpose of PROJ-123? What are the Acceptance Criteria? What specific goals should this MR achieve?",
      thoughtNumber: 1,
      totalThoughts: 3,
@@ -308,14 +308,14 @@ Detailed processes for each verification item are in `references/verification_gu
    **2-2. Analyze logic with Sequential Thinking**
 
    ```typescript
-   mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+   mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
      thought: "AC#1 'Account lock after 5 failures' analysis: How does current code count failures? Does it check exactly 5? What are the reset conditions?",
      thoughtNumber: 1,
      totalThoughts: 5,
      nextThoughtNeeded: true
    })
 
-   mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+   mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
      thought: "Edge case review: Concurrent login attempts, counter reset after 4 failures then success, missing unlock conditions",
      thoughtNumber: 2,
      totalThoughts: 5,
@@ -537,21 +537,21 @@ Analyze each vulnerability with Sequential Thinking:
 
 ```typescript
 // When vulnerability is found
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "CVE-2021-3749 (SSRF) vulnerability found in axios@0.21.0. severity: CRITICAL. Impact: Server-Side Request Forgery possible",
   thoughtNumber: 1,
   totalThoughts: 3,
   nextThoughtNeeded: true
 })
 
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "Resolution: Update to axios@0.21.2 or higher. No breaking changes (verified in CHANGELOG). Immediate application recommended",
   thoughtNumber: 2,
   totalThoughts: 3,
   nextThoughtNeeded: true
 })
 
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "Impact scope: Used in 11 src/api/*.ts files. Includes production environment. Urgent fix required",
   thoughtNumber: 3,
   totalThoughts: 3,
@@ -824,7 +824,7 @@ Each file includes:
 
 **Solution**:
 1. Check Serena memory directory
-2. Run `mcp__plugin_workflow-skills_serena__list_memories()` to check available memories
+2. Run `mcp__plugin_serena_serena__list_memories()` to check available memories
 3. Create required memory files (architecture_decisions.md, code_patterns.md, known_issues.md)
 
 ---

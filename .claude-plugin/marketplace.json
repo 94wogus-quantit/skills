@@ -5,8 +5,8 @@
     "email": "94wogus@quantit.io"
   },
   "metadata": {
-    "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, Terraform, Amplitude, Slack, Atlassian (한국어 기본)",
-    "version": "3.11.0",
+    "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, GitLab MR, Sequential Thinking, Terraform, Amplitude, Slack, Atlassian (한국어 기본)",
+    "version": "3.12.0",
     "repository": "https://github.com/94wogus-quantit/wogus-plugin",
     "homepage": "https://github.com/94wogus-quantit/wogus-plugin#readme",
     "license": "Private"
@@ -14,11 +14,27 @@
   "plugins": [
     {
       "name": "workflow-bundle",
-      "description": "이슈 분석 → 계획 → 실행 → 문서화 + MR 리뷰 워크플로우 (5 skills + agent + sequential-thinking)",
+      "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우 (4 skills + agent)",
       "category": "development",
       "source": "./plugins/workflow-bundle",
       "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/workflow-bundle",
-      "tags": ["workflow", "analyze", "plan", "execute", "document", "mr-review"]
+      "tags": ["workflow", "analyze", "plan", "execute", "document"]
+    },
+    {
+      "name": "sequential-thinking",
+      "description": "Sequential Thinking MCP 서버 - 체계적인 단계별 사고를 위한 도구",
+      "category": "productivity",
+      "source": "./plugins/sequential-thinking",
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking",
+      "tags": ["mcp", "thinking", "reasoning", "step-by-step"]
+    },
+    {
+      "name": "gitlab-mr",
+      "description": "GitLab MR 관리 - 코드 리뷰, discussion 조회/수정/해결 (3 skills)",
+      "category": "development",
+      "source": "./plugins/gitlab-mr",
+      "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/gitlab-mr",
+      "tags": ["gitlab", "mr", "code-review", "discussion"]
     },
     {
       "name": "terraform",

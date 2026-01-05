@@ -9,7 +9,7 @@ Verify that changed code follows the project's architecture principles and layer
 ### Example 1: Layer Separation Principle Verification
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "Does the changed code follow the existing architecture layer separation principles? Does it follow the Controller → Service → Repository pattern?",
   thoughtNumber: 1,
   totalThoughts: 7,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### Example 2: Dependency Direction Verification
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "Is the dependency direction correct? Does the high-level module not depend on the low-level module? Does the Domain layer not directly reference the Infrastructure layer?",
   thoughtNumber: 2,
   totalThoughts: 7,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### Example 3: Directory Structure Rule Verification
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "Do newly added files follow the project's directory structure rules? Are API endpoints in src/api/ and business logic in src/services/?",
   thoughtNumber: 3,
   totalThoughts: 7,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### Example 4: Architecture Pattern Consistency Verification
 
 ```typescript
-await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
   thought: "If the project uses Clean Architecture/Hexagonal Architecture, does the new code respect those pattern boundaries? Are Ports and Adapters clearly separated?",
   thoughtNumber: 4,
   totalThoughts: 7,
@@ -55,7 +55,7 @@ await mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 ### Example 1: Reading Architecture Decisions Memory
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__read_memory({
+await mcp__plugin_serena_serena__read_memory({
   memory_file_name: "architecture_decisions.md"
 })
 ```
@@ -63,7 +63,7 @@ await mcp__plugin_workflow-skills_serena__read_memory({
 ### Example 2: Tracking Symbols and Dependencies of Changed Files
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__find_referencing_symbols({
+await mcp__plugin_serena_serena__find_referencing_symbols({
   name_path: "UserService", // Newly added class/function name
   relative_path: "src/services/user.service.ts"
 })
@@ -72,7 +72,7 @@ await mcp__plugin_workflow-skills_serena__find_referencing_symbols({
 ### Example 3: Searching Existing Patterns
 
 ```typescript
-await mcp__plugin_workflow-skills_serena__search_for_pattern({
+await mcp__plugin_serena_serena__search_for_pattern({
   substring_pattern: "service layer patterns",
   paths_include_glob: "*.service.ts"
 })
@@ -225,15 +225,15 @@ export class UserRepository implements IUserRepository {
 ## Actual Verification Procedure
 
 1. **Understand project architecture with Serena**
-   - Check stored architecture info with `mcp__plugin_workflow-skills_serena__list_memories()`
-   - Check architecture decisions with `mcp__plugin_workflow-skills_serena__read_memory()`
+   - Check stored architecture info with `mcp__plugin_serena_serena__list_memories()`
+   - Check architecture decisions with `mcp__plugin_serena_serena__read_memory()`
 
 2. **Verify each layer with Sequential Thinking**
    - Systematically verify layer separation principles for each changed file
    - Step-by-step confirmation that dependency direction is correct
 
 3. **Compare with existing patterns using Serena**
-   - Find similar code patterns with `mcp__plugin_workflow-skills_serena__search_for_pattern()`
+   - Find similar code patterns with `mcp__plugin_serena_serena__search_for_pattern()`
    - Compare if new code is consistent with existing patterns
 
 4. **Document verification results**

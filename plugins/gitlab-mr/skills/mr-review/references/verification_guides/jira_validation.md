@@ -9,7 +9,7 @@ JIRA 티켓의 Acceptance Criteria와 요구사항이 MR 코드에 모두 구현
 ### 예시 1: Acceptance Criteria 1 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "JIRA Acceptance Criteria 1: '사용자는 이메일로 로그인할 수 있어야 한다' - 이 요구사항이 구현되었는가? 이메일 입력 필드, 로그인 API 호출, 인증 로직이 모두 포함되었는가?",
   thoughtNumber: 1,
   totalThoughts: 5,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 2: Acceptance Criteria 2 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "JIRA Acceptance Criteria 2: '비밀번호는 최소 8자 이상이어야 한다' - 검증 로직이 있는가? 프론트엔드와 백엔드 모두에서 검증하는가? 에러 메시지가 명확한가?",
   thoughtNumber: 2,
   totalThoughts: 5,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 3: Edge Case 요구사항 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "JIRA에 명시된 Edge Case: '잘못된 비밀번호 5회 입력 시 계정 잠금' - 이 요구사항이 구현되었는가? 시도 횟수 추적, 잠금 로직, 잠금 해제 방법이 있는가?",
   thoughtNumber: 3,
   totalThoughts: 5,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 4: 비기능적 요구사항 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "JIRA 비기능적 요구사항: '로그인 API 응답 시간은 500ms 이하여야 한다' - 성능 최적화가 되었는가? 캐싱, 인덱스, 쿼리 최적화가 적용되었는가?",
   thoughtNumber: 4,
   totalThoughts: 5,

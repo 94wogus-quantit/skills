@@ -126,7 +126,7 @@ fi
    ```
 
 2. **Parse Plan Structure**
-   - Use `mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking` to understand:
+   - Use `mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking` to understand:
      - Task breakdown and priorities (P0 → P1 → P2 → P3)
      - Dependencies between tasks
      - Success criteria for each task
@@ -491,7 +491,7 @@ When files missing tests are found, systematically analyze with Sequential Think
 
 ```typescript
 // Step 1: Analyze function signature
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Analyzing processPayment function: input is amount (number), output is Promise<PaymentResult>",
   thoughtNumber: 1,
   totalThoughts: 6,
@@ -499,7 +499,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 2: Analyze input constraints
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Input constraints: amount must be >= 0 and <= 1,000,000",
   thoughtNumber: 2,
   totalThoughts: 6,
@@ -507,7 +507,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 3: Analyze dependencies
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Dependencies: calls PaymentAPI.process() → needs mocking",
   thoughtNumber: 3,
   totalThoughts: 6,
@@ -515,7 +515,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 4: Identify Edge Cases
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Edge cases: 1) amount = 0 (boundary), 2) amount = 1000000 (max), 3) amount = -1 (negative), 4) amount = 1000001 (overflow)",
   thoughtNumber: 4,
   totalThoughts: 6,
@@ -523,7 +523,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 5: Identify Error Cases
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Error cases: 1) API call failure, 2) network timeout, 3) invalid response format",
   thoughtNumber: 5,
   totalThoughts: 6,
@@ -531,7 +531,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 6: Complete test case design
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Test case design complete: Happy path (2), Edge cases (4), Error cases (2) - Total 8 cases",
   thoughtNumber: 6,
   totalThoughts: 6,

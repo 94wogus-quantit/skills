@@ -9,7 +9,7 @@ Verify that changed code follows the project's architecture principles and layer
 ### Example 1: Layer Separation Principle Verification
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Does the changed code follow the existing architecture layer separation principles? Does it follow the Controller → Service → Repository pattern?",
   thoughtNumber: 1,
   totalThoughts: 7,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### Example 2: Dependency Direction Verification
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Is the dependency direction correct? Does the high-level module not depend on the low-level module? Does the Domain layer not directly reference the Infrastructure layer?",
   thoughtNumber: 2,
   totalThoughts: 7,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### Example 3: Directory Structure Rule Verification
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Do newly added files follow the project's directory structure rules? Are API endpoints in src/api/ and business logic in src/services/?",
   thoughtNumber: 3,
   totalThoughts: 7,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### Example 4: Architecture Pattern Consistency Verification
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "If the project uses Clean Architecture/Hexagonal Architecture, does the new code respect those pattern boundaries? Are Ports and Adapters clearly separated?",
   thoughtNumber: 4,
   totalThoughts: 7,

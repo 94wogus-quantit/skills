@@ -242,7 +242,7 @@ From Sentry results, extract:
 
 ### Phase 2: Hypothesis Generation
 
-Use `mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking` to systematically explore multiple perspectives:
+Use `mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking` to systematically explore multiple perspectives:
 
 **Generate Initial Hypotheses**
 
@@ -318,7 +318,7 @@ mcp__plugin_workflow-skills_serena__find_symbol({
 
 ```typescript
 // Step 1: Measure complexity
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Measuring cyclomatic complexity of UserService/login function: 8 if statements, 2 for loops, 1 switch statement → complexity = 11 (exceeds threshold of 10)",
   thoughtNumber: 1,
   totalThoughts: 5,
@@ -326,7 +326,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 2: Analyze function length
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Measuring function length: 85 lines total → exceeds threshold (50 lines). Reduced readability, possibly multiple responsibilities",
   thoughtNumber: 2,
   totalThoughts: 5,
@@ -334,7 +334,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 3: Responsibility analysis (SRP)
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Responsibility analysis: 1) User authentication, 2) Session management, 3) Logging, 4) Error handling → 4 responsibilities (SRP violation)",
   thoughtNumber: 3,
   totalThoughts: 5,
@@ -342,7 +342,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 4: Code Smells detection
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Code Smells detected: Duplicate code found 3 times (validateUser logic), Magic Numbers 2 instances (3.14, 0.05)",
   thoughtNumber: 4,
   totalThoughts: 5,
@@ -350,7 +350,7 @@ mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
 })
 
 // Step 5: Determine refactoring strategy
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Refactoring strategy: 1) Extract Method for validateUser(), 2) Extract Class for SessionManager, 3) Replace Magic Number with Named Constant",
   thoughtNumber: 5,
   totalThoughts: 5,

@@ -9,7 +9,7 @@
 ### 예시 1: Null Pointer 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "과거 known_issues에서 발견된 null pointer exception 패턴이 이번 MR 코드에 재현되지 않았는가? Optional chaining(?.) 또는 null check가 적절히 사용되었는가?",
   thoughtNumber: 1,
   totalThoughts: 6,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 2: Race Condition 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "과거 race condition 이슈가 있었던 비동기 처리 패턴이 반복되지 않았는가? Promise.all() 사용 시 에러 핸들링이 올바른가? async/await의 순서가 적절한가?",
   thoughtNumber: 2,
   totalThoughts: 6,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 3: Memory Leak 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "과거 memory leak 이슈가 있었던 패턴이 재현되지 않았는가? Event listener가 적절히 제거되는가? Subscription이 unsubscribe되는가?",
   thoughtNumber: 3,
   totalThoughts: 6,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 4: Off-by-One Error 패턴 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "과거 off-by-one error가 발생했던 loop/array 접근 패턴이 반복되지 않았는가? Array 인덱스 접근 시 경계 조건(< vs <=)이 올바른가?",
   thoughtNumber: 4,
   totalThoughts: 6,

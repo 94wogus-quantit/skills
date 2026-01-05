@@ -148,7 +148,7 @@ Collect all necessary context:
 
 **2. Plan Structure Creation**
 
-Use `mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking` to organize the plan.
+Use `mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking` to organize the plan.
 
 Reference the template in `references/plan_template.md` for complete structure.
 
@@ -194,7 +194,7 @@ This phase implements an explicit WHILE-style loop that repeats until ZERO issue
    - Review all sections comprehensively
 
 3. **Perform FULL FRESH Critical Review** ⚠️ MANDATORY
-   - Use `mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking` to analyze
+   - Use `mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking` to analyze
    - Apply **ENTIRE** `references/review_checklist.md` systematically
 
    **⛔ CRITICAL INSTRUCTION**:
@@ -415,7 +415,7 @@ ELSE:
 
 6. **Verification After Changes**
 
-   Use `mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking` to verify:
+   Use `mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking` to verify:
    - [ ] All required changes applied
    - [ ] All testing strategies complete
    - [ ] All task independence issues resolved

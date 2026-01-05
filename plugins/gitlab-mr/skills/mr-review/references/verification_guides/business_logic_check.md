@@ -9,7 +9,7 @@ JIRA 목표 대비 구현이 정확한지 검증합니다. 잘못된 로직, 엣
 ### 예시 1: AC 조건 정확성 분석
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "AC#1 '5회 실패 시 계정 잠금' 분석: 현재 코드에서 실패 횟수를 어떻게 카운트하는가? 5회 정확히 체크하는가? (>= 5 vs == 5) 리셋 조건은 무엇인가?",
   thoughtNumber: 1,
   totalThoughts: 6,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 2: 엣지케이스 검토
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "엣지케이스 검토: 동시 로그인 시도 시 race condition이 있는가? 4회 실패 후 성공 시 카운트가 리셋되는가? 잠금 해제 조건이 명시되어 있는가?",
   thoughtNumber: 2,
   totalThoughts: 6,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 3: 부정 케이스 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "AC에 '~하면 안 된다'는 조건이 있는가? 예: '잠금된 계정은 로그인 시도가 불가해야 한다'. 이 부정 케이스가 코드에 구현되었는가?",
   thoughtNumber: 3,
   totalThoughts: 6,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 4: 데이터 정합성 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "계산 로직 검증: 할인율 계산이 정확한가? 소수점 처리는 어떻게 하는가? 집계 값이 개별 항목의 합과 일치하는가?",
   thoughtNumber: 4,
   totalThoughts: 6,
@@ -53,7 +53,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 5: 상태 전이 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "상태 전이 검증: 주문 상태가 PENDING → CONFIRMED → SHIPPED → DELIVERED 순서로만 변경 가능한가? 잘못된 상태 전이(예: PENDING → DELIVERED)를 방지하는가?",
   thoughtNumber: 5,
   totalThoughts: 6,
@@ -64,7 +64,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 6: 타임아웃/만료 조건 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "시간 관련 조건 검증: AC에 '30분 후 자동 해제'가 있다면, 타이머/스케줄러가 구현되었는가? 시간대(timezone) 처리가 올바른가?",
   thoughtNumber: 6,
   totalThoughts: 6,

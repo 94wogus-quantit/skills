@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, GitLab MR, Sequential Thinking, Terraform, Amplitude, Slack, Atlassian (한국어 기본)",
-    "version": "3.12.0",
+    "version": "3.13.0",
     "repository": "https://github.com/94wogus-quantit/wogus-plugin",
     "homepage": "https://github.com/94wogus-quantit/wogus-plugin#readme",
     "license": "Private"
@@ -30,11 +30,11 @@
     },
     {
       "name": "gitlab-mr",
-      "description": "GitLab MR 관리 - 코드 리뷰, discussion 조회/수정/해결 (3 skills)",
+      "description": "GitLab MR and CI/CD management - code review, discussions, CI status/retry/trigger/cancel with error analysis (7 skills)",
       "category": "development",
       "source": "./plugins/gitlab-mr",
       "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/gitlab-mr",
-      "tags": ["gitlab", "mr", "code-review", "discussion"]
+      "tags": ["gitlab", "mr", "code-review", "discussion", "ci", "pipeline", "cicd"]
     },
     {
       "name": "terraform",

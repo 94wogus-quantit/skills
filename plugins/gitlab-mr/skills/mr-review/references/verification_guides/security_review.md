@@ -9,7 +9,7 @@ OWASP Top 10 및 일반적인 보안 취약점을 체계적으로 검증합니�
 ### 예시 1: SQL Injection 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "SQL Injection 취약점: 사용자 입력이 직접 SQL 쿼리에 사용되는가? Prepared statement 또는 ORM의 parameterized query를 사용하는가? raw query 사용 시 입력 검증이 충분한가?",
   thoughtNumber: 1,
   totalThoughts: 10,
@@ -20,7 +20,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 2: XSS 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "XSS 취약점: 사용자 입력이 렌더링 전에 sanitize되는가? innerHTML 대신 textContent를 사용하는가? React/Vue는 기본적으로 escape하지만, dangerouslySetInnerHTML이나 v-html 사용 시 검증이 있는가?",
   thoughtNumber: 2,
   totalThoughts: 10,
@@ -31,7 +31,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 3: 인증/인가 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "인증/인가: JWT 토큰 검증이 올바른가? 권한 체크가 모든 보호된 엔드포인트에 있는가? Role-based 또는 Permission-based 접근 제어가 적절한가? 토큰 만료 시간이 적절한가?",
   thoughtNumber: 3,
   totalThoughts: 10,
@@ -42,7 +42,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 4: 민감 정보 노출 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "민감 정보 노출: API 키, 비밀번호, JWT secret, 토큰이 하드코딩되지 않았는가? 환경변수 사용이 적절한가? 로그에 민감 정보(비밀번호, 토큰, 개인정보)가 남지 않는가? Git에 .env 파일이 커밋되지 않았는가?",
   thoughtNumber: 4,
   totalThoughts: 10,
@@ -53,7 +53,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 5: CSRF 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "CSRF 보호: 상태 변경 요청(POST, PUT, DELETE)에 CSRF 토큰이 있는가? SameSite 쿠키 속성이 적절히 설정되었는가? CORS 설정이 안전한가?",
   thoughtNumber: 5,
   totalThoughts: 10,
@@ -64,7 +64,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 6: 입력 검증
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "입력 검증: 모든 사용자 입력에 대한 validation이 있는가? 타입 검증, 길이 제한, 허용 문자 제한이 적절한가? 화이트리스트 방식으로 검증하는가?",
   thoughtNumber: 6,
   totalThoughts: 10,
@@ -75,7 +75,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 7: 암호화
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "암호화: 비밀번호가 bcrypt, argon2 등 안전한 해싱 알고리즘으로 저장되는가? HTTPS 사용이 강제되는가? 민감 데이터 전송 시 암호화가 되는가?",
   thoughtNumber: 7,
   totalThoughts: 10,
@@ -86,7 +86,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 8: 에러 메시지 보안
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "에러 메시지 보안: 에러 메시지가 내부 구조나 민감 정보를 노출하지 않는가? 프로덕션 환경에서 스택 트레이스가 노출되지 않는가?",
   thoughtNumber: 8,
   totalThoughts: 10,
@@ -97,7 +97,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 9: Rate Limiting
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Rate Limiting: 브루트 포스 공격 방지를 위한 rate limiting이 있는가? 로그인, API 호출에 적절한 제한이 설정되었는가?",
   thoughtNumber: 9,
   totalThoughts: 10,
@@ -108,7 +108,7 @@ await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
 ### 예시 10: 의존성 보안
 
 ```typescript
-await mcp__plugin_workflow-bundle_sequential-thinking__sequentialthinking({
+await mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "의존성 보안: 알려진 취약점이 있는 패키지를 사용하지 않는가? npm audit, Snyk 등으로 검증되었는가? 불필요한 의존성이 없는가?",
   thoughtNumber: 10,
   totalThoughts: 10,

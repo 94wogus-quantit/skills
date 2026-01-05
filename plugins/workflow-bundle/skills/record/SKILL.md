@@ -168,7 +168,7 @@ Read({file_path: artifactPath})
 
 ```typescript
 // Use sequential thinking to organize
-mcp__plugin_workflow-skills_sequential-thinking__sequentialthinking({
+mcp__plugin_sequential-thinking_sequential-thinking__sequentialthinking({
   thought: "Analyzing workflow artifacts to determine documentation structure",
   thoughtNumber: 1,
   totalThoughts: 5,

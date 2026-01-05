@@ -1,137 +1,163 @@
 ---
 name: list-discussions
-description: GitLab MR의 unresolved discussion 목록을 조회하여 사용자에게 보여줍니다. 현재 브랜치에서 자동으로 MR을 찾거나 MR 번호를 직접 지정할 수 있습니다. Korean triggers: discussion 목록, 디스커션 보기, MR 코멘트, 리뷰 코멘트, unresolved 보기, 미해결 코멘트.
+description: List unresolved discussions on a GitLab MR. Automatically detects MR from current branch or accepts explicit MR number. Supports auto-pagination for MRs with many discussions. Korean triggers: discussion 목록, 디스커션 보기, MR 코멘트, 리뷰 코멘트, unresolved 보기, 미해결 코멘트.
 ---
 
 # List Discussions
 
-## ⚠️ CRITICAL LANGUAGE POLICY
-
-**DEFAULT LANGUAGE: KOREAN (한국어)**
-
-모든 출력, 분석, 커뮤니케이션은 **한국어**로 작성해야 합니다.
-
----
-
 ## Overview
 
-GitLab MR에 달린 **unresolved discussion**들을 조회하여 사용자에게 보기 쉽게 정리해서 보여줍니다.
+Retrieves and displays **unresolved discussions** from a GitLab MR in an organized format.
 
-**주요 기능**:
-- 🔍 **자동 MR 탐지**: 현재 브랜치에서 관련 MR 자동 찾기
-- 📋 **Discussion 목록화**: unresolved discussion만 필터링
-- 📍 **위치 정보**: 파일, 라인, 코드 스니펫 포함
-- 🏷️ **메타데이터**: 작성자, 작성 시간, 심각도 표시
+**Key Features**:
+- **Auto MR Detection**: Finds MR from current branch automatically
+- **Auto-pagination**: Fetches all discussions even for large MRs (100+ discussions)
+- **Filtered View**: Shows only unresolved (actionable) discussions
+- **Rich Metadata**: File path, line number, author, timestamp, code snippet
 
 ---
 
 ## When to Use
 
-**✅ 사용할 때:**
-- MR에 달린 리뷰 코멘트를 확인하고 싶을 때
-- 해결해야 할 discussion이 무엇인지 파악하고 싶을 때
-- fix-discussion skill 실행 전 목록 확인
+**Use this skill when:**
+- Checking review comments on an MR
+- Identifying which discussions need to be addressed
+- Before running `fix-discussion` to see the list
 
-**❌ 사용하지 않을 때:**
-- MR이 없는 브랜치에서 작업 중일 때
-- 이미 모든 discussion이 resolved된 MR
+**Do NOT use when:**
+- Working on a branch without an MR
+- All discussions are already resolved
 
 ---
 
 ## Workflow
 
-### Phase 1: MR 식별
+### Phase 1: MR Identification
 
-**1-1. 사용자 입력 확인**
+**1-1. Check User Input**
 
-사용자가 MR 번호를 제공했는지 확인:
-- 제공됨: 해당 MR 번호 사용
-- 제공 안됨: 현재 브랜치에서 자동 탐지
+Determine if user provided MR number:
+- Provided: Use that MR number
+- Not provided: Auto-detect from current branch
 
-**1-2. 현재 브랜치에서 MR 찾기**
+**1-2. Auto-detect MR from Current Branch**
 
 ```bash
-# 현재 브랜치 이름 확인
+# Get current branch name
 CURRENT_BRANCH=$(git branch --show-current)
 
-# 해당 브랜치의 MR 찾기
+# Find MR for this branch
 glab mr list --source-branch="$CURRENT_BRANCH" --state=opened --json iid,title,web_url
 ```
 
-**1-3. MR이 없는 경우**
+**1-3. Handle No MR Found**
 
 ```
-⚠️ 현재 브랜치 '$CURRENT_BRANCH'에 연결된 열린 MR이 없습니다.
+No open MR found for branch '$CURRENT_BRANCH'.
 
-다음 중 하나를 시도해주세요:
-1. MR 번호를 직접 지정: "MR !123의 discussion 보여줘"
-2. MR을 먼저 생성: `glab mr create`
+Options:
+1. Specify MR number: "Show discussions for MR !123"
+2. Create MR first: `glab mr create`
 ```
 
 ---
 
-### Phase 2: Discussion 조회
+### Phase 2: Fetch Discussions with Pagination
 
-**2-1. MR Discussion 가져오기**
+**2-1. Fetch All Discussions (Auto-pagination)**
+
+GitLab API returns max 100 items per page. For MRs with many discussions, iterate through all pages:
 
 ```bash
-# MR의 모든 discussion 조회 (JSON 형식)
-glab api "projects/:fullpath/merge_requests/${MR_IID}/discussions" | jq '.'
+#!/bin/bash
+# Fetch all discussions with auto-pagination
+
+MR_IID="123"
+PAGE=1
+PER_PAGE=100
+ALL_DISCUSSIONS="[]"
+
+while true; do
+  # Fetch current page
+  RESPONSE=$(glab api "projects/:fullpath/merge_requests/${MR_IID}/discussions?per_page=${PER_PAGE}&page=${PAGE}" 2>/dev/null)
+
+  # Check if empty or error
+  if [[ -z "$RESPONSE" || "$RESPONSE" == "[]" ]]; then
+    break
+  fi
+
+  # Merge results
+  ALL_DISCUSSIONS=$(echo "$ALL_DISCUSSIONS $RESPONSE" | jq -s 'add')
+
+  # Check if we got fewer items than requested (last page)
+  COUNT=$(echo "$RESPONSE" | jq 'length')
+  if [[ "$COUNT" -lt "$PER_PAGE" ]]; then
+    break
+  fi
+
+  ((PAGE++))
+
+  # Safety limit: max 10 pages (1000 discussions)
+  if [[ "$PAGE" -gt 10 ]]; then
+    echo "Warning: Reached pagination limit (1000 discussions)"
+    break
+  fi
+done
+
+echo "$ALL_DISCUSSIONS"
 ```
 
-**2-2. Unresolved Discussion 필터링**
+**2-2. Filter Unresolved Discussions**
 
 ```bash
-# unresolved인 것만 필터링
-glab api "projects/:fullpath/merge_requests/${MR_IID}/discussions" | jq '[
+# Filter only unresolved discussions
+echo "$ALL_DISCUSSIONS" | jq '[
   .[] | select(.notes[0].resolvable == true and .notes[0].resolved == false)
 ]'
 ```
 
-**2-3. 필요한 정보 추출**
+**2-3. Extract Required Fields**
 
-각 discussion에서 추출할 정보:
-- `id`: discussion ID (resolve 시 필요)
-- `notes[0].body`: 코멘트 내용
-- `notes[0].author.name`: 작성자
-- `notes[0].created_at`: 작성 시간
-- `notes[0].position.new_path`: 파일 경로
-- `notes[0].position.new_line`: 라인 번호
+For each discussion, extract:
+- `id`: Discussion ID (needed for resolve)
+- `notes[0].body`: Comment content
+- `notes[0].author.name`: Author name
+- `notes[0].created_at`: Creation timestamp
+- `notes[0].position.new_path`: File path
+- `notes[0].position.new_line`: Line number
 
 ---
 
-### Phase 3: 결과 표시
+### Phase 3: Display Results
 
-**3-1. 요약 테이블**
+**3-1. Summary Table**
 
 ```markdown
-## 📋 Unresolved Discussions (N개)
+## Unresolved Discussions (N total)
 
-| # | 파일 | 라인 | 제목/요약 | 작성자 |
-|---|------|------|----------|--------|
-| 1 | src/api/user.ts | 45 | SQL Injection 위험 | reviewer1 |
-| 2 | src/services/auth.ts | 78 | 에러 핸들링 누락 | reviewer2 |
-| 3 | src/utils/validation.ts | 12 | 변수명 개선 필요 | reviewer1 |
+| # | File | Line | Summary | Author |
+|---|------|------|---------|--------|
+| 1 | src/api/user.ts | 45 | SQL Injection risk | reviewer1 |
+| 2 | src/services/auth.ts | 78 | Missing error handling | reviewer2 |
+| 3 | src/utils/validation.ts | 12 | Naming improvement needed | reviewer1 |
 ```
 
-**3-2. 상세 정보**
+**3-2. Detailed View**
 
-각 discussion의 상세 내용:
+For each discussion:
 
 ```markdown
-### Discussion #1: SQL Injection 위험
+### Discussion #1: SQL Injection Risk
 
-- **파일**: `src/api/user.ts:45`
-- **작성자**: reviewer1
-- **작성일**: 2025-01-05 10:30
+- **File**: `src/api/user.ts:45`
+- **Author**: reviewer1
+- **Created**: 2025-01-05 10:30
 - **Discussion ID**: `abc123def456`
 
-**코멘트 내용**:
-> 🔴 **Critical**: SQL Injection Vulnerability
->
-> User input is directly used in query...
+**Comment**:
+> This query is vulnerable to SQL injection. User input is directly concatenated...
 
-**관련 코드**:
+**Code Context**:
 ```typescript
 const query = `SELECT * FROM users WHERE id = ${userId}`;
 ```
@@ -139,19 +165,30 @@ const query = `SELECT * FROM users WHERE id = ${userId}`;
 ---
 ```
 
-**3-3. 다음 단계 안내**
+**3-3. Pagination Info**
+
+If multiple pages were fetched:
 
 ```markdown
-## 🚀 다음 단계
+## Pagination Info
+- **Total Discussions**: 150
+- **Pages Fetched**: 2
+- **Unresolved**: 12
+```
 
-특정 discussion을 수정하려면:
+**3-4. Next Steps**
+
+```markdown
+## Next Steps
+
+To fix a specific discussion:
 ```
-fix-discussion skill로 Discussion #1 수정해줘
+Run fix-discussion skill for Discussion #1
 ```
 
-또는 모든 discussion을 순차적으로 수정하려면:
+To fix all discussions:
 ```
-fix-discussion skill로 모든 discussion 수정해줘
+Run fix-discussion skill for all discussions
 ```
 ```
 
@@ -159,68 +196,69 @@ fix-discussion skill로 모든 discussion 수정해줘
 
 ## Output Format
 
-### 성공 시
+### Success (with discussions)
 
 ```markdown
 # MR !456 - Unresolved Discussions
 
-**MR 제목**: Implement user authentication
-**브랜치**: feature/user-auth → main
-**총 Discussion**: 5개 (unresolved: 3개)
+**MR Title**: Implement user authentication
+**Branch**: feature/user-auth → main
+**Total Discussions**: 5 (unresolved: 3)
 
-## 📋 Unresolved Discussions
+## Summary Table
 
-[요약 테이블]
+[table]
 
-[상세 정보]
+## Details
 
-## 🚀 다음 단계
+[detailed view for each discussion]
+
+## Next Steps
 ...
 ```
 
-### Discussion 없을 때
+### Success (no unresolved discussions)
 
 ```markdown
-# MR !456 - All Discussions Resolved ✅
+# MR !456 - All Discussions Resolved
 
-**MR 제목**: Implement user authentication
-**브랜치**: feature/user-auth → main
+**MR Title**: Implement user authentication
+**Branch**: feature/user-auth → main
 
-🎉 모든 discussion이 해결되었습니다!
-
-MR을 머지할 준비가 되었습니다.
+All discussions have been resolved.
+This MR is ready to merge.
 ```
 
 ---
 
 ## glab CLI Reference
 
-### 필수 명령어
+### Essential Commands
 
 ```bash
-# MR 목록 조회
+# List MRs
 glab mr list --source-branch="branch-name" --state=opened
 
-# MR 상세 정보
+# MR details
 glab mr view <MR_IID> --json
 
-# Discussion 조회 (API 직접 호출)
-glab api "projects/:fullpath/merge_requests/<MR_IID>/discussions"
+# Fetch discussions (with pagination)
+glab api "projects/:fullpath/merge_requests/<MR_IID>/discussions?per_page=100&page=1"
 
-# 특정 Discussion 조회
+# Fetch specific discussion
 glab api "projects/:fullpath/merge_requests/<MR_IID>/discussions/<DISCUSSION_ID>"
 ```
 
-### 유용한 jq 필터
+### Useful jq Filters
 
 ```bash
-# unresolved만 필터링
+# Filter unresolved only
 jq '[.[] | select(.notes[0].resolvable == true and .notes[0].resolved == false)]'
 
-# 파일별 그룹핑
+# Group by file
 jq 'group_by(.notes[0].position.new_path)'
 
-# 필요한 필드만 추출
+# Extract key fields
 jq '[.[] | {
   id: .id,
   file: .notes[0].position.new_path,
@@ -228,51 +266,63 @@ jq '[.[] | {
   body: .notes[0].body,
   author: .notes[0].author.name
 }]'
+
+# Count by author
+jq 'group_by(.notes[0].author.name) | map({author: .[0].notes[0].author.name, count: length})'
 ```
 
 ---
 
 ## Error Handling
 
-### glab 인증 실패
+### glab Authentication Failure
 
 ```
-❌ GitLab 인증 실패
+GitLab authentication failed.
 
-glab이 인증되어 있는지 확인하세요:
+Check glab auth status:
 $ glab auth status
 
-인증이 안 되어 있다면:
+If not authenticated:
 $ glab auth login
 ```
 
-### API 접근 권한 없음
+### API Access Denied
 
 ```
-❌ MR !456에 접근할 수 없습니다.
+Cannot access MR !456.
 
-가능한 원인:
-1. MR이 존재하지 않음
-2. 해당 프로젝트에 접근 권한 없음
-3. MR이 이미 머지/닫힘
+Possible causes:
+1. MR does not exist
+2. No access to this project
+3. MR is already merged/closed
 
-확인:
+Verify:
 $ glab mr view 456
+```
+
+### Pagination Timeout
+
+```
+Pagination took too long (exceeded 10 pages / 1000 discussions).
+
+This MR has an unusually large number of discussions.
+Consider filtering by file or reviewing in GitLab UI.
 ```
 
 ---
 
 ## Integration with fix-discussion
 
-이 skill의 출력은 `fix-discussion` skill의 입력으로 사용됩니다.
+This skill's output feeds into the `fix-discussion` skill.
 
 **Workflow**:
-1. `list-discussions` → discussion 목록 확인
-2. 사용자가 수정할 discussion 선택
-3. `fix-discussion` → 코드 수정, 코멘트, resolve
+1. `list-discussions` → Review discussion list
+2. User selects discussions to fix
+3. `fix-discussion` → Code fix, reply, resolve
 
-**데이터 전달**:
+**Data Passed**:
 - Discussion ID
-- 파일 경로
-- 라인 번호
-- 코멘트 내용 (수정 가이드)
+- File path
+- Line number
+- Comment content (fix guidance)

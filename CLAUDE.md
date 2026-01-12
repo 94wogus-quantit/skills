@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.12.0):**
+**Key Artifacts (v3.14.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -15,9 +15,9 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.12.0)
+wogus-plugin/  (v3.14.0)
 ├── .claude-plugin/
-│   └── marketplace.json       # 카탈로그 (7 plugins)
+│   └── marketplace.json       # 카탈로그 (8 plugins)
 │
 ├── plugins/                   # 모든 플러그인
 │   ├── workflow-bundle/       # 메인 워크플로우 플러그인
@@ -31,12 +31,11 @@ wogus-plugin/  (v3.12.0)
 │   │       └── requirement-validator.md
 │   ├── gitlab-mr/             # GitLab MR 관리
 │   ├── sequential-thinking/   # Sequential Thinking MCP
-│   │   ├── .claude-plugin/plugin.json
-│   │   └── .mcp.json
 │   ├── terraform/
 │   ├── amplitude/
 │   ├── slack/
-│   └── atlassian/
+│   ├── atlassian/
+│   └── github/                # GitHub MCP (v3.14.0 NEW)
 │
 ├── CLAUDE.md            # This file
 ├── README.md            # User-facing documentation
@@ -164,8 +163,8 @@ This repository is distributed as a **Claude Code Marketplace**.
 ### Configuration
 
 - **File**: `.claude-plugin/marketplace.json`
-- **Version**: Semantic versioning (current: v3.12.0)
-- **Plugins**: 7개 독립 플러그인 (workflow-bundle, gitlab-mr, sequential-thinking, terraform, amplitude, slack, atlassian)
+- **Version**: Semantic versioning (current: v3.14.0)
+- **Plugins**: 8개 독립 플러그인 (workflow-bundle, gitlab-mr, sequential-thinking, terraform, amplitude, slack, atlassian, github)
 - **MCP Servers**: sequential-thinking 별도 플러그인으로 분리 (외부 MCP는 별도 설치)
 
 ### Publishing Workflow
@@ -180,12 +179,13 @@ This repository is distributed as a **Claude Code Marketplace**.
 ```bash
 /marketplace add git@github.com:94wogus-quantit/wogus-plugin.git
 /plugin install wogus-plugins:workflow-bundle      # 4 skills + agent
-/plugin install wogus-plugins:gitlab-mr            # GitLab MR 관리 (3 skills)
+/plugin install wogus-plugins:gitlab-mr            # GitLab MR 관리 (7 skills)
 /plugin install wogus-plugins:sequential-thinking  # Sequential Thinking MCP
 /plugin install wogus-plugins:terraform            # Terraform MCP
 /plugin install wogus-plugins:amplitude            # Amplitude MCP
 /plugin install wogus-plugins:slack                # Slack MCP
 /plugin install wogus-plugins:atlassian            # Atlassian MCP
+/plugin install wogus-plugins:github               # GitHub MCP
 ```
 
 ## Development Best Practices
@@ -418,10 +418,10 @@ v3.0.0 ~ v3.2.1, v2.0.0 ~ v2.4.0, v1.6.0 등의 아키텍처 결정사항은 다
 
 ## Notes
 
-- **Current version**: v3.12.0 (sequential-thinking 별도 플러그인 분리 - 7개 독립 플러그인)
+- **Current version**: v3.14.0 (GitHub MCP 플러그인 추가 - 8개 독립 플러그인)
 - **workflow-bundle**: 4 skills + agent (MCP 미포함)
 - **sequential-thinking**: 별도 MCP 플러그인
-- **gitlab-mr/terraform/amplitude/slack/atlassian**: 독립 플러그인
+- **gitlab-mr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치
 - All skills and agents designed for Korean language output
 - Reference files loaded on-demand to manage context efficiently

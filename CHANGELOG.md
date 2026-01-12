@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.14](changelogs/v3.14.md) | 2026-01-12 | GitHub MCP 플러그인 추가 |
 | [v3.13](changelogs/v3.13.md) | 2026-01-05 | gitlab-mr CI/CD 스킬 추가 (ci-status, ci-retry, ci-trigger, ci-cancel) |
 | [v3.12](changelogs/v3.12.md) | 2026-01-05 | gitlab-mr 플러그인 신규, sequential-thinking 분리 |
 | [v3.11](changelogs/v3.11.md) | 2026-01-02 | 저장소 구조 개편 (plugins/, skills/ 폴더) |

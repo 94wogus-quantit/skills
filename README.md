@@ -13,14 +13,13 @@ Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를
 
 이 저장소는 **Skills + Agents (v3.7.0)**를 제공하며, Custom Commands와 MCP Servers는 별도로 설치/설정해야 합니다.
 
-**v3.11.0 주요 변경**:
-- 📁 **저장소 구조 개편**: 공식 플러그인 구조 채택
-  - `plugins/` 폴더에 모든 플러그인 이동
-  - `skills/` 폴더로 스킬 자동 인식
-  - 각 플러그인에 `.mcp.json` 분리
-- 📦 **5개 독립 플러그인**:
-  - `workflow-bundle`: 5 skills + 1 agent + sequential-thinking
-  - `terraform`, `amplitude`, `slack`, `atlassian`: 개별 MCP 서버
+**v3.14.0 주요 변경**:
+- 🐙 **GitHub MCP 플러그인 추가**: 저장소, 이슈, PR 관리
+- 📦 **8개 독립 플러그인**:
+  - `workflow-bundle`: 4 skills + 1 agent
+  - `sequential-thinking`: Sequential Thinking MCP
+  - `gitlab-mr`: GitLab MR 관리 (7 skills)
+  - `terraform`, `amplitude`, `slack`, `atlassian`, `github`: 개별 MCP 서버
 
 ## 🌐 언어 정책
 
@@ -81,6 +80,7 @@ glab mr create --title "feat: JIRA-123 구현"
    /plugin install wogus-plugins:amplitude
    /plugin install wogus-plugins:slack
    /plugin install wogus-plugins:atlassian
+   /plugin install wogus-plugins:github
    ```
 
 3. 설치 확인:
@@ -116,6 +116,9 @@ glab mr create --title "feat: JIRA-123 구현"
    # Slack Bot 토큰 (Slack 메시지 검색/히스토리 조회용) - v3.9.0 NEW
    export SLACK_BOT_TOKEN="xoxb-your-bot-token-here"
 
+   # GitHub Personal Access Token (저장소/이슈/PR 관리용) - v3.14.0 NEW
+   export GITHUB_TOKEN="ghp_your-personal-access-token-here"
+
    # Claude Code 재시작
    ```
 
@@ -129,6 +132,7 @@ glab mr create --title "feat: JIRA-123 구현"
    - **terraform**: HashiCorp Terraform IaC 자동화 (별도 설정 불필요, Docker 필요)
    - **amplitude**: [Amplitude](https://amplitude.com)에서 API 키 발급 필요
    - **slack**: [Slack API](https://api.slack.com/apps)에서 Bot 토큰 발급 필요
+   - **github**: [GitHub Settings](https://github.com/settings/tokens)에서 Personal Access Token 발급 필요
 
 5. **MCP 서버 비활성화** (선택사항):
 
@@ -220,6 +224,15 @@ glab mr create --title "feat: JIRA-123 구현"
      "deniedMcpServers": [
        {
          "serverCommand": ["npx", "-y", "slack-mcp-server@latest", "--transport", "stdio"]
+       }
+     ]
+   }
+
+   // github 비활성화
+   {
+     "deniedMcpServers": [
+       {
+         "serverCommand": ["npx", "-y", "@modelcontextprotocol/server-github"]
        }
      ]
    }
@@ -553,36 +566,17 @@ mr-review [Branch/MR URL]
 {
   "name": "wogus-plugins",
   "metadata": {
-    "version": "3.11.0"
+    "version": "3.14.0"
   },
   "plugins": [
-    {
-      "name": "workflow-bundle",
-      "description": "이슈 분석 → 계획 → 실행 → 문서화 + MR 리뷰 워크플로우",
-      "skills": ["./analyze", "./plan", "./execute", "./record", "./mr-review"],
-      "agents": ["./agents/requirement-validator.md"],
-      "mcpServers": { "sequential-thinking": {...} }
-    },
-    {
-      "name": "terraform",
-      "description": "Terraform 인프라 관리 MCP 서버",
-      "mcpServers": { "terraform": {...} }
-    },
-    {
-      "name": "amplitude",
-      "description": "Amplitude 분석 데이터 MCP 서버",
-      "mcpServers": { "amplitude": {...} }
-    },
-    {
-      "name": "slack",
-      "description": "Slack 메시지 검색, 히스토리, 스레드 조회 MCP 서버",
-      "mcpServers": { "slack": {...} }
-    },
-    {
-      "name": "atlassian",
-      "description": "Jira 이슈 관리 및 Confluence 문서 연동 MCP 서버",
-      "mcpServers": { "atlassian": {...} }
-    }
+    { "name": "workflow-bundle", "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우" },
+    { "name": "sequential-thinking", "description": "Sequential Thinking MCP 서버" },
+    { "name": "gitlab-mr", "description": "GitLab MR 관리 (7 skills)" },
+    { "name": "terraform", "description": "Terraform 인프라 관리 MCP 서버" },
+    { "name": "amplitude", "description": "Amplitude 분석 데이터 MCP 서버" },
+    { "name": "slack", "description": "Slack 메시지 검색/히스토리/스레드 MCP 서버" },
+    { "name": "atlassian", "description": "Jira/Confluence 연동 MCP 서버" },
+    { "name": "github", "description": "GitHub 저장소/이슈/PR 관리 MCP 서버" }
   ]
 }
 ```
@@ -611,6 +605,7 @@ mr-review [Branch/MR URL]
    /plugin install wogus-plugins:amplitude
    /plugin install wogus-plugins:slack
    /plugin install wogus-plugins:atlassian
+   /plugin install wogus-plugins:github
    ```
 
 **배포자 입장:**
@@ -651,26 +646,27 @@ mr-review [Branch/MR URL]
 ## 📁 Repository Structure
 
 ```
-wogus-plugin/  (v3.11.0)
+wogus-plugin/  (v3.14.0)
 ├── .claude-plugin/
-│   └── marketplace.json       # 카탈로그 (5 plugins)
+│   └── marketplace.json       # 카탈로그 (8 plugins)
 │
 ├── plugins/                   # 모든 플러그인
 │   ├── workflow-bundle/       # 메인 워크플로우 플러그인
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── .mcp.json          # sequential-thinking
 │   │   ├── skills/            # 자동 인식
 │   │   │   ├── analyze/
 │   │   │   ├── plan/
 │   │   │   ├── execute/
-│   │   │   ├── record/
-│   │   │   └── mr-review/
+│   │   │   └── record/
 │   │   └── agents/
 │   │       └── requirement-validator.md
+│   ├── sequential-thinking/   # Sequential Thinking MCP
+│   ├── gitlab-mr/             # GitLab MR 관리 (7 skills)
 │   ├── terraform/
 │   ├── amplitude/
 │   ├── slack/
-│   └── atlassian/
+│   ├── atlassian/
+│   └── github/                # GitHub MCP (v3.14.0 NEW)
 │
 ├── changelogs/              # 버전별 변경 이력
 ├── CHANGELOG.md             # 버전 카탈로그

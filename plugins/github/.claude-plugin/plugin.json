@@ -1,0 +1,7 @@
+{
+  "name": "github",
+  "description": "GitHub 저장소, 이슈, PR 관리 MCP 서버",
+  "author": {
+    "name": "Anthropic"
+  }
+}

@@ -49,7 +49,7 @@ Use this skill when:
 > - Phase 0 is the **FIRST step** of this skill
 > - You **MUST** execute Phase 0 **BEFORE** proceeding to Phase 1
 > - **DO NOT** assume you are on the correct branch
-> - **ALWAYS** verify branch status explicitly by running the bash commands below
+> - **ALWAYS** verify branch status using the MCP tool below
 > - **NEVER** start analysis (Phase 1) without completing Phase 0
 >
 > **Why this matters**:
@@ -61,61 +61,36 @@ Use this skill when:
 
 **Steps**:
 
-**1. Check Current Branch**
+**1. Check Branch Protection Status**
 
-```bash
-CURRENT_BRANCH=$(git branch --show-current)
-echo "📍 Current branch: $CURRENT_BRANCH"
+Use `check_branch_protection` MCP tool:
 
-# Check if on main, master, or staging branch
-if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]] || [[ "$CURRENT_BRANCH" == "staging" ]]; then
-  echo "⚠️ Warning: Working on $CURRENT_BRANCH branch!"
-  echo "⚠️ Cannot work on main/master/staging branches."
-  NEEDS_NEW_BRANCH="true"
-else
-  echo "✅ Working on feature branch"
-  NEEDS_NEW_BRANCH="false"
-fi
+```
+Tool: check_branch_protection
+Returns:
+  - branch: 현재 브랜치 이름
+  - is_protected: 보호 브랜치 여부 (main/master/staging)
+  - needs_new_branch: 새 브랜치 생성 필요 여부
+  - message: 상태 메시지
 ```
 
-**2. Create Branch Name (If Needed)**
+**2. Create Feature Branch (If Needed)**
 
-Create a new feature branch if on main/master:
+If `is_protected` is `true`, use `create_feature_branch` MCP tool:
 
-```bash
-if [ "$NEEDS_NEW_BRANCH" = "true" ]; then
-  # Extract JIRA ID from user input: parse `JIRA-123` or `PROJ-456` format
-  JIRA_ID=$(echo "$USER_INPUT" | grep -oE '[A-Z]+-[0-9]+' | head -1)
-
-  if [ -z "$JIRA_ID" ]; then
-    echo "⚠️ JIRA ID not found."
-    echo "Please enter branch name (e.g., feature/JIRA-123):"
-    read BRANCH_NAME
-  else
-    BRANCH_NAME="feature/$JIRA_ID"
-    echo "📌 Branch name: $BRANCH_NAME"
-  fi
-
-  # Create and checkout branch
-  if git checkout -b "$BRANCH_NAME" 2>/dev/null; then
-    echo "✅ Branch created: $BRANCH_NAME"
-  else
-    # Branch already exists
-    echo "⚠️ Branch '$BRANCH_NAME' already exists."
-    read -p "Switch to this branch? [Y/n] " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Nn]$ ]]; then
-      git checkout "$BRANCH_NAME"
-      echo "✅ Switched to branch: $BRANCH_NAME"
-    else
-      echo "Please enter a different branch name:"
-      read NEW_BRANCH_NAME
-      git checkout -b "$NEW_BRANCH_NAME"
-      echo "✅ Branch created: $NEW_BRANCH_NAME"
-    fi
-  fi
-fi
 ```
+Tool: create_feature_branch
+Args:
+  - branch_name: "feature/JIRA-123" (JIRA ID에서 추출)
+Returns:
+  - success: 성공 여부
+  - branch: 생성된 브랜치 이름
+  - message: 결과 메시지
+```
+
+**Branch Naming Convention**:
+- JIRA ID가 있으면: `feature/JIRA-123`
+- JIRA ID가 없으면: 사용자에게 브랜치 이름 요청
 
 **3. Proceed to Phase 1**
 

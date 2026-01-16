@@ -66,7 +66,7 @@ This skill executes approved implementation plans through a 7-phase systematic p
 > - Phase 0 is the **FIRST step** of this skill
 > - You **MUST** execute Phase 0 **BEFORE** proceeding to Phase 1
 > - **DO NOT** assume you are on the correct branch
-> - **ALWAYS** verify branch status explicitly by running the bash commands below
+> - **ALWAYS** verify branch status using the MCP tool below
 > - **NEVER** start code modification (Phase 1) without completing Phase 0
 >
 > **Why this matters**:
@@ -78,35 +78,28 @@ This skill executes approved implementation plans through a 7-phase systematic p
 
 **Steps**:
 
-**1. Check Current Branch**
+**1. Check Branch Protection Status**
 
-```bash
-CURRENT_BRANCH=$(git branch --show-current)
-echo "📍 Current branch: $CURRENT_BRANCH"
+Use `check_branch_protection` MCP tool:
 
-# Check if on main, master, or staging branch
-if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]] || [[ "$CURRENT_BRANCH" == "staging" ]]; then
-  echo "⚠️ Warning: You are working on $CURRENT_BRANCH branch!"
-  echo "⚠️ Cannot work on main/master/staging branches."
-  echo ""
-  echo "🔧 Recommended workflow:"
-  echo "  1. First run analyze [JIRA-ID] to create a feature branch"
-  echo "  2. Then run plan and execute"
-  echo ""
-  echo "⚠️ Modifying code on protected branches risks branch conflicts"
-  echo ""
-  read -p "Do you want to continue? [y/N] " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "❌ Aborted"
-    exit 1
-  fi
-else
-  echo "✅ Working on a feature branch"
-fi
+```
+Tool: check_branch_protection
+Returns:
+  - branch: 현재 브랜치 이름
+  - is_protected: 보호 브랜치 여부 (main/master/staging)
+  - needs_new_branch: 새 브랜치 생성 필요 여부
+  - message: 상태 메시지
 ```
 
-**2. Proceed to Phase 1**
+**2. Handle Protected Branch**
+
+If `is_protected` is `true`:
+- Display warning: "⚠️ 보호된 브랜치에서 코드 수정은 위험합니다!"
+- Recommend: "먼저 `analyze [JIRA-ID]`를 실행하여 feature 브랜치를 생성하세요"
+- Ask user: "보호된 브랜치에서 계속 진행하시겠습니까?"
+- If user declines: Abort skill execution
+
+**3. Proceed to Phase 1**
 
 - Execute existing Phase 1-7
 - Code modifications happen in the current feature branch

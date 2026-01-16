@@ -1,0 +1,6 @@
+{
+  "git-local": {
+    "command": "uv",
+    "args": ["run", "--with", "mcp[cli]", "python", "${PLUGIN_DIR}/git_branch_server.py"]
+  }
+}

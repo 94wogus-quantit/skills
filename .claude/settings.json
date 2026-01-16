@@ -1,5 +1,14 @@
 {
+  "permissions": {
+    "allow": [
+      "Skill(analyze)",
+      "Skill(plan)",
+      "Bash(ls:*)",
+      "mcp__plugin_github_github__*"
+    ]
+  },
   "enabledPlugins": {
-    "plugin-dev@claude-plugins-official": true
+    "plugin-dev@claude-plugins-official": true,
+    "github@wogus-plugins": true
   }
 }

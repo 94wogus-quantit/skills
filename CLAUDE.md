@@ -89,6 +89,45 @@ JIRA Acceptance Criteria와 코드를 자동 매핑하여 요구사항 달성 �
 
 **Integration**: 4개 Skills에서 자동 호출
 
+## Git Local MCP (v3.15.0)
+
+로컬 Git 저장소 관리를 위한 MCP 서버. workflow-bundle에 포함.
+
+### 브랜치 관리 도구
+- **get_current_branch**: 현재 브랜치 이름 반환
+- **check_branch_protection**: 보호된 브랜치(main/master/staging) 여부 확인
+- **create_feature_branch**: 새 feature 브랜치 생성 및 체크아웃
+- **list_branches**: 모든 브랜치 목록 조회 (원격 브랜치 옵션)
+- **switch_branch**: 브랜치 전환
+
+### Git 작업 도구 (v3.15.0 NEW)
+- **git_status**: 파일 상태 확인 (staged, modified, untracked, deleted)
+- **git_log**: 최근 커밋 히스토리 조회
+- **git_add**: 파일 스테이징
+- **git_commit**: 커밋 생성 (메시지 검증 포함)
+- **git_diff**: 변경 내용 통계 (staged 옵션)
+- **git_push**: 원격 저장소 푸시 (set_upstream, force 옵션)
+- **git_squash**: 여러 커밋을 하나로 합치기
+
+### 사용 예시
+```python
+# 브랜치 검증 후 feature 브랜치 생성
+check_branch_protection()  # → {"is_protected": true, ...}
+create_feature_branch("feature/JIRA-123")  # → {"success": true, "branch": "feature/JIRA-123"}
+
+# Git 작업 워크플로우
+git_status()     # → {"staged": [], "modified": ["file.py"], ...}
+git_add(".")     # → {"added_files": ["file.py"], ...}
+git_commit("feat: add new feature")  # → {"commit_hash": "abc1234", ...}
+git_push(set_upstream=True)  # → {"remote": "origin", "branch": "feature/JIRA-123"}
+
+# Squash & Force Push (히스토리 정리)
+git_squash(commit_count=3)   # → {"commit_hash": "def5678", "squashed_count": 3}
+git_push(force=True)         # → {"remote": "origin", ...} ⚠️ 보호 브랜치 제외
+```
+
+**Integration**: analyze, plan, execute, record 스킬의 Phase 0에서 자동 호출
+
 ## Skills vs Agents
 
 | Aspect | Skills | Agents |
@@ -418,8 +457,8 @@ v3.0.0 ~ v3.2.1, v2.0.0 ~ v2.4.0, v1.6.0 등의 아키텍처 결정사항은 다
 
 ## Notes
 
-- **Current version**: v3.14.0 (GitHub MCP 플러그인 추가 - 8개 독립 플러그인)
-- **workflow-bundle**: 4 skills + agent (MCP 미포함)
+- **Current version**: v3.15.0 (git-local MCP 확장 - git 작업 도구 6개 추가)
+- **workflow-bundle**: 4 skills + agent + git-local MCP (12개 도구)
 - **sequential-thinking**: 별도 MCP 플러그인
 - **gitlab-mr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치

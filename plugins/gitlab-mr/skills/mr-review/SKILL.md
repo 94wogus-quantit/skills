@@ -1,6 +1,7 @@
 ---
 name: mr-review
 description: Perform context-aware comprehensive code review on GitLab MR changes. Validates architecture consistency, business logic accuracy, historical issue patterns, JIRA requirements, security, and test coverage. Generates INLINE_DISCUSSION.json for GitLab inline comments and SUMMARY_COMMENT.md for overall summary. Korean triggers: MR 리뷰, 코드 리뷰, 머지 리퀘스트, PR 리뷰, 코드 검토, 리뷰해줘, 코드 봐줘, MR 확인해줘.
+user-invocable: true
 ---
 
 # MR Code Review

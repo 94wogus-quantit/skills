@@ -1,6 +1,7 @@
 ---
 name: ci-retry
 description: Retry failed GitLab CI/CD jobs or entire pipeline. Supports single job retry or batch retry of all failed jobs. Korean triggers: CI 재실행, 파이프라인 재시도, job 재실행, 다시 돌려, 재시도, 파이프라인 다시, 실패한 job 재실행.
+user-invocable: true
 ---
 
 # CI Retry

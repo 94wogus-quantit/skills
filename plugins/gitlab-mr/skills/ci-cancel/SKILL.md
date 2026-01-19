@@ -1,6 +1,7 @@
 ---
 name: ci-cancel
 description: Cancel running GitLab CI/CD pipelines or specific jobs. Supports single job cancel or entire pipeline cancellation. Korean triggers: CI 중지, 파이프라인 취소, job 취소, CI 멈춰, 파이프라인 중지, 빌드 취소, CI 취소.
+user-invocable: true
 ---
 
 # CI Cancel

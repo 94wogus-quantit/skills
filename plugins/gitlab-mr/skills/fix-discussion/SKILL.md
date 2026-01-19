@@ -1,6 +1,7 @@
 ---
 name: fix-discussion
 description: Fix GitLab MR discussions by modifying code, posting a reply explaining the fix, and resolving the discussion. Supports single or batch processing. Korean triggers: discussion 수정, 디스커션 해결, 코멘트 반영, 리뷰 반영, discussion resolve, 피드백 반영.
+user-invocable: true
 ---
 
 # Fix Discussion

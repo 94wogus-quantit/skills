@@ -457,7 +457,7 @@ v3.0.0 ~ v3.2.1, v2.0.0 ~ v2.4.0, v1.6.0 등의 아키텍처 결정사항은 다
 
 ## Notes
 
-- **Current version**: v3.15.0 (git-local MCP 확장 - git 작업 도구 6개 추가)
+- **Current version**: v3.15.1 (Skills user-invocable 추가 - /슬래시 명령어 호출 가능)
 - **workflow-bundle**: 4 skills + agent + git-local MCP (12개 도구)
 - **sequential-thinking**: 별도 MCP 플러그인
 - **gitlab-mr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

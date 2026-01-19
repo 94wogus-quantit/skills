@@ -1,6 +1,7 @@
 ---
 name: analyze
 description: Systematically analyze the root cause of bugs and issues using multi-perspective investigation. Use when analyzing JIRA issues, Sentry errors, or investigating bug reports. Generates [ISSUE_ID]_REPORT.md with root cause analysis, code locations, reproduction steps, and fix recommendations.
+user-invocable: true
 ---
 
 # Analyze Issue Root Cause

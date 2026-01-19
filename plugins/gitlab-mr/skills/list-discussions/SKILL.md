@@ -1,6 +1,7 @@
 ---
 name: list-discussions
 description: List unresolved discussions on a GitLab MR. Automatically detects MR from current branch or accepts explicit MR number. Supports auto-pagination for MRs with many discussions. Korean triggers: discussion 목록, 디스커션 보기, MR 코멘트, 리뷰 코멘트, unresolved 보기, 미해결 코멘트.
+user-invocable: true
 ---
 
 # List Discussions

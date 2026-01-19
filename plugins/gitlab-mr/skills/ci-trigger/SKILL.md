@@ -1,6 +1,7 @@
 ---
 name: ci-trigger
 description: Trigger GitLab CI/CD manual jobs or start new pipelines. Supports manual job execution and pipeline creation on current branch. Korean triggers: CI 실행, 파이프라인 실행, job 트리거, 수동 실행, 파이프라인 시작, CI 돌려, 배포 실행.
+user-invocable: true
 ---
 
 # CI Trigger

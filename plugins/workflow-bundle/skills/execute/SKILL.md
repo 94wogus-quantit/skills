@@ -1,6 +1,7 @@
 ---
 name: execute
 description: Execute approved implementation plans with TodoList tracking, test verification, and success criteria validation. Use when you have an approved *_PLAN.md file and need step-by-step implementation with comprehensive tracking. Outputs implemented code, test results, and execution summary. Documentation handled by record skill. Korean triggers: 계획 실행, 플랜 실행, 구현 시작, 개발 시작, 코딩 시작, 작업 시작, 실행해줘, 구현해줘, 만들어줘, 개발해줘, 코드 작성, 기능 구현, 태스크 실행.
+user-invocable: true
 ---
 
 # Execute Plan

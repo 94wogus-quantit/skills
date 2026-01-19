@@ -1,6 +1,7 @@
 ---
 name: ci-status
 description: Check GitLab CI/CD pipeline status for current branch. Shows pipeline list, job status, and analyzes error logs with root cause analysis using sequential-thinking. Korean triggers: CI 상태, 파이프라인 상태, CI 확인, 파이프라인 에러, job 실패, CI 로그, 파이프라인 확인, 빌드 상태.
+user-invocable: true
 ---
 
 # CI Status

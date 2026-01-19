@@ -1,6 +1,7 @@
 ---
 name: record
 description: Consolidate workflow artifacts (analysis reports, plans, implementation results) into comprehensive project documentation. Updates README, CHANGELOG, CLAUDE docs and stores technical insights in Serena memory. Use after completing implementation to finalize and document completed work with optional git commit/push. Korean triggers: 문서화, 문서 작성, 문서 업데이트, README 작성, CHANGELOG 작성, 변경사항 기록, 릴리즈 노트, 정리해줘, 문서 정리, 커밋해줘, 푸시해줘, 마무리해줘, 완료 처리.
+user-invocable: true
 ---
 
 # Record

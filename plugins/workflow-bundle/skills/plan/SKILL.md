@@ -1,6 +1,7 @@
 ---
 name: plan
 description: Create high-quality implementation plans through iterative refinement until all quality standards are met. Use when creating implementation plans from analysis reports or requirements, especially for complex features or critical bug fixes. Generates [FEATURE]_PLAN.md with task breakdown, dependencies, and success criteria. Korean triggers: 구현 계획, 실행 계획, 개발 계획, 플랜 작성, 계획 수립, 작업 계획, 태스크 분해, 계획 세워줘, 플랜 만들어줘, 어떻게 구현할지, 작업 분해해줘.
+user-invocable: true
 ---
 
 # Plan - Iterative Plan Refinement

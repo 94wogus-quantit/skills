@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.16](changelogs/v3.16.md) | 2026-01-19 | GitLab CI MCP 전환, CI 스킬 5개 삭제 |
 | [v3.15](changelogs/v3.15.md) | 2026-01-19 | git-local MCP 확장, Skills user-invocable 추가 |
 | [v3.14](changelogs/v3.14.md) | 2026-01-12 | GitHub MCP 플러그인 추가 |
 | [v3.13](changelogs/v3.13.md) | 2026-01-05 | gitlab-mr CI/CD 스킬 추가 (ci-status, ci-retry, ci-trigger, ci-cancel) |

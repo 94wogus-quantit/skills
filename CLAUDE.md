@@ -128,6 +128,43 @@ git_push(force=True)         # → {"remote": "origin", ...} ⚠️ 보호 브�
 
 **Integration**: analyze, plan, execute, record 스킬의 Phase 0에서 자동 호출
 
+## GitLab CI MCP (v3.16.0)
+
+GitLab CI/CD 및 MR Discussion 관리를 위한 MCP 서버. gitlab-mr에 포함.
+
+### CI 파이프라인 조회 도구
+- **ci_status**: 현재 파이프라인 상태 조회
+- **ci_list**: 최근 파이프라인 목록
+- **ci_jobs**: job 목록 (status_filter 옵션)
+- **ci_trace**: job 로그 조회
+
+### CI 파이프라인 제어 도구
+- **ci_cancel_job**: 특정 job 취소
+- **ci_cancel_pipeline**: 파이프라인 취소
+- **ci_trigger_job**: 수동 job 트리거
+- **ci_run**: 새 파이프라인 시작
+- **ci_retry_job**: 실패 job 재시도
+
+### MR Discussion 도구
+- **mr_get**: 현재 브랜치 또는 지정 MR 정보 조회
+- **mr_discussions**: Discussion 전체 목록 조회
+  - `resolved_filter`: "all" | "unresolved" | "resolved"
+  - 내부적으로 pagination 처리하여 전체 반환
+- **mr_resolve_discussion**: Discussion 해결 처리
+
+### 사용 예시
+```python
+# CI 파이프라인 상태
+ci_status()  # → {"success": true, "status": "running", "pipeline_id": 12345}
+ci_jobs(status_filter="failed")  # → {"jobs": [...], "count": 2}
+
+# MR Discussion 조회
+mr_discussions(resolved_filter="unresolved")  # → {"discussions": [...], "count": 5}
+mr_resolve_discussion(mr_iid=123, discussion_id="abc123")  # → {"success": true}
+```
+
+**Integration**: fix-discussion 스킬에서 discussion 조회 시 사용
+
 ## Skills vs Agents
 
 | Aspect | Skills | Agents |

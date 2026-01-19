@@ -43,7 +43,7 @@ Addresses GitLab MR discussion feedback through a **code fix → reply → resol
 ## When to Use
 
 **Use this skill when:**
-- Addressing discussions identified by `list-discussions`
+- Addressing discussions identified by `mr_discussions()` MCP tool
 - Implementing reviewer feedback
 - Batch processing multiple discussions
 - Processing issues from `INLINE_DISCUSSION.json` (from mr-review)
@@ -411,7 +411,7 @@ glab api --method PUT \
 **Cause**: The discussion may not exist on GitLab yet, or file/line mismatch.
 
 **Next Steps**:
-1. Run `list-discussions` to see actual discussions
+1. Use `mr_discussions()` MCP tool to see actual discussions
 2. Verify file path and line number
 3. The issue may be from local review only (INLINE_DISCUSSION.json) - code fix is sufficient
 ```
@@ -437,7 +437,7 @@ Before reporting task complete, verify ALL items:
 
 ```
 1. mr-review → Creates INLINE_DISCUSSION.json + posts discussions to MR
-2. list-discussions → Review discussion list from GitLab
+2. mr_discussions() MCP → Review discussion list from GitLab
 3. fix-discussion → Code fix + reply + resolve (ALL THREE STEPS)
 4. git commit & push → Push changes
 5. MR ready to merge
@@ -445,5 +445,5 @@ Before reporting task complete, verify ALL items:
 
 ### Related Skills
 
-- **list-discussions**: View discussion list (prerequisite)
+- **mr_discussions() MCP**: View discussion list (prerequisite)
 - **mr-review**: MR code review and discussion creation

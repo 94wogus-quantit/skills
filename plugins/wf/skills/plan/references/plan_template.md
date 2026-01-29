@@ -31,6 +31,20 @@ Use this template when creating `[FEATURE]_PLAN.md` files.
 - **Technical**: [Technology stack, compatibility requirements]
 - **Business**: [Budget, regulatory, compliance considerations]
 
+### Context & Reasoning
+
+#### 수집한 소스
+| # | 소스 | 핵심 발견 |
+|---|------|-----------|
+| 1 | [REPORT/JIRA/코드베이스/문서 등] | [발견 내용] |
+| 2 | ... | ... |
+
+#### 사고 과정 (5-Step Algorithm)
+- **Step 1 (요구사항 질의)**: [질의 결과 요약 - 어떤 요구사항을 질의했고, 유효/무효 판정]
+- **Step 2 (삭제)**: [삭제된 항목과 이유]
+- **Step 3 (단순화)**: [단순화 결과와 이유]
+- **Step 4 (가속)**: [병렬화 기회와 Critical Path]
+
 ---
 
 ## Task Breakdown

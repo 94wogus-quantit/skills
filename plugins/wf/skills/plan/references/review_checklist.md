@@ -16,7 +16,7 @@ Comprehensive checklist for reviewing implementation plans. Use this to ensure t
 ⚠️ **MANDATORY**: Apply the FULL checklist EVERY TIME, regardless of previous reviews.
 
 **Critical Requirements**:
-- [ ] Work through **ALL sections** of this checklist (1-11)
+- [ ] Work through **ALL sections** of this checklist (1-12)
 - [ ] Do not skip sections even if previous review was clean
 - [ ] Document specific issues with task/section references
 - [ ] Look for NEW problems, not just CARRYOVER issues from previous reviews
@@ -360,6 +360,33 @@ When plan references a GitHub repository:
 
 ---
 
+## 12. Evidence Trail Quality
+
+### Context & Reasoning 섹션 검증
+- [ ] "Context & Reasoning" 섹션이 존재하는가?
+- [ ] 수집 소스 테이블이 비어있지 않은가? (최소 1개 이상 소스)
+- [ ] 사고 과정 요약이 5-Step Algorithm 각 단계를 포함하는가?
+- [ ] 수집 소스와 실제 계획 내용 간 연관성이 있는가?
+
+### 추적 가능성 검증
+- [ ] 계획의 주요 결정사항이 수집 소스로 추적 가능한가?
+- [ ] 삭제/단순화 결정의 근거가 기록되어 있는가?
+- [ ] 요구사항 질의 결과가 기록되어 있는가?
+
+### Common Evidence Trail Issues
+
+**Red Flags**:
+- ❌ Context & Reasoning 섹션 누락 → 의사결정 추적 불가
+- ❌ 수집 소스 테이블이 비어있음 → 근거 없는 계획
+- ❌ 사고 과정이 결론만 기록 → 추론 과정 추적 불가
+
+**How to Fix**:
+- Phase 2 Step 1~4에서 Evidence Trail 지시를 따라 Context Log 기록
+- 각 Step의 핵심 추론과 결정을 기록
+- 수집한 모든 소스를 테이블에 포함
+
+---
+
 ## Review Output Template
 
 ```markdown
@@ -564,7 +591,7 @@ Either the plan is ready (Approve), or another iteration is needed (Needs Iterat
 
 **Use this ONLY when ALL of the following are true:**
 - Overall Assessment: "Strong" (NOT "Good" - Good means needs more work!)
-- All critical sections (1-11) score ✅ (green checkmark)
+- All critical sections (1-12) score ✅ (green checkmark)
 - Required Changes (🔴): **ZERO** (not "minor", not "a few" - ZERO!)
 - Suggested Improvements (🟡): **ZERO or only trivial ones** (e.g., minor wording tweaks)
 - No open questions remaining (❓ section empty)

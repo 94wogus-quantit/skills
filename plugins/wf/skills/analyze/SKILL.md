@@ -122,6 +122,28 @@ Returns:
 
 ---
 
+### Evidence Trail Rules (All Phases)
+
+> **MANDATORY**: Throughout the analysis, maintain an **Evidence Log** that tracks all collected information and reasoning.
+> This log ensures the final REPORT documents not just conclusions, but the full path of discovery.
+
+**What to record in the Evidence Log:**
+
+1. **Sources Collected** (Phase 2): Table of every source accessed, with type, path/tool, purpose, and key finding
+2. **Thinking Process** (Phase 3-4): Key assumptions identified (verified/unverified), fundamental facts, hypothesis generation and evaluation reasoning
+3. **Investigation Results** (Phase 5): Files read, symbols explored, patterns searched, and what each revealed
+
+**Format for Sources Table:**
+
+| # | 소스 유형 | 파일/도구 | 수집 목적 | 핵심 발견 |
+|---|-----------|-----------|-----------|-----------|
+| 1 | [JIRA/Sentry/파일/ST 등] | [경로 또는 도구명] | [왜 수집했는지] | [무엇을 발견했는지] |
+
+Each Phase MUST append its findings to the Evidence Log.
+The Evidence Log is included in the final REPORT's "Evidence Trail" section (Phase 8).
+
+---
+
 ### Phase 2: Context Gathering
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
@@ -162,6 +184,8 @@ From Sentry results, extract:
 - Analyze error logs or screenshots
 - Check Confluence documentation if referenced
 
+> **⚠️ Evidence Trail**: After collecting context, record ALL sources in the Evidence Log table (source type, path/tool, purpose, key finding for each).
+
 ---
 
 ### Phase 3: First Principles Decomposition
@@ -195,6 +219,8 @@ Organize the information to pass to Phase 4:
 - List of unverified assumptions (marked as needing verification)
 - System decomposition results
 - Normal operating conditions that may be violated
+
+> **⚠️ Evidence Trail**: Record assumptions (verified/unverified) and fundamental facts in the Evidence Log, including their sources.
 
 ---
 
@@ -238,6 +264,8 @@ Prune the generated hypotheses:
 Priority = Likelihood × Impact / Verification Cost
 → Investigate in Phase 5, highest priority first
 
+> **⚠️ Evidence Trail**: Record hypothesis evaluation results (adopted/rejected with reasoning) in the Evidence Log.
+
 ---
 
 ### Phase 5: Codebase Investigation
@@ -262,6 +290,8 @@ Use Serena tools efficiently for targeted code exploration:
 - Use GitHub MCP to find recent changes
 - Correlate timing with issue occurrence
 - Review related code modifications
+
+> **⚠️ Evidence Trail**: Record all investigated files, symbols, search patterns, and key findings in the Evidence Log.
 
 ### Phase 5D: Code Complexity Assessment (Conditional)
 
@@ -472,7 +502,9 @@ Evaluate the efficiency of each recommendation:
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
-Create a comprehensive markdown report:
+Create a comprehensive markdown report.
+
+> **⚠️ Evidence Trail**: Include the accumulated Evidence Log as the "Evidence Trail" section in the report, placed after "Summary" and before "Context" (matching report_template.md layout).
 
 ### Report Structure
 
@@ -481,6 +513,9 @@ Create a comprehensive markdown report:
 
 ## Summary
 [One-paragraph executive summary]
+
+## Evidence Trail
+[Include accumulated Evidence Log here - see report_template.md for format]
 
 ## Context
 - JIRA: [link and key details]

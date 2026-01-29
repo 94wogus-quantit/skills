@@ -14,7 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.22.0):**
+**Key Artifacts (v3.23.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -23,7 +23,7 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.22.0)
+wogus-plugin/  (v3.23.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │
@@ -59,7 +59,7 @@ Systematic root cause analysis with branch validation and Elon Musk's thinking m
 - **Output**: `[ISSUE_ID]_REPORT.md`
 - **Integration**: First step in workflow
 
-### plan (v3.22.0)
+### plan (v3.23.0)
 Create high-quality, thoroughly reviewed implementation plans with 5-Step Algorithm methodology.
 - **5단계 알고리즘**: 요구사항 질의 → 삭제 → 단순화 → 가속 → 자동화
 - **Idiot Index**: 계획 효율성 메트릭 (과잉 설계 방지)
@@ -183,9 +183,9 @@ Claude Code Marketplace로 배포. 8개 독립 플러그인 (wf, glmr, seq-think
 
 | 버전 | 변경 요약 |
 |------|----------|
+| v3.23.0 | Evidence Trail 기능: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가 |
 | v3.22.0 | plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context 원칙 통합 |
 | v3.21.0 | 문서 구조 개선: CLAUDE.md 경량화, README.md 정리, 역할 분리 |
-| v3.20.0 | plan_template에 Task Registration Guide 섹션 추가 |
 
 상세 내용은 [docs/architecture/decisions/](docs/architecture/decisions/) 참조.
 이전 버전 ADR (v1.x ~ v3.17.0)도 동일 디렉토리에서 확인 가능.
@@ -223,11 +223,15 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 
 **에러 증상**: `invalid_request_error` - `tool_reference.tool_name: String should have at most 64 characters`
 
+### 버전 업데이트 시 marketplace.json 동기화
+
+버전을 올릴 때 (record 스킬 등으로 문서화 시) **반드시 `.claude-plugin/marketplace.json`의 해당 플러그인 버전도 함께 업데이트**할 것. CLAUDE.md, README.md, CHANGELOG.md와 marketplace.json 간 버전 불일치가 발생하지 않도록 확인.
+
 ---
 
 ## Notes
 
-- **Current version**: v3.22.0 (plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context)
+- **Current version**: v3.23.0 (Evidence Trail: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
 - **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

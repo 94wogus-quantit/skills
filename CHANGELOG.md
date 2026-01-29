@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.23](changelogs/v3.23.md) | 2026-01-30 | Evidence Trail 기능: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가 |
 | [v3.22](changelogs/v3.22.md) | 2026-01-30 | plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context 원칙 통합 |
 | [v3.21](changelogs/v3.21.md) | 2026-01-30 | 문서 구조 개선: CLAUDE.md 경량화, README.md 정리, 역할 분리 |
 | [v3.20](changelogs/v3.20.md) | 2026-01-30 | plan_template에 Task Registration Guide 섹션 추가 |

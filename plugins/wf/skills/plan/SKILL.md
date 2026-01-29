@@ -146,6 +146,12 @@ Collect all necessary context before thinking about tasks:
 - **Codebase**: Use Serena tools (`check_onboarding_performed`, `list_memories`, `find_symbol`, `search_for_pattern`)
 - **Framework Docs**: Use Context7 (`resolve-library-id`, `query-docs`) for best practices
 
+> **⚠️ Evidence Trail**: After collecting context, record ALL sources and key findings in a Context Log table. This log will be included in the final PLAN's "Context & Reasoning" section.
+>
+> | # | 소스 | 핵심 발견 |
+> |---|------|-----------|
+> | 1 | [소스명] | [발견 내용] |
+
 **Step 2: Requirement Questioning** (Musk Step 1)
 
 Use `mcp__plugin_seq-think_st__sequentialthinking` to question every requirement:
@@ -156,6 +162,8 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to question every requirement
 - Flag requirements without a named owner as deletion candidates
 
 > "Requirements from smart people are the most dangerous — nobody questions them."
+
+> **⚠️ Evidence Trail**: Record the key reasoning from this step in the Context Log (which requirements were questioned, validated, or flagged).
 
 **Step 3: Deletion Pass** (Musk Step 2)
 
@@ -168,6 +176,8 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to perform aggressive deletio
 
 > "If you don't end up adding back at least 10% of what you deleted, you didn't delete enough."
 
+> **⚠️ Evidence Trail**: Record what was deleted and why in the Context Log.
+
 **Step 4: Simplification** (Musk Step 3)
 
 Use `mcp__plugin_seq-think_st__sequentialthinking` to simplify remaining tasks:
@@ -176,6 +186,8 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to simplify remaining tasks:
 - Merge overlapping tasks, flatten unnecessary hierarchies
 - Remove over-abstraction layers
 - ⚠️ Only simplify tasks that survived Step 3 — never optimize what should be deleted
+
+> **⚠️ Evidence Trail**: Record simplification decisions in the Context Log.
 
 **Step 5: Plan Structure Creation** (with Zero-Context Principle)
 
@@ -206,6 +218,8 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to optimize execution speed:
   - Idiot Index = Total plan effort / Core functionality effort
   - If > 3x: re-run Step 3 (Deletion Pass)
   - If > 5x: fundamental redesign needed
+
+> **⚠️ Evidence Trail**: Include the accumulated Context Log as the "Context & Reasoning" section in the PLAN document (after "Constraints", before "Task Breakdown").
 
 ### Phase 3: ITERATIVE REVIEW LOOP
 

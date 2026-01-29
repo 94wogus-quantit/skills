@@ -1,12 +1,12 @@
-# 보안 검증 가이드
+# Security Verification Guide
 
-## 목표
+## Goal
 
-OWASP Top 10 및 일반적인 보안 취약점을 체계적으로 검증합니다.
+Systematically verify OWASP Top 10 and common security vulnerabilities.
 
-## Sequential Thinking MCP 예시
+## Sequential Thinking MCP Examples
 
-### 예시 1: SQL Injection 검증
+### Example 1: SQL Injection Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -17,7 +17,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 2: XSS 검증
+### Example 2: XSS Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -28,7 +28,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 3: 인증/인가 검증
+### Example 3: Authentication/Authorization Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -39,7 +39,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 4: 민감 정보 노출 검증
+### Example 4: Sensitive Information Exposure Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -50,7 +50,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 5: CSRF 검증
+### Example 5: CSRF Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -61,7 +61,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 6: 입력 검증
+### Example 6: Input Validation Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -72,7 +72,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 7: 암호화
+### Example 7: Encryption Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -83,7 +83,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 8: 에러 메시지 보안
+### Example 8: Error Message Security Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -94,7 +94,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 9: Rate Limiting
+### Example 9: Rate Limiting Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -105,7 +105,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 10: 의존성 보안
+### Example 10: Dependency Security Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -116,9 +116,9 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-## Serena MCP 예시
+## Serena MCP Examples
 
-### 예시 1: 보안 관련 패턴 검색 (하드코딩된 secrets)
+### Example 1: Search Security-Related Patterns (Hardcoded Secrets)
 
 ```typescript
 await mcp__plugin_serena_serena__search_for_pattern({
@@ -127,7 +127,7 @@ await mcp__plugin_serena_serena__search_for_pattern({
 })
 ```
 
-### 예시 2: 과거 보안 이슈 확인
+### Example 2: Check Past Security Incidents
 
 ```typescript
 await mcp__plugin_serena_serena__read_memory({
@@ -135,7 +135,7 @@ await mcp__plugin_serena_serena__read_memory({
 })
 ```
 
-### 예시 3: SQL Injection 위험 패턴 검색
+### Example 3: Search SQL Injection Risk Patterns
 
 ```typescript
 await mcp__plugin_serena_serena__search_for_pattern({
@@ -144,7 +144,7 @@ await mcp__plugin_serena_serena__search_for_pattern({
 })
 ```
 
-### 예시 4: XSS 위험 패턴 검색
+### Example 4: Search XSS Risk Patterns
 
 ```typescript
 await mcp__plugin_serena_serena__search_for_pattern({
@@ -153,86 +153,86 @@ await mcp__plugin_serena_serena__search_for_pattern({
 })
 ```
 
-## 검증 항목 체크리스트
+## Verification Checklist
 
 ### SQL Injection (A03:2021 - Injection)
 
-- [ ] Prepared statement 또는 ORM parameterized query 사용
-- [ ] Raw SQL 사용 시 입력 검증 및 escape 처리
-- [ ] 사용자 입력이 직접 쿼리에 연결되지 않음
-- [ ] NoSQL injection 방지 (MongoDB 등)
+- [ ] Prepared statement or ORM parameterized query used
+- [ ] Input validation and escape handling for raw SQL usage
+- [ ] User input not directly concatenated into queries
+- [ ] NoSQL injection prevention (MongoDB, etc.)
 
 ### XSS (A03:2021 - Injection)
 
-- [ ] 사용자 입력이 렌더링 전에 sanitize됨
-- [ ] `innerHTML`, `dangerouslySetInnerHTML`, `v-html` 사용 최소화
-- [ ] DOMPurify 등 sanitization 라이브러리 사용
-- [ ] Content-Security-Policy 헤더 설정
+- [ ] User input sanitized before rendering
+- [ ] Minimize `innerHTML`, `dangerouslySetInnerHTML`, `v-html` usage
+- [ ] Sanitization library (e.g., DOMPurify) used
+- [ ] Content-Security-Policy header configured
 
-### 인증/인가 (A01:2021 - Broken Access Control, A07:2021 - Identification and Authentication Failures)
+### Authentication/Authorization (A01:2021 - Broken Access Control, A07:2021 - Identification and Authentication Failures)
 
-- [ ] JWT 토큰 검증이 올바름 (signature, expiration)
-- [ ] 모든 보호된 엔드포인트에 인증 체크
-- [ ] Role/Permission 기반 접근 제어
-- [ ] 토큰 만료 시간이 적절함 (너무 길지 않음)
-- [ ] Refresh token 사용 시 적절한 보안 처리
+- [ ] JWT token validation is correct (signature, expiration)
+- [ ] Authentication check on all protected endpoints
+- [ ] Role/Permission based access control
+- [ ] Token expiration time is appropriate (not too long)
+- [ ] Proper security handling for refresh tokens
 
-### 민감 정보 노출 (A02:2021 - Cryptographic Failures)
+### Sensitive Information Exposure (A02:2021 - Cryptographic Failures)
 
-- [ ] API 키, 비밀번호, secret이 환경변수로 관리됨
-- [ ] `.env` 파일이 `.gitignore`에 포함됨
-- [ ] 로그에 민감 정보(비밀번호, 토큰, 개인정보) 없음
-- [ ] 에러 응답에 내부 정보 노출 없음
+- [ ] API keys, passwords, secrets managed via environment variables
+- [ ] `.env` file included in `.gitignore`
+- [ ] No sensitive information (passwords, tokens, PII) in logs
+- [ ] No internal information exposure in error responses
 
 ### CSRF (A01:2021 - Broken Access Control)
 
-- [ ] 상태 변경 요청(POST, PUT, DELETE)에 CSRF 토큰
-- [ ] SameSite 쿠키 속성 설정 (Strict 또는 Lax)
-- [ ] CORS 설정이 안전함 (와일드카드 사용 최소화)
+- [ ] CSRF token on state-changing requests (POST, PUT, DELETE)
+- [ ] SameSite cookie attribute set (Strict or Lax)
+- [ ] CORS configuration is secure (minimize wildcard usage)
 
-### 입력 검증 (A03:2021 - Injection)
+### Input Validation (A03:2021 - Injection)
 
-- [ ] 모든 사용자 입력에 validation
-- [ ] 타입 검증, 길이 제한, 허용 문자 제한
-- [ ] 화이트리스트 방식 검증 (블랙리스트 방식 지양)
-- [ ] 서버 측 검증 (클라이언트 검증만으로 부족)
+- [ ] Validation on all user inputs
+- [ ] Type validation, length limits, allowed character restrictions
+- [ ] Whitelist-based validation (avoid blacklist approach)
+- [ ] Server-side validation (client-side validation alone is insufficient)
 
-### 암호화 (A02:2021 - Cryptographic Failures)
+### Encryption (A02:2021 - Cryptographic Failures)
 
-- [ ] 비밀번호가 bcrypt, argon2 등으로 해싱됨 (MD5, SHA1 사용 금지)
-- [ ] HTTPS 사용 강제
-- [ ] 민감 데이터 저장 시 암호화
-- [ ] Salt 사용 (비밀번호 해싱 시)
+- [ ] Passwords hashed with bcrypt, argon2, etc. (no MD5, SHA1)
+- [ ] HTTPS enforced
+- [ ] Sensitive data encrypted at rest
+- [ ] Salt used (for password hashing)
 
-### 에러 메시지 보안 (A05:2021 - Security Misconfiguration)
+### Error Message Security (A05:2021 - Security Misconfiguration)
 
-- [ ] 에러 메시지가 내부 구조 노출 방지
-- [ ] 프로덕션 환경에서 스택 트레이스 비노출
-- [ ] Generic 에러 메시지 사용 (구체적인 정보 최소화)
+- [ ] Error messages do not expose internal structure
+- [ ] Stack traces not exposed in production
+- [ ] Generic error messages used (minimize specific information)
 
 ### Rate Limiting (A04:2021 - Insecure Design)
 
-- [ ] 브루트 포스 방지를 위한 rate limiting
-- [ ] 로그인 시도 제한
-- [ ] API 호출 제한 (DDoS 방지)
+- [ ] Rate limiting for brute force prevention
+- [ ] Login attempt limits
+- [ ] API call limits (DDoS prevention)
 
-### 의존성 보안 (A06:2021 - Vulnerable and Outdated Components)
+### Dependency Security (A06:2021 - Vulnerable and Outdated Components)
 
-- [ ] `npm audit` 또는 `yarn audit`로 검증됨
-- [ ] 알려진 취약점이 있는 패키지 사용 안 함
-- [ ] 불필요한 의존성 제거
-- [ ] 정기적인 의존성 업데이트
+- [ ] Verified with `npm audit` or `yarn audit`
+- [ ] No packages with known vulnerabilities
+- [ ] Unnecessary dependencies removed
+- [ ] Regular dependency updates
 
-### 기타 보안
+### Other Security
 
-- [ ] Session fixation 방지
-- [ ] Clickjacking 방지 (X-Frame-Options 헤더)
-- [ ] MIME sniffing 방지 (X-Content-Type-Options 헤더)
-- [ ] XXE (XML External Entity) 방지
+- [ ] Session fixation prevention
+- [ ] Clickjacking prevention (X-Frame-Options header)
+- [ ] MIME sniffing prevention (X-Content-Type-Options header)
+- [ ] XXE (XML External Entity) prevention
 
-## TypeScript 코드 예시
+## TypeScript Code Examples
 
-### SQL Injection 방지
+### SQL Injection Prevention
 
 ```typescript
 // ✅ GOOD: Prepared statement 사용 (TypeORM)
@@ -259,7 +259,7 @@ async function getUserByEmail(email: string): Promise<User> {
 }
 ```
 
-### XSS 방지
+### XSS Prevention
 
 ```typescript
 // ✅ GOOD: React는 기본적으로 escape (안전)
@@ -281,7 +281,7 @@ function UserBio({ bio }: { bio: string }) {
 }
 ```
 
-### 인증/인가
+### Authentication/Authorization
 
 ```typescript
 // ✅ GOOD: JWT 검증
@@ -315,7 +315,7 @@ app.get('/admin/users', async (req, res) => {
 });
 ```
 
-### 민감 정보 보호
+### Sensitive Information Protection
 
 ```typescript
 // ✅ GOOD: 환경변수 사용
@@ -341,7 +341,7 @@ const apiKey = 'sk-1234567890abcdef'; // ❌ 하드코딩
 console.log('User login:', user); // password, token 포함
 ```
 
-### CSRF 방지
+### CSRF Prevention
 
 ```typescript
 // ✅ GOOD: CSRF 토큰 사용 (Express)
@@ -350,7 +350,6 @@ import csrf from 'csurf';
 const csrfProtection = csrf({ cookie: true });
 
 app.post('/api/users', csrfProtection, async (req, res) => {
-  // CSRF 토큰 검증 완료
   const user = await createUser(req.body);
   res.json(user);
 });
@@ -370,7 +369,7 @@ app.post('/api/users', async (req, res) => {
 });
 ```
 
-### 입력 검증
+### Input Validation
 
 ```typescript
 // ✅ GOOD: 입력 검증
@@ -393,7 +392,7 @@ function createUser(data: any) {
 }
 ```
 
-### 비밀번호 해싱
+### Password Hashing
 
 ```typescript
 // ✅ GOOD: bcrypt 사용
@@ -423,41 +422,41 @@ function hashPassword(password: string): string {
 import rateLimit from 'express-rate-limit';
 
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15분
-  max: 5, // 최대 5번 시도
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Max 5 attempts
   message: 'Too many login attempts, please try again later'
 });
 
 app.post('/api/auth/login', loginLimiter, async (req, res) => {
-  // 로그인 로직
+  // Login logic
 });
 
 // ❌ BAD: Rate limiting 없음
 app.post('/api/auth/login', async (req, res) => {
-  // ❌ 브루트 포스 공격에 취약
+  // ❌ Vulnerable to brute force attacks
 });
 ```
 
-## 실제 검증 절차
+## Actual Verification Procedure
 
-1. **Sequential Thinking으로 10가지 보안 항목 체계적 검증**
-   - SQL Injection, XSS, 인증/인가, 민감 정보 노출, CSRF, 입력 검증, 암호화, 에러 메시지, Rate Limiting, 의존성 보안
+1. **Systematically verify 10 security items with Sequential Thinking**
+   - SQL Injection, XSS, Authentication/Authorization, Sensitive Information Exposure, CSRF, Input Validation, Encryption, Error Messages, Rate Limiting, Dependency Security
 
-2. **Serena로 보안 위험 패턴 검색**
-   - 하드코딩된 secrets, raw SQL, innerHTML, dangerouslySetInnerHTML 검색
+2. **Search security risk patterns with Serena**
+   - Search for hardcoded secrets, raw SQL, innerHTML, dangerouslySetInnerHTML
 
-3. **Serena memory에서 과거 보안 이슈 확인**
-   - `security_incidents.md`에서 과거 보안 취약점 확인
-   - 동일한 패턴이 재발하지 않았는지 검증
+3. **Check past security issues in Serena memory**
+   - Verify past vulnerabilities in `security_incidents.md`
+   - Confirm the same patterns are not recurring
 
-4. **의존성 보안 검증**
+4. **Verify dependency security**
    ```bash
    npm audit
-   # 또는
+   # or
    yarn audit
    ```
 
-5. **검증 결과 문서화**
-   - 발견된 보안 취약점을 severity 별로 분류 (Critical, High, Medium, Low)
-   - 각 취약점에 대한 수정 방법 제시
-   - OWASP Top 10 참조 링크 제공
+5. **Document verification results**
+   - Classify discovered vulnerabilities by severity (Critical, High, Medium, Low)
+   - Provide fix recommendations for each vulnerability
+   - Provide OWASP Top 10 reference links

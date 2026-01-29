@@ -1,26 +1,26 @@
-# First Principles Decomposition 상세 가이드
+# First Principles Decomposition Guide
 
-## 개요
+## Overview
 
-제1원리 분해(First Principles Decomposition)는 버그 분석 시 "당연하다고 믿는 가정"을 식별하고, 검증된 사실만으로 근본 원인을 추적하는 기법이다.
+First Principles Decomposition identifies assumptions taken for granted during bug analysis and traces root causes using only verified facts.
 
-## 프로세스
+## Process
 
-### Step 0: 요구사항 질의 (Question Requirements)
+### Step 0: Question Requirements
 
-분석 시작 전, 버그가 발생하는 기능의 **요구사항 자체**를 검증한다.
+Before starting analysis, verify the **requirements themselves** of the feature where the bug occurs.
 
-**체크리스트**:
-1. 이 기능의 요구사항은 **누가** 만들었는가? (부서가 아닌 개인)
-2. 그 요구사항은 **현재에도 유효한가?**
-3. 이 기능이 **존재하지 않으면** 이 버그도 존재하지 않는가?
-4. "항상 이렇게 해왔다"가 유일한 근거인 요구사항은 없는가?
-5. 요구사항을 만든 사람에게 **직접 확인**했는가?
+**Checklist**:
+1. **Who** created the requirements for this feature? (individual, not department)
+2. Are those requirements **still valid today**?
+3. If this feature **did not exist**, would the bug also not exist?
+4. Are there any requirements where "we've always done it this way" is the only justification?
+5. Have you **directly confirmed** with the person who created the requirement?
 
-> 요구사항 자체가 버그의 원인일 수 있다.
-> "스펙대로 동작하지만 스펙이 잘못되었다"는 가장 비싼 버그다.
+> Requirements themselves can be the cause of bugs.
+> "Working as specified, but the specification is wrong" is the most expensive bug.
 
-**Sequential Thinking 호출 예시**:
+**Sequential Thinking Call Example**:
 
 ```typescript
 mcp__plugin_seq-think_st__sequentialthinking({
@@ -33,18 +33,18 @@ mcp__plugin_seq-think_st__sequentialthinking({
 
 ---
 
-### Step 1: 가정 식별 (Assumption Identification)
+### Step 1: Assumption Identification
 
-이슈에 대해 "당연하다고 믿는 것"을 모두 나열하고, "검증된 사실"과 "미검증 가정"으로 분류한다.
+List everything "taken for granted" about the issue and classify into "verified facts" and "unverified assumptions".
 
-**분류 기준**:
+**Classification Criteria**:
 
-| 구분 | 정의 | 예시 |
-|------|------|------|
-| **검증된 사실** | 로그, 메트릭, 코드에서 직접 확인 가능 | "로그에 Timeout 3회 기록됨" |
-| **미검증 가정** | 추론이나 경험에 기반한 판단 | "DB 부하가 원인일 것" |
+| Category | Definition | Example |
+|----------|-----------|---------|
+| **Verified Fact** | Directly confirmable from logs, metrics, or code | "로그에 Timeout 3회 기록됨" |
+| **Unverified Assumption** | Judgment based on inference or experience | "DB 부하가 원인일 것" |
 
-**Sequential Thinking 호출 예시**:
+**Sequential Thinking Call Example**:
 
 ```typescript
 mcp__plugin_seq-think_st__sequentialthinking({
@@ -55,17 +55,17 @@ mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### Step 2: 근본 원리 분해 (Decomposition)
+### Step 2: Decomposition into Fundamental Principles
 
-버그가 발생하는 시스템의 동작 원리를 기본 구성요소로 분해한다.
+Decompose the operating principles of the system where the bug occurs into basic components.
 
-**분해 프로세스**:
-1. 입력 → 처리 → 출력 흐름을 파악
-2. 각 구성요소의 정상 동작 조건을 나열
-3. "이 시스템이 정상 동작하려면 반드시 참이어야 하는 것" 나열
-4. 그 중 "참이 아닌 것"을 찾음 → 근본 원인 후보
+**Decomposition Process**:
+1. Identify the Input → Processing → Output flow
+2. List the normal operating conditions for each component
+3. List "what must be true for this system to function correctly"
+4. Find which of those are "not true" → root cause candidates
 
-**Sequential Thinking 호출 예시**:
+**Sequential Thinking Call Example**:
 
 ```typescript
 mcp__plugin_seq-think_st__sequentialthinking({
@@ -76,9 +76,9 @@ mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### Step 3: 사실 기반 요약 (Fact-Based Summary)
+### Step 3: Fact-Based Summary
 
-Phase 3(가설 생성)으로 넘기는 정보를 정리한다.
+Organize the information to pass to Phase 3 (hypothesis generation).
 
 ```typescript
 mcp__plugin_seq-think_st__sequentialthinking({
@@ -89,12 +89,12 @@ mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-## 유추적 사고 vs 제1원리 사고
+## Analogical Thinking vs First Principles Thinking
 
-| 유추적 사고 (경계 대상) | 제1원리 사고 (권장) |
-|------------------------|-------------------|
-| "이전에 비슷한 버그가 있었으니 같은 원인일 것" | 이 시스템의 고유한 사실을 먼저 확인 |
-| "이런 에러는 보통 X가 원인이다" | 로그/코드에서 직접 확인 가능한 증거 수집 |
-| "Stack Overflow에서 같은 에러는 Y로 해결했다" | 이 시스템의 컨텍스트에서 원인 분석 |
+| Analogical Thinking (Caution) | First Principles Thinking (Recommended) |
+|-------------------------------|----------------------------------------|
+| "A similar bug existed before, so it must be the same cause" | First verify facts unique to this system |
+| "This type of error is usually caused by X" | Collect evidence directly confirmable from logs/code |
+| "Stack Overflow solved the same error with Y" | Analyze the cause within this system's context |
 
-유추적 사고 자체가 나쁜 것은 아니지만, **미검증 가정으로 태깅**하여 검증 없이 확정하지 않도록 한다.
+Analogical thinking is not inherently bad, but it should be **tagged as an unverified assumption** to prevent confirming it without verification.

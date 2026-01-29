@@ -206,6 +206,15 @@ JIRA-123: "사용자 이메일 로그인"
 - Be specific about trigger scenarios
 - Use third-person (not "you should")
 
+**⚠️ Language Rule (MANDATORY - DO NOT IGNORE):**
+- **적용 범위: SKILL.md, references/*.md, agents/*.md, 템플릿 등 모든 지시 파일**
+- **지시문(instructions), Phase 설명, 워크플로우 단계는 반드시 영어로 작성**
+- **예시(examples), 출력 템플릿, 사용자 안내 메시지만 한국어로 작성**
+- 이유: Claude는 영어 지시문을 가장 정확하게 해석함. 한국어 지시문은 의도가 왜곡될 수 있음
+- ✅ 올바른 예: `"Phase 1: Collect context by reading the target file and identifying symbols"` → 지시문은 영어
+- ✅ 올바른 예: `"Output example: ## 근본 원인 분석"` → 출력 템플릿은 한국어
+- ❌ 잘못된 예: `"Phase 1: 대상 파일을 읽고 심볼을 식별하여 컨텍스트를 수집한다"` → 지시문을 한국어로 쓰면 안 됨
+
 **Instruction Style:**
 - Use imperative/infinitive form (verb-first)
 - "To accomplish X, do Y" not "You should do X"

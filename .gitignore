@@ -67,6 +67,6 @@ docs/_build/
 site/
 
 # claude code artifacts
-*_[REPORT].md
-*_[PLAN].md
-*_[REVIEW].md
+*_REPORT*.md
+*_PLAN*.md
+*_*REVIEW*.md

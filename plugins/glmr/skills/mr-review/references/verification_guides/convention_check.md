@@ -1,12 +1,12 @@
-# 컨벤션 준수 확인 가이드
+# Convention Compliance Verification Guide
 
-## 목표
+## Goal
 
-README.md와 CLAUDE.md의 코딩 컨벤션을 준수하는지 확인합니다.
+Verify that changed code follows the coding conventions defined in README.md and CLAUDE.md.
 
-## Sequential Thinking MCP 예시
+## Sequential Thinking MCP Examples
 
-### 예시 1: 네이밍 컨벤션 검증
+### Example 1: Naming Convention Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -17,7 +17,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 2: 코드 스타일 검증
+### Example 2: Code Style Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -28,7 +28,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 3: 주석 및 문서화 스타일 검증
+### Example 3: Comment and Documentation Style Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -39,7 +39,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 4: 에러 핸들링 패턴 검증
+### Example 4: Error Handling Pattern Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -50,9 +50,9 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-## Serena MCP 예시
+## Serena MCP Examples
 
-### 예시 1: 코드 패턴 메모리 읽기
+### Example 1: Read Code Pattern Memory
 
 ```typescript
 await mcp__plugin_serena_serena__read_memory({
@@ -60,7 +60,7 @@ await mcp__plugin_serena_serena__read_memory({
 })
 ```
 
-### 예시 2: 기존 유사 코드 패턴 검색
+### Example 2: Search Existing Similar Code Patterns
 
 ```typescript
 await mcp__plugin_serena_serena__search_for_pattern({
@@ -69,7 +69,7 @@ await mcp__plugin_serena_serena__search_for_pattern({
 })
 ```
 
-### 예시 3: 네이밍 컨벤션 확인용 심볼 검색
+### Example 3: Search Symbols for Naming Convention Verification
 
 ```typescript
 await mcp__plugin_serena_serena__find_symbol({
@@ -77,7 +77,7 @@ await mcp__plugin_serena_serena__find_symbol({
 })
 ```
 
-### 예시 4: Import 구조 패턴 검색
+### Example 4: Search Import Structure Patterns
 
 ```typescript
 await mcp__plugin_serena_serena__search_for_pattern({
@@ -86,63 +86,63 @@ await mcp__plugin_serena_serena__search_for_pattern({
 })
 ```
 
-## 검증 항목 체크리스트
+## Verification Checklist
 
-### 네이밍 컨벤션
+### Naming Conventions
 
-- [ ] 변수명: `camelCase` (예: `userName`, `userId`)
-- [ ] 함수명: `camelCase` (예: `getUserById`, `createUser`)
-- [ ] 클래스명: `PascalCase` (예: `UserService`, `ProductController`)
-- [ ] 인터페이스명: `PascalCase` + `I` 접두사 또는 그냥 `PascalCase` (프로젝트 규칙 따름)
-- [ ] 타입명: `PascalCase` (예: `UserDto`, `CreateUserRequest`)
-- [ ] 상수: `UPPER_SNAKE_CASE` (예: `MAX_RETRY_COUNT`, `API_BASE_URL`)
-- [ ] Enum: `PascalCase` (예: `UserRole`, `OrderStatus`)
-- [ ] Private 필드: `_` 접두사 또는 `#` (프로젝트 규칙 따름)
+- [ ] Variables: `camelCase` (e.g., `userName`, `userId`)
+- [ ] Functions: `camelCase` (e.g., `getUserById`, `createUser`)
+- [ ] Classes: `PascalCase` (e.g., `UserService`, `ProductController`)
+- [ ] Interfaces: `PascalCase` + `I` prefix or plain `PascalCase` (follow project rules)
+- [ ] Types: `PascalCase` (e.g., `UserDto`, `CreateUserRequest`)
+- [ ] Constants: `UPPER_SNAKE_CASE` (e.g., `MAX_RETRY_COUNT`, `API_BASE_URL`)
+- [ ] Enums: `PascalCase` (e.g., `UserRole`, `OrderStatus`)
+- [ ] Private fields: `_` prefix or `#` (follow project rules)
 
-### 코드 스타일
+### Code Style
 
-- [ ] 들여쓰기: 2 spaces 또는 4 spaces (프로젝트 설정 따름)
-- [ ] 세미콜론: 사용 여부가 프로젝트 규칙과 일치
-- [ ] 따옴표: single quote(`'`) 또는 double quote(`"`) (프로젝트 규칙 따름)
-- [ ] 줄 길이: 프로젝트 ESLint/Prettier 설정 준수 (예: 80자, 100자, 120자)
-- [ ] 빈 줄: 함수 사이, 논리적 블록 사이에 적절한 공백
-- [ ] 중괄호: same-line(`{`) vs next-line 스타일 (프로젝트 규칙 따름)
+- [ ] Indentation: 2 spaces or 4 spaces (follow project settings)
+- [ ] Semicolons: usage matches project rules
+- [ ] Quotes: single quote(`'`) or double quote(`"`) (follow project rules)
+- [ ] Line length: follows project ESLint/Prettier settings (e.g., 80, 100, 120 chars)
+- [ ] Blank lines: appropriate spacing between functions and logical blocks
+- [ ] Braces: same-line(`{`) vs next-line style (follow project rules)
 
-### Import 구조 및 순서
+### Import Structure and Order
 
-- [ ] Import 순서:
-  1. 외부 라이브러리 (`react`, `express` 등)
-  2. 내부 모듈 (`@/components`, `@/services` 등)
-  3. 상대 경로 (`./`, `../`)
-  4. 타입 import (`import type {}`)
-- [ ] Import 정렬: 알파벳순 정렬 (ESLint 규칙 따름)
-- [ ] Unused imports 없음
-- [ ] Absolute path vs Relative path 규칙 준수
+- [ ] Import order:
+  1. External libraries (`react`, `express`, etc.)
+  2. Internal modules (`@/components`, `@/services`, etc.)
+  3. Relative paths (`./`, `../`)
+  4. Type imports (`import type {}`)
+- [ ] Import sorting: alphabetical order (follow ESLint rules)
+- [ ] No unused imports
+- [ ] Absolute path vs Relative path rule compliance
 
-### 주석 및 문서화
+### Comments and Documentation
 
-- [ ] JSDoc/TSDoc: Public 함수/클래스에 작성
-- [ ] JSDoc 포맷: `@param`, `@returns`, `@throws` 포함
-- [ ] 주석 내용: "무엇"이 아닌 "왜"를 설명
-- [ ] TODO/FIXME: 필요 시 JIRA 이슈 번호와 함께 작성
-- [ ] 복잡한 로직: 알고리즘 설명 주석 포함
+- [ ] JSDoc/TSDoc: written for public functions/classes
+- [ ] JSDoc format: includes `@param`, `@returns`, `@throws`
+- [ ] Comment content: explains "why" not "what"
+- [ ] TODO/FIXME: written with JIRA issue number when needed
+- [ ] Complex logic: includes algorithm explanation comments
 
-### 에러 핸들링 패턴
+### Error Handling Patterns
 
-- [ ] 프로젝트의 에러 핸들링 방식 준수 (try-catch, Either, Result 등)
-- [ ] Custom Error 클래스 사용 (프로젝트에 정의된 경우)
-- [ ] 에러 메시지: 명확하고 일관된 형식
-- [ ] 에러 로깅: 프로젝트의 로깅 라이브러리 사용
+- [ ] Follows project error handling approach (try-catch, Either, Result, etc.)
+- [ ] Uses Custom Error classes (if defined in project)
+- [ ] Error messages: clear and consistent format
+- [ ] Error logging: uses project's logging library
 
-### 파일 구조
+### File Structure
 
-- [ ] 파일명: kebab-case (예: `user-service.ts`) 또는 PascalCase (예: `UserService.ts`) (프로젝트 규칙 따름)
-- [ ] 파일당 하나의 주요 Export (Single Responsibility)
-- [ ] 파일 크기: 너무 크지 않음 (일반적으로 300줄 이하 권장)
+- [ ] Filenames: kebab-case (e.g., `user-service.ts`) or PascalCase (e.g., `UserService.ts`) (follow project rules)
+- [ ] One primary export per file (Single Responsibility)
+- [ ] File size: not too large (generally 300 lines or less recommended)
 
-## TypeScript 코드 예시
+## TypeScript Code Examples
 
-### 올바른 네이밍 컨벤션
+### Correct Naming Convention
 
 ```typescript
 // ✅ GOOD: 네이밍 컨벤션 준수
@@ -177,7 +177,7 @@ enum UserRole { // Enum: PascalCase
 }
 ```
 
-### 올바른 Import 순서
+### Correct Import Order
 
 ```typescript
 // ✅ GOOD: Import 순서 준수
@@ -200,7 +200,7 @@ import type { User } from '@/types/user';
 import type { AuthConfig } from './types';
 ```
 
-### 잘못된 Import 순서
+### Incorrect Import Order
 
 ```typescript
 // ❌ BAD: Import 순서가 뒤섞임
@@ -210,7 +210,7 @@ import type { User } from '@/types/user'; // 타입이 중간에 나옴
 import { UserService } from '@/services/user.service'; // 순서 뒤바뀜
 ```
 
-### 올바른 JSDoc 문서화
+### Correct JSDoc Documentation
 
 ```typescript
 // ✅ GOOD: JSDoc 문서화 완료
@@ -237,7 +237,7 @@ async function createUser(userData: CreateUserDto): Promise<User> {
 }
 ```
 
-### 올바른 에러 핸들링 패턴
+### Correct Error Handling Pattern
 
 ```typescript
 // ✅ GOOD: 프로젝트의 Custom Error 클래스 사용
@@ -270,7 +270,7 @@ async function getUserById(userId: string): Promise<User> {
 }
 ```
 
-### 파일 구조 예시
+### File Structure Example
 
 ```typescript
 // ✅ GOOD: 파일당 하나의 주요 Export
@@ -299,23 +299,23 @@ export class OrderService {
 }
 ```
 
-## 실제 검증 절차
+## Actual Verification Procedure
 
-1. **프로젝트 컨벤션 문서 읽기**
-   - README.md에서 Coding Style 섹션 확인
-   - CLAUDE.md에서 프로젝트 가이드라인 확인
-   - ESLint/Prettier 설정 파일 확인
+1. **Read project convention documents**
+   - Check Coding Style section in README.md
+   - Check project guidelines in CLAUDE.md
+   - Check ESLint/Prettier configuration files
 
-2. **Serena로 기존 패턴 파악**
-   - `mcp__plugin_serena_serena__read_memory()`로 코드 패턴 확인
-   - `mcp__plugin_serena_serena__search_for_pattern()`으로 유사 코드 검색
+2. **Identify existing patterns with Serena**
+   - Check code patterns with `mcp__plugin_serena_serena__read_memory()`
+   - Search similar code with `mcp__plugin_serena_serena__search_for_pattern()`
 
-3. **Sequential Thinking으로 체계적 검증**
-   - 네이밍 컨벤션 단계별 확인
-   - Import 순서 검증
-   - 주석 및 문서화 확인
-   - 에러 핸들링 패턴 검증
+3. **Systematically verify with Sequential Thinking**
+   - Step-by-step naming convention verification
+   - Import order verification
+   - Comment and documentation verification
+   - Error handling pattern verification
 
-4. **위반 사항 문서화**
-   - 파일명:라인번호 형식으로 기록
-   - 올바른 예시 제공
+4. **Document violations**
+   - Record in filename:line_number format
+   - Provide correct examples

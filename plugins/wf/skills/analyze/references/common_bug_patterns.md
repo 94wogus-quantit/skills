@@ -521,8 +521,8 @@ When analyzing an issue:
 3. **Verify Root Cause**: Follow "How to Identify" steps
 4. **Quick Check**: Use "Quick Verification" to confirm hypothesis
 5. **Multiple Patterns**: Issues often involve multiple patterns (e.g., null reference + race condition)
-6. **제1원리 적용**: 각 패턴에서 "당연하다고 믿는 가정"을 식별하고, 검증된 사실과 미검증 가정을 분류
-7. **삭제 관점**: "이 코드가 존재하지 않으면 이 버그도 없는가?" 자문. 수정보다 삭제가 근본적 해결일 수 있다
-8. **증거 태깅**: 모든 가설에 "사실 기반" vs "유추 기반(미검증)" 태그를 부여하여 확인 편향 방지
+6. **Apply First Principles**: Identify "assumptions taken for granted" in each pattern, classify into verified facts and unverified assumptions
+7. **Deletion Perspective**: Ask "if this code did not exist, would this bug also not exist?" Deletion may be a more fundamental fix than patching
+8. **Evidence Tagging**: Tag all hypotheses as "fact-based" vs "analogy-based (unverified)" to prevent confirmation bias
 
 Remember: This is a starting point. Use systematic investigation with sequential thinking to thoroughly analyze each unique issue.

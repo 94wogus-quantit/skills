@@ -65,17 +65,37 @@ Use this skill when:
 
 ## Planning Workflow
 
-### Phase 0: Branch Validation
+### Phase 0: Task Registration
 
 ⚠️ **CRITICAL: DO NOT SKIP PHASE 0**
 
+**Objective**: Register all Phases as Tasks to track progress throughout the plan workflow.
+
+Register the following Phases in order using `TaskCreate`:
+
+| Task | subject | activeForm |
+|------|---------|------------|
+| Phase 1 | Branch Validation | Validating branch |
+| Phase 2 | Initial Plan Creation | Creating initial plan |
+| Phase 3 | Iterative Review Loop | Reviewing plan iteratively |
+| Phase 4 | Finalization | Finalizing plan |
+
+**Task Tracking Rules**:
+- On Phase entry: `TaskUpdate(taskId, status: "in_progress")`
+- On Phase completion: `TaskUpdate(taskId, status: "completed")`
+- Only **one Phase** should be `in_progress` at any time
+
+---
+
+### Phase 1: Branch Validation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+
 > **MANDATORY REQUIREMENT**:
 >
-> - Phase 0 is the **FIRST step** of this skill
-> - You **MUST** execute Phase 0 **BEFORE** proceeding to Phase 1
 > - **DO NOT** assume you are on the correct branch
 > - **ALWAYS** verify branch status using the MCP tool below
-> - **NEVER** start plan creation (Phase 1) without completing Phase 0
+> - **NEVER** start plan creation (Phase 2) without completing Phase 1
 >
 > **Why this matters**:
 > - Plan files (PLAN.md) should be committed in feature branches, not main/master
@@ -107,14 +127,11 @@ If `is_protected` is `true`:
 - Ask user: "보호된 브랜치에서 계속 진행하시겠습니까?"
 - If user declines: Abort skill execution
 
-**3. Proceed to Phase 1**
-
-- Execute existing Phase 1-3
-- Save PLAN file in Phase 3 (Finalization)
-
 ---
 
-### Phase 1: Initial Plan Creation
+### Phase 2: Initial Plan Creation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 Create a structured task plan from requirements or analysis reports.
 
@@ -160,7 +177,9 @@ Reference the template in `references/plan_template.md` for complete structure.
 - Use UPPERCASE for feature name
 - Examples: `USER_AUTH_PLAN.md`, `API_REFACTOR_PLAN.md`
 
-### Phase 2: ITERATIVE REVIEW LOOP
+### Phase 3: ITERATIVE REVIEW LOOP
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 ⚠️ **CRITICAL**: This is a LOOP, not a single pass-through phase!
 
@@ -555,7 +574,9 @@ END WHILE
 - If iteration > 5 → Plan may need fundamental restructuring
 - If same issues reappear → Changes not addressing root cause
 
-### Phase 3: Finalization
+### Phase 4: Finalization
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 When plan receives approval, finalize and clean up.
 

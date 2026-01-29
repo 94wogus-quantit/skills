@@ -1,12 +1,12 @@
-# 비즈니스 로직 정확성 검증 가이드
+# Business Logic Accuracy Verification Guide
 
-## 목표
+## Goal
 
-JIRA 목표 대비 구현이 정확한지 검증합니다. 잘못된 로직, 엣지케이스 누락, 경계값 처리 오류 등을 탐지합니다.
+Verify that the implementation is accurate compared to JIRA objectives. Detect incorrect logic, missed edge cases, and boundary value handling errors.
 
-## Sequential Thinking MCP 예시
+## Sequential Thinking MCP Examples
 
-### 예시 1: AC 조건 정확성 분석
+### Example 1: AC Condition Accuracy Analysis
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -17,7 +17,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 2: 엣지케이스 검토
+### Example 2: Edge Case Review
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -28,7 +28,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 3: 부정 케이스 검증
+### Example 3: Negative Case Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -39,7 +39,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 4: 데이터 정합성 검증
+### Example 4: Data Consistency Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -50,7 +50,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 5: 상태 전이 검증
+### Example 5: State Transition Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -61,7 +61,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 6: 타임아웃/만료 조건 검증
+### Example 6: Timeout/Expiry Condition Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -72,9 +72,9 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-## Serena MCP 예시
+## Serena MCP Examples
 
-### 예시 1: 관련 비즈니스 로직 검색
+### Example 1: Search Related Business Logic
 
 ```typescript
 await mcp__plugin_serena_serena__search_for_pattern({
@@ -83,7 +83,7 @@ await mcp__plugin_serena_serena__search_for_pattern({
 })
 ```
 
-### 예시 2: 기존 유사 로직 비교
+### Example 2: Compare Existing Similar Logic
 
 ```typescript
 await mcp__plugin_serena_serena__find_symbol({
@@ -92,7 +92,7 @@ await mcp__plugin_serena_serena__find_symbol({
 })
 ```
 
-### 예시 3: 상태 관리 패턴 확인
+### Example 3: Check State Management Patterns
 
 ```typescript
 await mcp__plugin_serena_serena__search_for_pattern({
@@ -101,19 +101,19 @@ await mcp__plugin_serena_serena__search_for_pattern({
 })
 ```
 
-## 검증 체크리스트
+## Verification Checklist
 
-| 검증 항목 | 설명 | 확인 포인트 |
-|----------|------|------------|
-| **로직 정확성** | AC에 명시된 조건이 코드에 정확히 구현되었는가? | 조건문, 비교 연산자, 임계값 |
-| **경계값 처리** | 경계값(5회 = 정확히 5? 5 이상?) 처리가 올바른가? | `>=`, `>`, `==` 연산자 확인 |
-| **엣지케이스** | 예외 상황(동시성, 타임아웃, null)이 고려되었는가? | null check, race condition, timeout |
-| **부정 케이스** | "~하면 안 된다" 조건이 구현되었는가? | 유효성 검사, 가드 절 |
-| **데이터 정합성** | 계산, 집계, 상태 변경이 정확한가? | 소수점, 반올림, 합계 검증 |
-| **상태 전이** | 상태 변경 순서가 올바른가? | 상태 머신, 전이 조건 |
-| **시간 조건** | 만료, 타임아웃, 스케줄 조건이 구현되었는가? | 타이머, cron, TTL |
+| Verification Item | Description | Check Points |
+|-------------------|-------------|--------------|
+| **Logic accuracy** | Are conditions specified in AC accurately implemented in code? | Conditionals, comparison operators, threshold values |
+| **Boundary value handling** | Is boundary value handling correct (5 times = exactly 5? 5 or more?) | `>=`, `>`, `==` operator verification |
+| **Edge cases** | Are exceptional situations (concurrency, timeout, null) considered? | null check, race condition, timeout |
+| **Negative cases** | Are "must not" conditions implemented? | Validation, guard clauses |
+| **Data consistency** | Are calculations, aggregations, and state changes accurate? | Decimal points, rounding, sum verification |
+| **State transitions** | Is the state change order correct? | State machine, transition conditions |
+| **Time conditions** | Are expiry, timeout, and schedule conditions implemented? | Timers, cron, TTL |
 
-## 이슈 발견 시 JSON 형식
+## Issue Finding JSON Format
 
 ```json
 {
@@ -128,9 +128,9 @@ await mcp__plugin_serena_serena__search_for_pattern({
 }
 ```
 
-## 일반적인 비즈니스 로직 오류 패턴
+## Common Business Logic Error Patterns
 
-### 1. 경계값 오류 (Off-by-one)
+### 1. Boundary Value Error (Off-by-one)
 
 ```typescript
 // 잘못된 예: 5회 초과에서 잠금 (6회부터)
@@ -140,7 +140,7 @@ if (failCount > 5) { lockAccount(); }
 if (failCount >= 5) { lockAccount(); }
 ```
 
-### 2. 상태 리셋 누락
+### 2. Missing State Reset
 
 ```typescript
 // 잘못된 예: 성공 시 실패 횟수 리셋 안 함
@@ -155,7 +155,7 @@ if (loginSuccess) {
 }
 ```
 
-### 3. 동시성 미고려
+### 3. Missing Concurrency Consideration
 
 ```typescript
 // 잘못된 예: race condition 가능
@@ -166,7 +166,7 @@ await setFailCount(userId, count + 1);
 await incrementFailCount(userId);
 ```
 
-### 4. null/undefined 미처리
+### 4. Missing null/undefined Handling
 
 ```typescript
 // 잘못된 예: null 체크 없음
@@ -176,7 +176,7 @@ const discount = user.membership.discountRate * price;
 const discount = (user?.membership?.discountRate ?? 0) * price;
 ```
 
-### 5. 시간대 미고려
+### 5. Missing Timezone Consideration
 
 ```typescript
 // 잘못된 예: 로컬 시간 사용
@@ -189,18 +189,18 @@ const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
 ## Best Practices
 
-1. **AC를 코드로 번역하기 전에 충분히 분석**
-   - 각 AC의 조건, 액션, 예외를 명확히 파악
-   - 암묵적 요구사항 (예: 리셋 조건) 확인
+1. **Thoroughly analyze each AC before translating to code**
+   - Clearly identify conditions, actions, and exceptions for each AC
+   - Identify implicit requirements (e.g., reset conditions)
 
-2. **경계값 테스트 케이스 확인**
-   - 4회, 5회, 6회 각각 테스트
-   - 0, 음수, null 케이스 테스트
+2. **Verify boundary value test cases**
+   - Test 4, 5, and 6 occurrences individually
+   - Test 0, negative, and null cases
 
-3. **상태 다이어그램으로 검증**
-   - 가능한 모든 상태 전이 나열
-   - 잘못된 전이 방지 로직 확인
+3. **Verify using state diagrams**
+   - List all possible state transitions
+   - Confirm logic to prevent invalid transitions
 
-4. **시간 관련 로직 특별 주의**
-   - 타임존, DST(일광 절약 시간) 고려
-   - 만료/갱신 로직 정확성 확인
+4. **Pay special attention to time-related logic**
+   - Consider timezone and DST (Daylight Saving Time)
+   - Verify accuracy of expiry/renewal logic

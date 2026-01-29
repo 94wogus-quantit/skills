@@ -1,12 +1,12 @@
-# 테스트 커버리지 평가 가이드
+# Test Coverage Evaluation Guide
 
-## 목표
+## Goal
 
-변경된 코드에 대한 테스트가 충분히 작성되었는지 평가합니다.
+Evaluate whether sufficient tests have been written for the changed code.
 
-## Sequential Thinking MCP 예시
+## Sequential Thinking MCP Examples
 
-### 예시 1: 단위 테스트 존재 여부 검증
+### Example 1: Unit Test Existence Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -17,7 +17,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 2: Edge Case 테스트 검증
+### Example 2: Edge Case Test Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -28,7 +28,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 3: 에러 케이스 테스트 검증
+### Example 3: Error Case Test Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -39,7 +39,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 4: 통합 테스트 필요성 검증
+### Example 4: Integration Test Necessity Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -50,7 +50,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 5: Mock/Stub 사용 적절성 검증
+### Example 5: Mock/Stub Usage Appropriateness Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -61,7 +61,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 6: 테스트 가독성 및 유지보수성 검증
+### Example 6: Test Readability and Maintainability Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -72,7 +72,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 7: 커버리지 메트릭 검증
+### Example 7: Coverage Metric Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -83,9 +83,9 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-## Serena MCP 예시
+## Serena MCP Examples
 
-### 예시 1: 테스트 파일 검색
+### Example 1: Search Test Files
 
 ```typescript
 await mcp__plugin_serena_serena__find_file({
@@ -94,7 +94,7 @@ await mcp__plugin_serena_serena__find_file({
 })
 ```
 
-### 예시 2: 테스트 패턴 메모리 읽기
+### Example 2: Read Test Pattern Memory
 
 ```typescript
 await mcp__plugin_serena_serena__read_memory({
@@ -102,7 +102,7 @@ await mcp__plugin_serena_serena__read_memory({
 })
 ```
 
-### 예시 3: 테스트되지 않은 함수 찾기
+### Example 3: Find Untested Functions
 
 ```typescript
 await mcp__plugin_serena_serena__find_symbol({
@@ -110,79 +110,79 @@ await mcp__plugin_serena_serena__find_symbol({
 })
 ```
 
-### 예시 4: 특정 파일의 테스트 파일 찾기
+### Example 4: Find Test File for Specific File
 
 ```typescript
-// user.service.ts -> user.service.test.ts 찾기
+// user.service.ts -> user.service.test.ts
 await mcp__plugin_serena_serena__find_file({
   file_mask: "user.service.test.ts|user.service.spec.ts",
   relative_path: "."
 })
 ```
 
-## 검증 항목 체크리스트
+## Verification Checklist
 
-### 단위 테스트 (Unit Test)
+### Unit Tests
 
-- [ ] 모든 새 함수/메서드에 단위 테스트 존재
-- [ ] Public 함수는 모두 테스트됨
-- [ ] Private 함수는 Public 함수를 통해 간접적으로 테스트됨
-- [ ] 각 함수의 핵심 로직이 테스트됨
+- [ ] Unit tests exist for all new functions/methods
+- [ ] All public functions are tested
+- [ ] Private functions are indirectly tested through public functions
+- [ ] Core logic of each function is tested
 
-### 테스트 케이스 완성도
+### Test Case Completeness
 
-- [ ] **성공 케이스 (Happy Path)**: 정상적인 입력과 출력 테스트
-- [ ] **실패 케이스 (Unhappy Path)**: 에러 상황 테스트
-- [ ] **Edge Case**: null, undefined, 빈 값, 경계 값 테스트
-- [ ] **경계 조건 (Boundary Conditions)**: 최소값, 최대값 테스트
+- [ ] **Success cases (Happy Path)**: Normal input and output tested
+- [ ] **Failure cases (Unhappy Path)**: Error scenarios tested
+- [ ] **Edge cases**: null, undefined, empty values, boundary values tested
+- [ ] **Boundary conditions**: Minimum and maximum values tested
 
-### 통합 테스트 (Integration Test)
+### Integration Tests
 
-- [ ] 여러 모듈이 함께 동작하는 기능 테스트
-- [ ] API 엔드포인트의 전체 flow 테스트
-- [ ] 데이터베이스 연동 테스트 (필요 시)
-- [ ] 외부 API 호출 테스트 (필요 시)
+- [ ] Features involving multiple modules working together are tested
+- [ ] Full flow of API endpoints is tested
+- [ ] Database integration tested (when applicable)
+- [ ] External API calls tested (when applicable)
 
-### E2E 테스트 (End-to-End Test)
+### E2E Tests (End-to-End)
 
-- [ ] 사용자 시나리오 기반 테스트 (필요 시)
-- [ ] 프론트엔드와 백엔드 통합 테스트 (필요 시)
-- [ ] 주요 비즈니스 플로우 E2E 테스트
+- [ ] User scenario-based tests (when applicable)
+- [ ] Frontend and backend integration tests (when applicable)
+- [ ] E2E tests for critical business flows
 
-### 테스트 품질
+### Test Quality
 
-- [ ] 테스트 이름이 명확함 (should/it describes what is tested)
-- [ ] Given-When-Then 패턴 준수
-- [ ] 각 테스트가 하나의 기능만 검증 (Single Responsibility)
-- [ ] 테스트가 독립적임 (테스트 간 의존성 없음)
-- [ ] 테스트가 재실행 가능함 (Idempotent)
-- [ ] 테스트가 빠름 (단위 테스트는 밀리초 단위)
+- [ ] Test names are clear (should/it describes what is tested)
+- [ ] Given-When-Then pattern followed
+- [ ] Each test verifies only one feature (Single Responsibility)
+- [ ] Tests are independent (no dependencies between tests)
+- [ ] Tests are re-runnable (Idempotent)
+- [ ] Tests are fast (unit tests in milliseconds)
 
-### Mock/Stub 사용
+### Mock/Stub Usage
 
-- [ ] 외부 의존성(DB, API, File System)이 mocking됨
-- [ ] Mock이 과도하지 않음 (실제 동작과 유사)
-- [ ] Mock 객체가 명확하게 정의됨
-- [ ] Spy를 사용하여 함수 호출 검증 (필요 시)
+- [ ] External dependencies (DB, API, File System) are mocked
+- [ ] Mocking is not excessive (similar to actual behavior)
+- [ ] Mock objects are clearly defined
+- [ ] Spies used for function call verification (when applicable)
 
-### 커버리지 메트릭
+### Coverage Metrics
 
-- [ ] 코드 커버리지가 프로젝트 기준 충족 (예: 80% 이상)
-- [ ] Statement coverage (모든 문장 실행)
-- [ ] Branch coverage (모든 분기 조건 테스트)
-- [ ] Function coverage (모든 함수 호출)
-- [ ] Line coverage (모든 코드 라인 실행)
+- [ ] Code coverage meets project standards (e.g., 80% or higher)
+- [ ] Statement coverage (all statements executed)
+- [ ] Branch coverage (all branch conditions tested)
+- [ ] Function coverage (all functions called)
+- [ ] Line coverage (all code lines executed)
 
-### 테스트 유지보수성
+### Test Maintainability
 
-- [ ] 테스트 코드가 읽기 쉬움
-- [ ] 중복 코드가 최소화됨 (beforeEach, helper 함수 사용)
-- [ ] Magic number/string 대신 상수 사용
-- [ ] 테스트 설명이 명확함
+- [ ] Test code is readable
+- [ ] Duplicate code is minimized (using beforeEach, helper functions)
+- [ ] Constants used instead of magic numbers/strings
+- [ ] Test descriptions are clear
 
-## TypeScript 코드 예시
+## TypeScript Code Examples
 
-### 단위 테스트 - 성공/실패/Edge Case
+### Unit Tests - Success/Failure/Edge Cases
 
 ```typescript
 // user.service.ts
@@ -221,7 +221,7 @@ describe('UserService', () => {
     userService = new UserService(mockUserRepository);
   });
 
-  // 성공 케이스 (Happy Path)
+  // Success cases (Happy Path)
   describe('createUser - success cases', () => {
     it('should create user with valid email and password', async () => {
       // Given
@@ -238,7 +238,7 @@ describe('UserService', () => {
     });
   });
 
-  // 실패 케이스 (Unhappy Path)
+  // Failure cases (Unhappy Path)
   describe('createUser - error cases', () => {
     it('should throw ValidationError when email is empty', async () => {
       // Given
@@ -254,7 +254,7 @@ describe('UserService', () => {
     it('should throw ValidationError when password is too short', async () => {
       // Given
       const email = 'user@example.com';
-      const password = 'short'; // 5자 (8자 미만)
+      const password = 'short'; // 5 chars (less than 8)
 
       // When & Then
       await expect(
@@ -273,7 +273,7 @@ describe('UserService', () => {
     });
   });
 
-  // Edge Case
+  // Edge Cases
   describe('createUser - edge cases', () => {
     it('should handle null email', async () => {
       await expect(
@@ -291,7 +291,7 @@ describe('UserService', () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
       mockUserRepository.create.mockResolvedValue({ id: '1' } as User);
 
-      // 경계 조건: 정확히 8자
+      // Boundary condition: exactly 8 characters
       const user = await userService.createUser('user@example.com', '12345678');
       expect(user).toBeDefined();
     });
@@ -299,10 +299,10 @@ describe('UserService', () => {
 });
 ```
 
-### 통합 테스트 예시
+### Integration Test Example
 
 ```typescript
-// ✅ GOOD: API 엔드포인트 통합 테스트
+// ✅ GOOD: API endpoint integration test
 // auth.integration.test.ts
 describe('POST /api/auth/login', () => {
   let app: Express;
@@ -318,13 +318,13 @@ describe('POST /api/auth/login', () => {
   });
 
   it('should login with valid credentials and return JWT token', async () => {
-    // Given: 테스트 사용자 생성
+    // Given: Create test user
     await testDb.users.create({
       email: 'user@example.com',
       password: await bcrypt.hash('password123', 10)
     });
 
-    // When: 로그인 API 호출
+    // When: Call login API
     const response = await request(app)
       .post('/api/auth/login')
       .send({
@@ -332,12 +332,12 @@ describe('POST /api/auth/login', () => {
         password: 'password123'
       });
 
-    // Then: 응답 검증
+    // Then: Verify response
     expect(response.status).toBe(200);
     expect(response.body.token).toBeDefined();
     expect(typeof response.body.token).toBe('string');
 
-    // JWT 토큰 검증
+    // Verify JWT token
     const decoded = jwt.verify(response.body.token, process.env.JWT_SECRET);
     expect(decoded.email).toBe('user@example.com');
   });
@@ -349,7 +349,7 @@ describe('POST /api/auth/login', () => {
       password: await bcrypt.hash('password123', 10)
     });
 
-    // When: 잘못된 비밀번호로 로그인 시도
+    // When: Login attempt with wrong password
     const response = await request(app)
       .post('/api/auth/login')
       .send({
@@ -364,37 +364,37 @@ describe('POST /api/auth/login', () => {
 });
 ```
 
-### Given-When-Then 패턴
+### Given-When-Then Pattern
 
 ```typescript
-// ✅ GOOD: Given-When-Then 패턴 사용
+// ✅ GOOD: Given-When-Then pattern
 describe('calculateDiscount', () => {
   it('should apply 20% discount for premium users', () => {
-    // Given: 프리미엄 사용자와 상품 가격
+    // Given: Premium user and product price
     const user = { role: 'premium' } as User;
     const price = 100;
 
-    // When: 할인 계산
+    // When: Calculate discount
     const discountedPrice = calculateDiscount(user, price);
 
-    // Then: 20% 할인 적용됨
+    // Then: 20% discount applied
     expect(discountedPrice).toBe(80);
   });
 });
 
-// ❌ BAD: 패턴 없이 작성
+// ❌ BAD: Written without pattern
 it('test discount', () => {
   expect(calculateDiscount({ role: 'premium' } as User, 100)).toBe(80);
 });
 ```
 
-### Mock 사용 예시
+### Mock Usage Example
 
 ```typescript
-// ✅ GOOD: Mock을 사용하여 외부 의존성 제거
+// ✅ GOOD: Using mocks to remove external dependencies
 describe('PaymentService', () => {
   it('should process payment via Stripe', async () => {
-    // Given: Stripe API를 mocking
+    // Given: Mock Stripe API
     const mockStripe = {
       charges: {
         create: jest.fn().mockResolvedValue({
@@ -418,25 +418,25 @@ describe('PaymentService', () => {
   });
 });
 
-// ❌ BAD: 실제 Stripe API 호출 (느리고 불안정)
+// ❌ BAD: Calling actual Stripe API (slow and unstable)
 describe('PaymentService', () => {
   it('should process payment via Stripe', async () => {
-    const paymentService = new PaymentService(realStripe); // ❌ 실제 API
+    const paymentService = new PaymentService(realStripe); // ❌ Real API
     const result = await paymentService.processPayment(100, 'usd');
-    // 실제 결제가 발생하고, 네트워크 의존성이 생김
+    // Actual payment occurs, network dependency introduced
   });
 });
 ```
 
-### 테스트 독립성 보장
+### Test Independence Guarantee
 
 ```typescript
-// ✅ GOOD: 각 테스트가 독립적
+// ✅ GOOD: Each test is independent
 describe('UserService', () => {
   let userService: UserService;
 
   beforeEach(() => {
-    // 각 테스트마다 새로운 인스턴스 생성
+    // New instance for each test
     userService = new UserService();
   });
 
@@ -446,14 +446,14 @@ describe('UserService', () => {
   });
 
   it('test 2', () => {
-    // test 1의 영향을 받지 않음 (독립적)
+    // Not affected by test 1 (independent)
     expect(userService.getUserCount()).toBe(0);
   });
 });
 
-// ❌ BAD: 테스트 간 의존성 발생
+// ❌ BAD: Dependencies between tests
 describe('UserService', () => {
-  const userService = new UserService(); // 공유 인스턴스
+  const userService = new UserService(); // Shared instance
 
   it('test 1', () => {
     userService.addUser('user1');
@@ -461,34 +461,34 @@ describe('UserService', () => {
   });
 
   it('test 2', () => {
-    // ❌ test 1의 영향을 받음 (의존성 발생)
-    expect(userService.getUserCount()).toBe(1); // test 1에서 추가한 user
+    // ❌ Affected by test 1 (dependency)
+    expect(userService.getUserCount()).toBe(1); // user added in test 1
   });
 });
 ```
 
-## 실제 검증 절차
+## Actual Verification Procedure
 
-1. **변경된 파일에 대응하는 테스트 파일 확인**
-   - `user.service.ts` → `user.service.test.ts` 또는 `user.service.spec.ts`
-   - Serena로 테스트 파일 검색
+1. **Check test files corresponding to changed files**
+   - `user.service.ts` → `user.service.test.ts` or `user.service.spec.ts`
+   - Search test files with Serena
 
-2. **Sequential Thinking으로 테스트 품질 검증**
-   - 성공/실패/Edge Case 테스트 존재 확인
-   - 테스트 가독성, 독립성, 유지보수성 검증
+2. **Verify test quality with Sequential Thinking**
+   - Check existence of success/failure/edge case tests
+   - Verify test readability, independence, and maintainability
 
-3. **Serena memory에서 테스트 패턴 확인**
-   - 프로젝트의 테스트 작성 가이드라인 확인
-   - 기존 테스트 패턴과 일관성 검증
+3. **Check test patterns in Serena memory**
+   - Check project test writing guidelines
+   - Verify consistency with existing test patterns
 
-4. **커버리지 메트릭 확인**
+4. **Check coverage metrics**
    ```bash
    npm test -- --coverage
-   # 또는
+   # or
    jest --coverage
    ```
 
-5. **검증 결과 문서화**
-   - 테스트가 누락된 함수/파일 목록 작성
-   - 커버리지가 낮은 부분 강조
-   - 권장 테스트 케이스 제안
+5. **Document verification results**
+   - List functions/files with missing tests
+   - Highlight areas with low coverage
+   - Suggest recommended test cases

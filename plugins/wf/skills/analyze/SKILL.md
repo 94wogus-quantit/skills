@@ -41,17 +41,44 @@ Use this skill when:
 
 ## Analysis Workflow
 
-### Phase 0: Branch Validation
+### Phase 0: Task Registration
 
 ⚠️ **CRITICAL: DO NOT SKIP PHASE 0**
 
+**Objective**: Register all Phases as Tasks to track progress throughout the analysis workflow.
+
+Register the following Phases in order using `TaskCreate`:
+
+| Task | subject | activeForm |
+|------|---------|------------|
+| Phase 1 | Branch Validation | Validating branch |
+| Phase 2 | Context Gathering | Gathering context |
+| Phase 3 | First Principles Decomposition | Decomposing first principles |
+| Phase 4 | Hypothesis Generation | Generating hypotheses |
+| Phase 5 | Codebase Investigation | Investigating codebase |
+| Phase 5D | Code Complexity Assessment (conditional) | Assessing code complexity |
+| Phase 5E | Requirement Reverse Tracing (conditional) | Tracing requirements |
+| Phase 6 | Root Cause Determination | Determining root cause |
+| Phase 7 | Recommendations | Generating recommendations |
+| Phase 8 | Report Generation | Generating report |
+
+**Task Tracking Rules**:
+- On Phase entry: `TaskUpdate(taskId, status: "in_progress")`
+- On Phase completion: `TaskUpdate(taskId, status: "completed")`
+- Conditional Phases (5D, 5E) not executed: `TaskUpdate(taskId, status: "deleted")`
+- Only **one Phase** should be `in_progress` at any time
+
+---
+
+### Phase 1: Branch Validation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+
 > **MANDATORY REQUIREMENT**:
 >
-> - Phase 0 is the **FIRST step** of this skill
-> - You **MUST** execute Phase 0 **BEFORE** proceeding to Phase 1
 > - **DO NOT** assume you are on the correct branch
 > - **ALWAYS** verify branch status using the MCP tool below
-> - **NEVER** start analysis (Phase 1) without completing Phase 0
+> - **NEVER** start analysis (Phase 2) without completing Phase 1
 >
 > **Why this matters**:
 > - Prevents accidental commits to main/master branch
@@ -95,7 +122,9 @@ Returns:
 
 ---
 
-### Phase 1: Context Gathering
+### Phase 2: Context Gathering
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 Gather comprehensive context from all available sources:
 
@@ -135,45 +164,49 @@ From Sentry results, extract:
 
 ---
 
-### Phase 2: First Principles Decomposition
+### Phase 3: First Principles Decomposition
 
-**Objective**: 수집된 컨텍스트에서 "사실"과 "가정"을 분리하고, 근본 사실만 추출한다.
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
-> 상세 프로세스 및 Sequential Thinking 호출 예시는 `references/first_principles_guide.md` 참조
+**Objective**: Separate "facts" from "assumptions" in the collected context, and extract only fundamental facts.
 
-**Step 1: 가정 식별 (Assumption Identification)**
+> For detailed process and Sequential Thinking invocation examples, see `references/first_principles_guide.md`
 
-Use `mcp__plugin_seq-think_st__sequentialthinking` to:
-
-1. 이 이슈에 대해 "당연하다고 믿는 것"을 모두 나열
-2. 각 항목을 **검증된 사실**(로그/메트릭/코드로 확인 가능) vs **미검증 가정**(추론/경험 기반)으로 분류
-3. 미검증 가정을 명시적으로 표시
-
-**Step 2: 근본 원리 분해 (Decomposition)**
+**Step 1: Assumption Identification**
 
 Use `mcp__plugin_seq-think_st__sequentialthinking` to:
 
-1. 버그가 발생하는 시스템의 동작 원리를 기본 구성요소로 분해 (입력 → 처리 → 출력)
-2. "이 시스템이 정상 동작하려면 반드시 참이어야 하는 것"을 나열
-3. 그 중 "참이 아닌 것"을 식별 → 근본 원인 후보
+1. List everything assumed to be "obviously true" about this issue
+2. Classify each item as **verified fact** (confirmable via logs/metrics/code) vs **unverified assumption** (based on inference/experience)
+3. Explicitly mark unverified assumptions
 
-**Step 3: 사실 기반 요약 (Fact-Based Summary)**
+**Step 2: Fundamental Decomposition**
 
-Phase 3으로 넘기는 정보를 정리:
-- 검증된 사실 목록
-- 미검증 가정 목록 (검증 필요 표시)
-- 시스템 분해 결과
-- 정상 동작 조건 중 위반 가능성이 있는 것
+Use `mcp__plugin_seq-think_st__sequentialthinking` to:
+
+1. Decompose the system's operating principles into basic components (input → processing → output)
+2. List "what must be true for this system to work correctly"
+3. Identify which of those are "not true" → root cause candidates
+
+**Step 3: Fact-Based Summary**
+
+Organize the information to pass to Phase 4:
+- List of verified facts
+- List of unverified assumptions (marked as needing verification)
+- System decomposition results
+- Normal operating conditions that may be violated
 
 ---
 
-### Phase 3: Hypothesis Generation
+### Phase 4: Hypothesis Generation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 Use `mcp__plugin_seq-think_st__sequentialthinking` to systematically explore multiple perspectives:
 
 **1. Generate Hypotheses**
 
-Consider various possible root causes based on **Phase 2에서 식별한 검증된 사실**:
+Consider various possible root causes based on **verified facts identified in Phase 3**:
 - Code logic errors (off-by-one, null checks, type mismatches)
 - Race conditions or concurrency issues
 - Resource leaks or memory problems
@@ -185,16 +218,16 @@ Consider various possible root causes based on **Phase 2에서 식별한 검증�
 
 **2. Tag Evidence Type**
 
-각 가설 생성 시 근거 유형을 명시:
-- **사실 기반**: Phase 2에서 식별한 검증된 사실에서 도출 → 우선 조사
-- **유추 기반(미검증)**: 경험이나 패턴 매칭으로 추론 → 우선순위 하향
+Tag each hypothesis with its evidence type:
+- **Fact-based**: Derived from verified facts in Phase 3 → investigate first
+- **Inference-based (unverified)**: Inferred from experience or pattern matching → lower priority
 
 **3. Deletion Step**
 
-생성된 가설을 정리:
-1. 각 가설의 "근거"를 명시 (근거 없으면 삭제 대상)
-2. Phase 2에서 검증된 사실과 모순되는 가설 삭제
-3. 남은 가설이 "편하게 느껴지는 것보다 적다면" 올바른 방향
+Prune the generated hypotheses:
+1. State the "evidence" for each hypothesis (no evidence = candidate for deletion)
+2. Delete hypotheses that contradict verified facts from Phase 3
+3. If fewer hypotheses remain than feels comfortable, you are on the right track
 
 **4. Hypothesis Evaluation Matrix**
 
@@ -202,12 +235,14 @@ Consider various possible root causes based on **Phase 2에서 식별한 검증�
 |------|--------|----------|--------|-----------|----------|
 | ... | 높/중/낮 | 낮/중/높 | 낮/중/높 | 사실/유추 | ★~★★★ |
 
-우선순위 = 가능성 × 영향도 / 검증 비용
-→ 높은 순서대로 Phase 4에서 조사
+Priority = Likelihood × Impact / Verification Cost
+→ Investigate in Phase 5, highest priority first
 
 ---
 
-### Phase 4: Codebase Investigation
+### Phase 5: Codebase Investigation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 Use Serena tools efficiently for targeted code exploration:
 
@@ -228,10 +263,12 @@ Use Serena tools efficiently for targeted code exploration:
 - Correlate timing with issue occurrence
 - Review related code modifications
 
-### Phase 4D: Code Complexity Assessment (Conditional)
+### Phase 5D: Code Complexity Assessment (Conditional)
+
+> 📋 **Task Tracking**: Mark as `in_progress`/`completed` if condition met. Mark as `deleted` if skipped.
 
 **Execution Condition**:
-- After confirming affected files in Phase 4
+- After confirming affected files in Phase 5
 - **Conditional**: When code with Cyclomatic complexity > 10 OR function length > 50 lines is found
 
 **Steps**:
@@ -267,11 +304,13 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to:
 
 **4. Add Refactoring Suggestions to Report** (if applicable)
 
-### Phase 4E: Requirement Reverse Tracing (Optional)
+### Phase 5E: Requirement Reverse Tracing (Optional)
+
+> 📋 **Task Tracking**: Mark as `in_progress`/`completed` if condition met. Mark as `deleted` if skipped.
 
 **Execution Condition**:
 - When linked to a JIRA issue
-- After confirming bug location in Phase 4
+- After confirming bug location in Phase 5
 
 **Steps**:
 
@@ -288,7 +327,9 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to:
 
 ---
 
-### Phase 5: Root Cause Determination
+### Phase 6: Root Cause Determination
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 Based on systematic analysis, identify:
 
@@ -308,28 +349,28 @@ Based on systematic analysis, identify:
 - Data integrity implications
 - Performance or security considerations
 
-**4. Deletion Assessment (삭제 가능성 평가)**
+**4. Deletion Assessment**
 
-> 상세 가이드는 `references/root_cause_techniques.md` 참조
+> For detailed guide, see `references/root_cause_techniques.md`
 
-근본 원인 확정 후, 수정이 아닌 삭제로 해결 가능한지 평가:
+After confirming the root cause, evaluate whether deletion (not patching) can resolve the issue:
 
-- □ 이 버그가 발생하는 코드/기능은 현재도 필요한가?
-- □ 이 코드를 삭제하면 버그가 구조적으로 불가능해지는가?
-- □ Dead code, 미사용 feature flag, 불필요한 추상화 레이어가 원인인가?
+- □ Is the code/feature where this bug occurs still needed?
+- □ Would deleting this code make the bug structurally impossible?
+- □ Is the root cause dead code, unused feature flags, or unnecessary abstraction layers?
 
-> "최고의 부품은 없는 부품이다" — 삭제가 수정보다 근본적인 해결일 수 있다.
+> "The best part is no part." — Deletion may be a more fundamental solution than patching.
 
 **5. 5 Why Analysis (Conditional)**
 
-> 상세 프로세스 및 예시는 `references/root_cause_techniques.md` 참조
+> For detailed process and examples, see `references/root_cause_techniques.md`
 
-**적용 조건** — 다음 중 하나 이상 해당 시 수행:
-- 직접적 원인이 구조적/시스템적 문제로 의심되는 경우
-- 단일 코드 수정으로 해결되지 않는 반복 이슈인 경우
-- 여러 구성요소에 걸친 복합 원인이 의심되는 경우
+**Execution Condition** — Perform when one or more of the following apply:
+- The direct cause is suspected to be a structural/systemic issue
+- A recurring issue not resolvable by a single code fix
+- A compound cause spanning multiple components
 
-단순 버그(오타, off-by-one, null check 누락 등)에는 불필요.
+Not needed for simple bugs (typos, off-by-one, missing null checks, etc.).
 
 ```
 Why 1: 왜 이 문제가 발생하는가? → [직접적 원인]
@@ -340,55 +381,57 @@ Why 5: 왜 [구조적 원인]이 존재하는가? → [근본 원인]
 
 **6. Logical Falsification**
 
-확정된 근본 원인에 대해 반증을 시도:
+Attempt to falsify the confirmed root cause:
 
-1. "이 원인이 맞다면 논리적으로 참이어야 하는 조건"을 가능한 한 나열
-2. 각 조건이 코드/로그/데이터로 확인 가능한지 검증
-3. 확인 불가능한 조건은 "execute 단계에서 검증 필요"로 표시
-4. 확인 가능한 조건 중 하나라도 거짓이면 → 근본 원인 재검토
+1. List all conditions that "must be logically true if this cause is correct"
+2. Verify whether each condition is confirmable via code/logs/data
+3. Mark unverifiable conditions as "needs verification in execute phase"
+4. If any verifiable condition is false → revisit root cause
 
-※ 정적 분석(코드 읽기) 범위 내에서 수행. 실행/테스트가 필요한 검증은 execute 스킬에서 수행.
+※ Perform within the scope of static analysis (code reading). Verification requiring execution/testing is deferred to the execute skill.
 
 **7. Analysis Quality Checklist**
 
-근본 원인 확정 전 다음을 확인:
+Verify the following before confirming root cause:
 
-- □ 근본 원인이 "검증된 사실"에 기반하는가?
-- □ 표면적 원인에서 멈추지 않았는가? (구조적 원인까지 파악했는가?)
-- □ 유추가 아닌 이 시스템의 고유한 사실에서 도출했는가?
-- □ 반증 시도를 수행했는가? (해당하는 경우)
-- □ 권장사항이 증상이 아닌 근본 원인을 해결하는가?
+- □ Is the root cause based on "verified facts"?
+- □ Did you go beyond surface-level causes? (structural cause identified?)
+- □ Was it derived from facts specific to this system, not inference?
+- □ Was falsification attempted? (if applicable)
+- □ Do recommendations address the root cause, not just symptoms?
 
-→ 미충족 항목이 있으면 해당 분석을 이 Phase 내에서 즉시 보완
+→ If any item is unmet, immediately supplement the analysis within this Phase
 
 ---
 
-### Phase 6: Recommendations
+### Phase 7: Recommendations
 
-권장사항 도출 시 다음 **5단계 알고리즘** 순서를 따른다 (**순서 엄수**):
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
-**Step 1. 요구사항 질의 (Question Requirements)**
-- 이 버그가 발생하는 기능의 요구사항은 누가 만들었는가?
-- 그 요구사항은 현재에도 유효한가?
-- 요구사항 자체가 잘못된 것은 아닌가?
+Follow this **5-step algorithm** in strict order when generating recommendations:
 
-**Step 2. 삭제 (Delete)**
-- 이 코드/기능을 삭제하면 버그가 사라지는가?
-- Phase 5의 삭제 가능성 평가 결과 반영
+**Step 1. Question Requirements**
+- Who created the requirements for the feature where this bug occurs?
+- Are those requirements still valid today?
+- Could the requirements themselves be wrong?
 
-**Step 3. 단순화 (Simplify)**
-- 남은 코드를 더 간단하게 재구성할 수 있는가?
-- 과도한 추상화나 불필요한 레이어가 있는가?
+**Step 2. Delete**
+- Would deleting this code/feature eliminate the bug?
+- Incorporate the Deletion Assessment results from Phase 6
 
-**Step 4. 가속 (Accelerate)**
-- 이 버그의 재현-수정-검증 사이클을 단축하는 방법은?
+**Step 3. Simplify**
+- Can the remaining code be restructured more simply?
+- Are there excessive abstractions or unnecessary layers?
 
-**Step 5. 자동화 (Automate)**
-- 이 유형의 버그를 자동 감지하는 테스트/린터를 **마지막에** 추가
+**Step 4. Accelerate**
+- How to shorten the reproduce-fix-verify cycle for this bug?
 
-> ⚠️ 흔한 실수: Step 5(자동화)부터 시작하는 것. 존재하지 말아야 할 코드를 테스트하는 것은 낭비다.
+**Step 5. Automate**
+- Add tests/linters to auto-detect this type of bug — **only as the last step**
 
-위 프레임워크를 적용한 후, 구체적 권장사항을 작성:
+> ⚠️ Common mistake: Starting with Step 5 (Automate). Testing code that should not exist is waste.
+
+After applying the above framework, write concrete recommendations:
 
 **1. Immediate Actions**
 - Quick fixes or workarounds
@@ -414,18 +457,20 @@ Why 5: 왜 [구조적 원인]이 존재하는가? → [근본 원인]
 
 **5. Efficiency Evaluation**
 
-각 권장사항의 효율성을 평가:
+Evaluate the efficiency of each recommendation:
 
-| 권장사항 | 구현 복잡도 | 해결 범위 | 효율성 |
-|----------|------------|-----------|--------|
-| ... | 낮/중/높 | 이 이슈만/유사 이슈/근본적 | ★~★★★ |
+| Recommendation | Implementation Complexity | Resolution Scope | Efficiency |
+|----------------|--------------------------|-------------------|------------|
+| ... | Low/Med/High | This issue only / Similar issues / Fundamental | ★~★★★ |
 
-→ 가장 단순하면서 근본 원인을 해결하는 방안을 우선 권장
-→ "존재하지 않아야 할 것을 최적화하고 있지 않은가?" 자문
+→ Prioritize the simplest approach that resolves the root cause
+→ Ask yourself: "Am I optimizing something that should not exist?"
 
 ---
 
-## Report Generation
+### Phase 8: Report Generation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 Create a comprehensive markdown report:
 
@@ -573,5 +618,5 @@ This skill includes reference materials to support the analysis process:
 
 - `report_template.md` - Detailed template for analysis reports
 - `common_bug_patterns.md` - Catalog of frequently encountered bug patterns
-- `first_principles_guide.md` - First Principles Decomposition 상세 가이드 (ST 호출 예시 포함)
-- `root_cause_techniques.md` - 5 Why, 반증, 가설 관리, 효율성 평가 상세 가이드
+- `first_principles_guide.md` - Detailed guide for First Principles Decomposition (includes ST invocation examples)
+- `root_cause_techniques.md` - Detailed guide for 5 Why, falsification, hypothesis management, and efficiency evaluation

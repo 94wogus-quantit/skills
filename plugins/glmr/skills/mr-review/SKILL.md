@@ -165,7 +165,32 @@ claude-code exec "Use mr-review skill to review this MR. Branch: feature/user-au
 
 ## Review Workflow
 
+### Phase 0: Task Registration
+
+⚠️ **CRITICAL: DO NOT SKIP PHASE 0**
+
+**Objective**: Register all Phases as Tasks to track progress throughout the review workflow.
+
+Register the following Phases in order using `TaskCreate`:
+
+| Task | subject | activeForm |
+|------|---------|------------|
+| Phase 1 | Context Gathering | Gathering context |
+| Phase 2 | Code Analysis | Analyzing code |
+| Phase 3 | Dependency Security Analysis (conditional) | Analyzing dependency security |
+| Phase 4 | Report Generation | Generating report |
+
+**Task Tracking Rules**:
+- On Phase entry: `TaskUpdate(taskId, status: "in_progress")`
+- On Phase completion: `TaskUpdate(taskId, status: "completed")`
+- Conditional Phase (3) not executed: `TaskUpdate(taskId, status: "deleted")`
+- Only **one Phase** should be `in_progress` at any time
+
+---
+
 ### Phase 1: Context Gathering
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Collect all context information related to MR and **clarify branch objectives**
 
@@ -279,6 +304,8 @@ claude-code exec "Use mr-review skill to review this MR. Branch: feature/user-au
 ---
 
 ### Phase 2: Code Analysis
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Systematically analyze 7 verification items
 
@@ -480,6 +507,8 @@ Detailed processes for each verification item are in `references/verification_gu
 
 ### Phase 3: Dependency Security Analysis
 
+> 📋 **Task Tracking**: Mark as `in_progress`/`completed` if condition met. Mark as `deleted` if skipped.
+
 **Objective**: Automated detection of dependency vulnerabilities
 
 **Primary MCP**: Sequential Thinking
@@ -608,6 +637,8 @@ mcp__plugin_seq-think_st__sequentialthinking({
 ---
 
 ### Phase 4: Report Generation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Read Phase 1~3 intermediate outputs and generate final 2 report files
 

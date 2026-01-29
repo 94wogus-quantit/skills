@@ -58,17 +58,43 @@ This skill executes approved implementation plans through a 7-phase systematic p
 
 ## Workflow: 7-Phase Execution Process
 
-### Phase 0: Branch Validation
+### Phase 0: Task Registration
 
 ⚠️ **CRITICAL: DO NOT SKIP PHASE 0**
 
+**Objective**: Register all Phases as Tasks to track progress throughout the execution workflow.
+
+Register the following Phases in order using `TaskCreate`:
+
+| Task | subject | activeForm |
+|------|---------|------------|
+| Phase 1 | Branch Validation | Validating branch |
+| Phase 2 | Plan Loading and Validation | Loading and validating plan |
+| Phase 3 | Setup TodoList from Plan | Setting up TodoList |
+| Phase 4 | Execute Tasks Sequentially | Executing tasks |
+| Phase 5 | Handle Dependencies | Handling dependencies |
+| Phase 5C | Database Migration Validation (conditional) | Validating database migration |
+| Phase 6 | Automated Test Generation (conditional) | Generating automated tests |
+| Phase 7 | AC Achievement Report | Generating AC report |
+| Phase 8 | Testing and Verification | Testing and verifying |
+
+**Task Tracking Rules**:
+- On Phase entry: `TaskUpdate(taskId, status: "in_progress")`
+- On Phase completion: `TaskUpdate(taskId, status: "completed")`
+- Conditional Phases (5C, 6) not executed: `TaskUpdate(taskId, status: "deleted")`
+- Only **one Phase** should be `in_progress` at any time
+
+---
+
+### Phase 1: Branch Validation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+
 > **MANDATORY REQUIREMENT**:
 >
-> - Phase 0 is the **FIRST step** of this skill
-> - You **MUST** execute Phase 0 **BEFORE** proceeding to Phase 1
 > - **DO NOT** assume you are on the correct branch
 > - **ALWAYS** verify branch status using the MCP tool below
-> - **NEVER** start code modification (Phase 1) without completing Phase 0
+> - **NEVER** start code modification (Phase 2) without completing Phase 1
 >
 > **Why this matters**:
 > - Code changes in main/master branch can cause merge conflicts
@@ -100,14 +126,11 @@ If `is_protected` is `true`:
 - Ask user: "보호된 브랜치에서 계속 진행하시겠습니까?"
 - If user declines: Abort skill execution
 
-**3. Proceed to Phase 1**
-
-- Execute existing Phase 1-7
-- Code modifications happen in the current feature branch
-
 ---
 
-### Phase 1: Plan Loading and Validation
+### Phase 2: Plan Loading and Validation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Load and understand the plan, validate prerequisites are met.
 
@@ -144,7 +167,9 @@ If `is_protected` is `true`:
 
 ---
 
-### Phase 2: Setup TodoList from Plan
+### Phase 3: Setup TodoList from Plan
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Create comprehensive TodoList mirroring the entire plan.
 
@@ -171,7 +196,9 @@ TodoWrite({
 
 ---
 
-### Phase 3: Execute Tasks Sequentially
+### Phase 4: Execute Tasks Sequentially
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Implement each task following the plan's approach.
 
@@ -311,7 +338,9 @@ TodoWrite({todos: [...previousTodos, {content: taskName, status: "completed"}]})
 
 ---
 
-### Phase 4: Handle Dependencies
+### Phase 5: Handle Dependencies
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Manage task dependencies and execution order.
 
@@ -335,7 +364,9 @@ Task A (completed) → Task B (in_progress) → Task D (pending, blocked by B)
 
 ---
 
-### Phase 4C: Database Migration Validation (Optional)
+### Phase 5C: Database Migration Validation (Optional)
+
+> 📋 **Task Tracking**: Mark as `in_progress`/`completed` if condition met. Mark as `deleted` if skipped.
 
 **Objective**: Automatically detect and block dangerous DB migration patterns
 
@@ -448,7 +479,9 @@ grep -rE 'CREATE INDEX(?! CONCURRENTLY)' migrations/
 
 ---
 
-### Phase 5: Automated Test Generation (Conditional)
+### Phase 6: Automated Test Generation (Conditional)
+
+> 📋 **Task Tracking**: Mark as `in_progress`/`completed` if condition met. Mark as `deleted` if skipped.
 
 **Objective**: Detect files missing tests and generate them
 
@@ -666,7 +699,9 @@ Add generated test results to execution report:
 
 ---
 
-### Phase 6: AC Achievement Report (Required)
+### Phase 7: AC Achievement Report (Required)
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Automatically verify and report AC achievement after implementation
 
@@ -745,7 +780,9 @@ IF (no JIRA issue):
 
 ---
 
-### Phase 7: Testing and Verification
+### Phase 8: Testing and Verification
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Comprehensively test all implemented functionality.
 

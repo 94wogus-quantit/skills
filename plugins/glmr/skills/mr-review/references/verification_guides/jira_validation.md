@@ -1,12 +1,12 @@
-# JIRA 요구사항 검증 가이드
+# JIRA Requirements Validation Guide
 
-## 목표
+## Goal
 
-JIRA 티켓의 Acceptance Criteria와 요구사항이 MR 코드에 모두 구현되었는지 검증합니다.
+Verify that all Acceptance Criteria and requirements from the JIRA ticket are implemented in the MR code.
 
-## Sequential Thinking MCP 예시
+## Sequential Thinking MCP Examples
 
-### 예시 1: Acceptance Criteria 1 검증
+### Example 1: Acceptance Criteria 1 Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -17,7 +17,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 2: Acceptance Criteria 2 검증
+### Example 2: Acceptance Criteria 2 Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -28,7 +28,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 3: Edge Case 요구사항 검증
+### Example 3: Edge Case Requirements Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -39,7 +39,7 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-### 예시 4: 비기능적 요구사항 검증
+### Example 4: Non-Functional Requirements Verification
 
 ```typescript
 await mcp__plugin_seq-think_st__sequentialthinking({
@@ -50,9 +50,9 @@ await mcp__plugin_seq-think_st__sequentialthinking({
 })
 ```
 
-## Atlassian MCP 예시
+## Atlassian MCP Examples
 
-### 예시 1: JIRA 이슈 조회
+### Example 1: Fetch JIRA Issue
 
 ```typescript
 const issue = await mcp__plugin_atlassian_atlassian__jira_get_issue({
@@ -60,7 +60,7 @@ const issue = await mcp__plugin_atlassian_atlassian__jira_get_issue({
 })
 ```
 
-### 예시 2: JIRA 이슈 검색
+### Example 2: Search JIRA Issues
 
 ```typescript
 const issues = await mcp__plugin_atlassian_atlassian__jira_search({
@@ -68,7 +68,7 @@ const issues = await mcp__plugin_atlassian_atlassian__jira_search({
 })
 ```
 
-### 예시 3: JIRA 코멘트 추가
+### Example 3: Add JIRA Comment
 
 ```typescript
 await mcp__plugin_atlassian_atlassian__jira_add_comment({
@@ -77,9 +77,9 @@ await mcp__plugin_atlassian_atlassian__jira_add_comment({
 })
 ```
 
-## Serena MCP 예시
+## Serena MCP Examples
 
-### 예시 1: 요구사항 관련 코드 구현 확인
+### Example 1: Verify Code Implementation for Requirements
 
 ```typescript
 await mcp__plugin_serena_serena__find_symbol({
@@ -88,7 +88,7 @@ await mcp__plugin_serena_serena__find_symbol({
 })
 ```
 
-### 예시 2: 관련 테스트 파일 검색
+### Example 2: Search Related Test Files
 
 ```typescript
 await mcp__plugin_serena_serena__find_file({
@@ -97,7 +97,7 @@ await mcp__plugin_serena_serena__find_file({
 })
 ```
 
-### 예시 3: 요구사항 관련 패턴 검색
+### Example 3: Search Patterns Related to Requirements
 
 ```typescript
 await mcp__plugin_serena_serena__search_for_pattern({
@@ -106,52 +106,52 @@ await mcp__plugin_serena_serena__search_for_pattern({
 })
 ```
 
-## 검증 항목 체크리스트
+## Verification Checklist
 
-### Acceptance Criteria 충족
+### Acceptance Criteria Fulfillment
 
-- [ ] JIRA 티켓의 모든 Acceptance Criteria가 구현됨
-- [ ] 각 Acceptance Criteria에 대응하는 코드가 명확히 존재
-- [ ] AC에 명시된 모든 조건이 코드로 구현됨
-- [ ] AC에 명시된 UI/UX 요구사항이 반영됨
+- [ ] All Acceptance Criteria from JIRA ticket are implemented
+- [ ] Code clearly exists corresponding to each Acceptance Criteria
+- [ ] All conditions specified in AC are implemented as code
+- [ ] UI/UX requirements specified in AC are reflected
 
-### 기능 요구사항 충족
+### Functional Requirements Fulfillment
 
-- [ ] JIRA Description에 명시된 기능이 모두 구현됨
-- [ ] 필수 기능과 선택 기능이 구분되어 구현됨
-- [ ] 사용자 스토리의 시나리오가 코드로 구현됨
-- [ ] 요구된 API 엔드포인트가 모두 구현됨
+- [ ] All features described in JIRA Description are implemented
+- [ ] Required and optional features are distinguished and implemented
+- [ ] User story scenarios are implemented as code
+- [ ] All required API endpoints are implemented
 
-### Edge Case 및 예외 처리
+### Edge Cases and Exception Handling
 
-- [ ] JIRA에 명시된 Edge Case가 처리됨
-- [ ] 에러 시나리오가 모두 구현됨
-- [ ] 예외 상황에 대한 에러 메시지가 명확함
-- [ ] Fallback 로직이 적절히 구현됨
+- [ ] Edge cases specified in JIRA are handled
+- [ ] All error scenarios are implemented
+- [ ] Error messages for exceptional situations are clear
+- [ ] Fallback logic is appropriately implemented
 
-### 제약사항 준수
+### Constraint Compliance
 
-- [ ] JIRA에 명시된 기술적 제약사항 준수 (예: 특정 라이브러리 사용, 특정 API 버전)
-- [ ] 성능 요구사항 준수 (예: 응답 시간, 처리량)
-- [ ] 보안 요구사항 준수 (예: 인증 방식, 암호화)
-- [ ] 호환성 요구사항 준수 (예: 브라우저 지원, 모바일 대응)
+- [ ] Technical constraints specified in JIRA are followed (e.g., specific library, specific API version)
+- [ ] Performance requirements are met (e.g., response time, throughput)
+- [ ] Security requirements are met (e.g., authentication method, encryption)
+- [ ] Compatibility requirements are met (e.g., browser support, mobile responsiveness)
 
-### 테스트 요구사항
+### Test Requirements
 
-- [ ] JIRA에 명시된 테스트 시나리오가 구현됨
-- [ ] 각 AC에 대응하는 테스트 케이스가 존재
-- [ ] Edge Case에 대한 테스트가 작성됨
-- [ ] 통합 테스트/E2E 테스트가 요구사항을 검증함
+- [ ] Test scenarios specified in JIRA are implemented
+- [ ] Test cases exist corresponding to each AC
+- [ ] Tests for edge cases are written
+- [ ] Integration/E2E tests validate requirements
 
-### 문서화 요구사항
+### Documentation Requirements
 
-- [ ] JIRA에 요구된 문서가 작성됨 (API 문서, 사용자 가이드 등)
-- [ ] 코드 주석이 요구사항을 명확히 설명함
-- [ ] README 또는 CHANGELOG 업데이트가 필요한 경우 완료됨
+- [ ] Documents required by JIRA are written (API docs, user guide, etc.)
+- [ ] Code comments clearly explain requirements
+- [ ] README or CHANGELOG updates are completed if needed
 
-## TypeScript 코드 예시
+## TypeScript Code Examples
 
-### JIRA AC를 코드로 구현하는 예시
+### Example: Implementing JIRA AC as Code
 
 **JIRA Acceptance Criteria:**
 1. 사용자는 이메일과 비밀번호로 로그인할 수 있어야 한다
@@ -237,7 +237,7 @@ export class AuthService {
 }
 ```
 
-### JIRA AC에 대응하는 테스트 코드
+### Test Code Corresponding to JIRA AC
 
 ```typescript
 // ✅ GOOD: 각 AC에 대응하는 테스트 케이스
@@ -261,7 +261,6 @@ describe('AuthService', () => {
 
   // AC 3: 잘못된 비밀번호 5회 입력 시 계정 잠금
   it('should lock account after 5 failed login attempts', async () => {
-    // 5회 잘못된 비밀번호 입력
     for (let i = 0; i < 5; i++) {
       try {
         await authService.authenticateUser('user@example.com', 'wrongpassword');
@@ -270,7 +269,6 @@ describe('AuthService', () => {
       }
     }
 
-    // 6번째 시도 시 계정 잠금 확인
     await expect(
       authService.authenticateUser('user@example.com', 'correctpassword')
     ).rejects.toThrow(AccountLockedError);
@@ -284,7 +282,6 @@ describe('AuthService', () => {
     expect(token).toBeDefined();
     expect(typeof token).toBe('string');
 
-    // 토큰 검증
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     expect(decoded.userId).toBe('123');
     expect(decoded.email).toBe('user@example.com');
@@ -292,7 +289,7 @@ describe('AuthService', () => {
 });
 ```
 
-### Edge Case 처리 예시
+### Edge Case Handling Example
 
 **JIRA Edge Cases:**
 - 이메일이 존재하지 않을 경우
@@ -316,7 +313,7 @@ export class AuthService {
       );
     }
 
-    // ... 나머지 로직
+    // ... rest of logic
   }
 
   generateJwtToken(user: User): string {
@@ -334,40 +331,40 @@ export class AuthService {
 }
 ```
 
-## 실제 검증 절차
+## Actual Verification Procedure
 
-1. **브랜치명에서 JIRA 이슈 ID 추출**
+1. **Extract JIRA issue ID from branch name**
    ```typescript
-   // 예: feature/PROJ-123-add-login -> PROJ-123
+   // e.g., feature/PROJ-123-add-login -> PROJ-123
    const issueId = extractJiraId(branchName);
    ```
 
-2. **Atlassian MCP로 JIRA 이슈 조회**
+2. **Fetch JIRA issue via Atlassian MCP**
    ```typescript
    const issue = await mcp__plugin_atlassian_atlassian__jira_get_issue({
      issue_key: issueId
    });
    ```
 
-3. **Acceptance Criteria 추출 및 파싱**
+3. **Extract and parse Acceptance Criteria**
    ```typescript
    const acceptanceCriteria = parseAcceptanceCriteria(issue.description);
-   // 예: ["사용자는 이메일로 로그인할 수 있어야 한다", ...]
+   // e.g., ["사용자는 이메일로 로그인할 수 있어야 한다", ...]
    ```
 
-4. **Sequential Thinking으로 각 AC 검증**
-   - 각 AC에 대해 단계별로 코드 구현 확인
-   - 누락된 AC가 있는지 체계적 검증
+4. **Verify each AC with Sequential Thinking**
+   - Step-by-step code implementation verification for each AC
+   - Systematically verify if any ACs are missing
 
-5. **Serena로 관련 코드 구현 확인**
-   - `mcp__plugin_serena_serena__find_symbol()`로 AC 관련 함수/클래스 찾기
-   - 요구사항이 코드로 구현되었는지 확인
+5. **Confirm related code implementation with Serena**
+   - Find AC-related functions/classes with `mcp__plugin_serena_serena__find_symbol()`
+   - Confirm requirements are implemented as code
 
-6. **테스트 코드 확인**
-   - 각 AC에 대응하는 테스트 케이스가 있는지 확인
-   - Edge Case 테스트가 작성되었는지 확인
+6. **Check test code**
+   - Verify test cases exist corresponding to each AC
+   - Verify edge case tests are written
 
-7. **검증 결과 문서화**
-   - 충족된 AC와 미충족 AC를 명확히 구분
-   - 누락된 요구사항에 대한 권장 구현 방향 제시
-   - JIRA 이슈 링크와 함께 검증 결과 기록
+7. **Document verification results**
+   - Clearly distinguish fulfilled and unfulfilled ACs
+   - Provide recommended implementation direction for missing requirements
+   - Record verification results with JIRA issue links

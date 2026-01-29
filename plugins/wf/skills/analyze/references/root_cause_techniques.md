@@ -1,17 +1,17 @@
-# Root Cause 심화 기법 가이드
+# Root Cause Advanced Techniques Guide
 
-## 1. 5 Why 분석
+## 1. 5 Why Analysis
 
-### 적용 조건
+### When to Apply
 
-다음 중 하나 이상 해당 시 5 Why를 수행:
-- 직접적 원인이 **구조적/시스템적 문제**로 의심되는 경우
-- **단일 코드 수정으로 해결되지 않는** 반복 이슈인 경우
-- **여러 구성요소**에 걸친 복합 원인이 의심되는 경우
+Perform 5 Why analysis when one or more of the following conditions are met:
+- The direct cause is suspected to be a **structural/systemic problem**
+- The issue is a **recurring problem that cannot be resolved with a single code fix**
+- A **compound cause spanning multiple components** is suspected
 
-단순 버그(오타, off-by-one, null check 누락 등)에는 불필요.
+Not necessary for simple bugs (typos, off-by-one errors, missing null checks, etc.).
 
-### 수행 방법
+### How to Perform
 
 ```
 Why 1: 왜 이 문제가 발생하는가? → [직접적 원인]
@@ -21,11 +21,11 @@ Why 4: 왜 [더 깊은 원인]이 발생했는가? → [구조적 원인]
 Why 5: 왜 [구조적 원인]이 존재하는가? → [근본 원인]
 ```
 
-- 근본 사실에 도달하면 5회 이전에도 중단 가능
-- 5회로 부족하면 계속 진행 가능
-- 핵심: **개인이 아닌 시스템 개선**에 초점
+- Stop before 5 iterations if a fundamental fact is reached
+- Continue beyond 5 if needed
+- Key focus: **system improvement, not individual blame**
 
-### 예시: 결제 API 간헐적 500 에러
+### Example: Intermittent 500 Error on Payment API
 
 ```
 Why 1: 왜 500 에러? → DB 트랜잭션 타임아웃
@@ -39,7 +39,7 @@ Why 5: 왜 동시 실행? → 멱등성 키 없이 재시도
 → 구조적 원인: 재시도 로직의 동시성 설계 미흡
 ```
 
-### 예시: API 응답 지연
+### Example: API Response Delay
 
 ```
 Why 1: 왜 응답이 느린가? → DB 쿼리가 3초 걸린다
@@ -53,24 +53,24 @@ Why 5: 왜 검증 절차가 없는가? → CI에 슬로우 쿼리 탐지 미구�
 
 ---
 
-## 2. 논리적 반증 (Logical Falsification)
+## 2. Logical Falsification
 
-### 목적
+### Purpose
 
-확정된 근본 원인이 정말 맞는지 **적극적으로 반증을 시도**한다. 확인 편향(confirmation bias)을 방지하기 위함.
+Actively attempt to disprove the confirmed root cause to prevent confirmation bias.
 
-### 수행 방법
+### How to Perform
 
 ```
-1. "이 원인이 맞다면 논리적으로 참이어야 하는 조건"을 가능한 한 나열
-2. 각 조건이 코드/로그/데이터로 확인 가능한지 검증
-3. 확인 불가능한 조건은 "execute 단계에서 검증 필요"로 표시
-4. 확인 가능한 조건 중 하나라도 거짓이면 → 근본 원인 재검토
+1. List all conditions that "must logically be true if this cause is correct"
+2. Verify whether each condition is confirmable via code/logs/data
+3. Mark unverifiable conditions as "needs verification in execute phase"
+4. If any verifiable condition is false → re-examine the root cause
 ```
 
-**범위**: 정적 분석(코드 읽기) 범위 내에서 수행. 실행/테스트가 필요한 검증은 execute 스킬에서 수행.
+**Scope**: Perform within the bounds of static analysis (code reading). Verification requiring execution/testing should be done in the execute skill.
 
-### 예시
+### Examples
 
 ```
 가설: "멱등성 키 미구현이 원인"
@@ -100,47 +100,47 @@ Why 5: 왜 검증 절차가 없는가? → CI에 슬로우 쿼리 탐지 미구�
 
 ---
 
-## 3. 분석 품질 체크리스트
+## 3. Analysis Quality Checklist
 
-근본 원인 확정 전 다음을 확인:
+Confirm the following before finalizing root cause:
 
 ```
-□ 근본 원인이 "검증된 사실"에 기반하는가?
-  (미검증 가정에 의존하고 있지 않은가?)
+□ Is the root cause based on "verified facts"?
+  (Is it not relying on unverified assumptions?)
 
-□ 표면적 원인에서 멈추지 않았는가?
-  (구조적 원인까지 파악했는가?)
+□ Did the analysis not stop at surface-level causes?
+  (Was the structural cause identified?)
 
-□ 유추가 아닌 이 시스템의 고유한 사실에서 도출했는가?
+□ Was it derived from facts unique to this system, not from analogy?
 
-□ 반증 시도를 수행했는가? (해당하는 경우)
+□ Was a falsification attempt performed? (when applicable)
 
-□ 권장사항이 증상이 아닌 근본 원인을 해결하는가?
+□ Do the recommendations address the root cause, not just the symptoms?
 ```
 
-미충족 항목이 있으면 해당 분석을 즉시 보완한다.
+If any item is not met, immediately supplement that part of the analysis.
 
 ---
 
-## 4. 가설 관리 기법
+## 4. Hypothesis Management Techniques
 
-### 가설 근거 태깅
+### Hypothesis Evidence Tagging
 
-각 가설 생성 시 근거 유형을 명시:
+Specify the evidence type when generating each hypothesis:
 
-| 근거 유형 | 정의 | 처리 |
-|-----------|------|------|
-| **사실 기반** | Phase 2에서 식별한 검증된 사실에서 도출 | 우선 조사 |
-| **유추 기반** | 경험이나 패턴 매칭으로 추론 | 미검증 태그, 우선순위 하향 |
+| Evidence Type | Definition | Handling |
+|---------------|-----------|----------|
+| **Fact-based** | Derived from verified facts identified in Phase 2 | Investigate first |
+| **Analogy-based** | Inferred from experience or pattern matching | Tag as unverified, lower priority |
 
-### 가설 삭제 (Deletion Step)
+### Hypothesis Deletion (Deletion Step)
 
-1. 생성된 모든 가설을 나열
-2. 각 가설의 "근거"를 명시 (근거 없으면 삭제 대상)
-3. 검증된 사실과 모순되는 가설 삭제
-4. 남은 가설이 "편하게 느껴지는 것보다 적다면" 올바른 방향
+1. List all generated hypotheses
+2. Specify the "evidence" for each hypothesis (candidates for deletion if no evidence)
+3. Delete hypotheses that contradict verified facts
+4. If the remaining hypotheses are "fewer than feels comfortable", you're on the right track
 
-### 가설 평가 매트릭스
+### Hypothesis Evaluation Matrix
 
 ```
 | 가설 | 가능성 | 검증 비용 | 영향도 | 근거 유형 | 우선순위 |
@@ -148,11 +148,11 @@ Why 5: 왜 검증 절차가 없는가? → CI에 슬로우 쿼리 탐지 미구�
 | ... | 높/중/낮 | 낮/중/높 | 낮/중/높 | 사실/유추 | ★~★★★ |
 ```
 
-우선순위 = 가능성 × 영향도 / 검증 비용
+Priority = Likelihood × Impact / Verification Cost
 
 ---
 
-## 5. 권장사항 효율성 평가 (Simplicity Metric)
+## 5. Recommendation Efficiency Evaluation (Simplicity Metric)
 
 ```
 | 권장사항 | 구현 복잡도 | 해결 범위 | 효율성 |
@@ -160,44 +160,44 @@ Why 5: 왜 검증 절차가 없는가? → CI에 슬로우 쿼리 탐지 미구�
 | ... | 낮/중/높 | 이 이슈만/유사 이슈/근본적 | ★~★★★ |
 ```
 
-핵심 질문: "존재하지 않아야 할 것을 최적화하고 있지 않은가?"
+Key question: "Are we optimizing something that should not exist?"
 
-가장 단순하면서 근본 원인을 해결하는 방안을 우선 권장한다.
+Always prioritize the simplest recommendation that addresses the root cause.
 
 ---
 
-## 6. 삭제 원칙 (Deletion Principle)
+## 6. Deletion Principle
 
-### 핵심 질문
+### Core Question
 
-"이 코드를 삭제하면 버그가 구조적으로 불가능해지는가?"
+"If this code is deleted, does the bug become structurally impossible?"
 
-> "최고의 부품은 없는 부품이다. 최고의 프로세스는 없는 프로세스다."
+> "The best part is no part. The best process is no process."
 
-### 삭제 체크리스트
+### Deletion Checklist
 
 ```
-□ 이 코드/기능은 현재도 사용되고 있는가?
-□ Dead code path가 버그를 유발하고 있지 않은가?
-□ 미사용 feature flag가 예기치 않은 상태를 만들고 있지 않은가?
-□ 불필요한 추상화 레이어가 디버깅을 방해하고 있지 않은가?
-□ 의존성 중 삭제 가능한 것이 있는가?
+□ Is this code/feature currently still in use?
+□ Is a dead code path causing the bug?
+□ Is an unused feature flag creating unexpected state?
+□ Is an unnecessary abstraction layer hindering debugging?
+□ Are there deletable dependencies?
 ```
 
-### 삭제 검증 규칙
+### Deletion Verification Rule
 
-삭제한 것의 **10% 이상을 다시 추가하지 않았다면**, 충분히 삭제하지 않은 것이다.
+If you have not re-added **more than 10%** of what was deleted, you have not deleted enough.
 
-### 삭제 vs 수정 판단 기준
+### Deletion vs Fix Decision Criteria
 
-| 상황 | 접근 |
-|---|---|
-| 코드가 더 이상 사용되지 않음 | **삭제** |
-| 기능이 존재하나 요구사항이 변경됨 | **삭제 후 재설계** |
-| 코드가 활발히 사용되나 버그 있음 | **수정** (삭제 불가) |
-| 과도한 추상화로 복잡도 높음 | **레이어 삭제 후 단순화** |
+| Situation | Approach |
+|-----------|----------|
+| Code is no longer used | **Delete** |
+| Feature exists but requirements changed | **Delete and redesign** |
+| Code is actively used but has bugs | **Fix** (cannot delete) |
+| Excessive abstraction increases complexity | **Delete layers and simplify** |
 
-### 예시
+### Example
 
 ```
 문제: API 응답에서 간헐적 null 반환
@@ -209,29 +209,29 @@ Why 5: 왜 검증 절차가 없는가? → CI에 슬로우 쿼리 탐지 미구�
 
 ---
 
-## 7. Idiot Index (소프트웨어 버전)
+## 7. Idiot Index (Software Version)
 
-### 공식
+### Formula
 
-> **Idiot Index = 버그 수정 총 비용 / 실제 필요한 코드 변경량**
+> **Idiot Index = Total cost of bug fix / Actual required code change volume**
 
-원래 제조업에서 "완제품 비용 / 원자재 비용" 비율로, 비율이 높으면 프로세스가 비효율적이라는 의미.
+Originally a manufacturing metric ("finished product cost / raw material cost"), where a high ratio indicates an inefficient process.
 
-### 해석
+### Interpretation
 
-| Idiot Index | 의미 | 시사점 |
-|---|---|---|
-| 낮음 (1-3) | 수정 비용 ≈ 변경량 | 합리적 프로세스 |
-| 중간 (3-10) | 수정 비용 > 변경량 | 디버깅 프로세스 개선 필요 |
-| 높음 (10+) | 수정 비용 >> 변경량 | **아키텍처/프로세스 문제** |
+| Idiot Index | Meaning | Implication |
+|-------------|---------|-------------|
+| Low (1-3) | Fix cost ≈ Change volume | Reasonable process |
+| Medium (3-10) | Fix cost > Change volume | Debugging process needs improvement |
+| High (10+) | Fix cost >> Change volume | **Architecture/process problem** |
 
-### 활용
+### Application
 
-- Phase 6 효율성 평가 시 참고
-- Idiot Index가 높은 권장사항은 근본적 접근(삭제/재설계) 검토
-- "10줄 수정에 3일 소요"면 코드가 아니라 **시스템 설계**가 문제
+- Reference when evaluating efficiency in Phase 6
+- Recommendations with high Idiot Index should consider fundamental approaches (deletion/redesign)
+- "3 days for a 10-line fix" means the **system design** is the problem, not the code
 
-### 예시
+### Example
 
 ```
 버그: 결제 API에서 간헐적 타임아웃

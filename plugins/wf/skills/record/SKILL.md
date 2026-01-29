@@ -83,17 +83,43 @@ This skill provides a 9-phase process to collect all artifacts generated from th
 
 ## Workflow: 10-Phase Documentation Process
 
-### Phase 0: Branch Validation
+### Phase 0: Task Registration
 
 ⚠️ **CRITICAL: DO NOT SKIP PHASE 0**
 
+**Objective**: Register all Phases as Tasks to track progress throughout the record workflow.
+
+Register the following Phases in order using `TaskCreate`:
+
+| Task | subject | activeForm |
+|------|---------|------------|
+| Phase 1 | Branch Validation | Validating branch |
+| Phase 2 | Discovery and Collection | Discovering and collecting artifacts |
+| Phase 3 | README Update | Updating README |
+| Phase 4 | CHANGELOG Update | Updating CHANGELOG |
+| Phase 5 | CLAUDE Documentation Update | Updating CLAUDE docs |
+| Phase 6 | Serena Memory Update | Updating Serena memory |
+| Phase 7 | JIRA Issue Update | Updating JIRA issue |
+| Phase 8 | Additional Documentation | Writing additional docs |
+| Phase 9 | Verification and Quality Check | Verifying quality |
+| Phase 10 | Cleanup Workflow Artifacts | Cleaning up artifacts |
+
+**Task Tracking Rules**:
+- On Phase entry: `TaskUpdate(taskId, status: "in_progress")`
+- On Phase completion: `TaskUpdate(taskId, status: "completed")`
+- Only **one Phase** should be `in_progress` at any time
+
+---
+
+### Phase 1: Branch Validation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+
 > **MANDATORY REQUIREMENT**:
 >
-> - Phase 0 is the **FIRST step** of this skill
-> - You **MUST** execute Phase 0 **BEFORE** proceeding to Phase 1
 > - **DO NOT** assume you are on the correct branch
 > - **ALWAYS** verify branch status using the MCP tool below
-> - **NEVER** start documentation (Phase 1) without completing Phase 0
+> - **NEVER** start documentation (Phase 2) without completing Phase 1
 >
 > **Why this matters**:
 > - Verifies git branch before committing documentation
@@ -124,14 +150,11 @@ If `is_protected` is `true`:
 - Ask user: "보호된 브랜치에서 계속 진행하시겠습니까?"
 - If user declines: Abort skill execution
 
-**3. Proceed to Phase 1**
-
-- Execute existing Phase 1-8
-- Documentation updates (README.md, CHANGELOG.md, etc.) happen in the current feature branch
-
 ---
 
-### Phase 1: Discovery and Collection
+### Phase 2: Discovery and Collection
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Find, read, and understand all workflow artifacts.
 
@@ -183,7 +206,9 @@ mcp__plugin_seq-think_st__sequentialthinking({
 
 ---
 
-### Phase 2: README Update
+### Phase 3: README Update
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Add new features, API, settings, etc. to README.
 
@@ -274,7 +299,9 @@ Edit({
 
 ---
 
-### Phase 3: CHANGELOG Update
+### Phase 4: CHANGELOG Update
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Add change history to CHANGELOG in Keep a Changelog format.
 
@@ -329,7 +356,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/ko/).
 
 ---
 
-### Phase 4: CLAUDE Documentation Update
+### Phase 5: CLAUDE Documentation Update
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Add architecture decisions and troubleshooting guides to CLAUDE documentation.
 
@@ -375,7 +404,9 @@ mcp__plugin_workflow-skills_serena__find_file({file_mask: "CLAUDE*", relative_pa
 
 ---
 
-### Phase 5: Serena Memory Update
+### Phase 6: Serena Memory Update
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Save technical insights to Serena memory.
 
@@ -486,7 +517,9 @@ mcp__plugin_workflow-skills_serena__write_memory({
 
 ---
 
-### Phase 6: JIRA Issue Update
+### Phase 7: JIRA Issue Update
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Summarize implementation completion and add comments to JIRA issue.
 
@@ -644,7 +677,9 @@ mcp__plugin_workflow-skills_atlassian__jira_transition_issue({
 
 ---
 
-### Phase 7: Additional Documentation
+### Phase 8: Additional Documentation
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Create additional documentation as needed.
 
@@ -689,7 +724,9 @@ mcp__plugin_workflow-skills_atlassian__jira_transition_issue({
 
 ---
 
-### Phase 8: Verification and Quality Check
+### Phase 9: Verification and Quality Check
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Verify documentation quality.
 
@@ -730,7 +767,9 @@ mcp__plugin_workflow-skills_atlassian__jira_transition_issue({
 
 ---
 
-### Phase 9: Cleanup Workflow Artifacts
+### Phase 10: Cleanup Workflow Artifacts
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
 **Objective**: Clean up workflow artifacts.
 

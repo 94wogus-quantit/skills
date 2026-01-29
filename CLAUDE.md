@@ -20,7 +20,7 @@ wogus-plugin/  (v3.14.0)
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │
 ├── plugins/                   # 모든 플러그인
-│   ├── workflow-bundle/       # 메인 워크플로우 플러그인
+│   ├── wf/                    # 메인 워크플로우 플러그인
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── skills/            # 자동 인식
 │   │   │   ├── analyze/
@@ -29,8 +29,8 @@ wogus-plugin/  (v3.14.0)
 │   │   │   └── record/
 │   │   └── agents/
 │   │       └── requirement-validator.md
-│   ├── gitlab-mr/             # GitLab MR 관리
-│   ├── sequential-thinking/   # Sequential Thinking MCP
+│   ├── glmr/                  # GitLab MR 관리
+│   ├── seq-think/             # Sequential Thinking MCP
 │   ├── terraform/
 │   ├── amplitude/
 │   ├── slack/
@@ -89,9 +89,9 @@ JIRA Acceptance Criteria와 코드를 자동 매핑하여 요구사항 달성 �
 
 **Integration**: 4개 Skills에서 자동 호출
 
-## Git Local MCP (v3.15.0)
+## Git MCP (v3.15.0)
 
-로컬 Git 저장소 관리를 위한 MCP 서버. workflow-bundle에 포함.
+로컬 Git 저장소 관리를 위한 MCP 서버. wf에 포함.
 
 ### 브랜치 관리 도구
 - **get_current_branch**: 현재 브랜치 이름 반환
@@ -128,9 +128,9 @@ git_push(force=True)         # → {"remote": "origin", ...} ⚠️ 보호 브�
 
 **Integration**: analyze, plan, execute, record 스킬의 Phase 0에서 자동 호출
 
-## GitLab CI MCP (v3.16.0)
+## CI MCP (v3.16.0)
 
-GitLab CI/CD 및 MR Discussion 관리를 위한 MCP 서버. gitlab-mr에 포함.
+GitLab CI/CD 및 MR Discussion 관리를 위한 MCP 서버. glmr에 포함.
 
 ### CI 파이프라인 조회 도구
 - **ci_status**: 현재 파이프라인 상태 조회
@@ -240,8 +240,8 @@ This repository is distributed as a **Claude Code Marketplace**.
 
 - **File**: `.claude-plugin/marketplace.json`
 - **Version**: Semantic versioning (current: v3.14.0)
-- **Plugins**: 8개 독립 플러그인 (workflow-bundle, gitlab-mr, sequential-thinking, terraform, amplitude, slack, atlassian, github)
-- **MCP Servers**: sequential-thinking 별도 플러그인으로 분리 (외부 MCP는 별도 설치)
+- **Plugins**: 8개 독립 플러그인 (wf, glmr, seq-think, terraform, amplitude, slack, atlassian, github)
+- **MCP Servers**: seq-think 별도 플러그인으로 분리 (외부 MCP는 별도 설치)
 
 ### Publishing Workflow
 
@@ -254,9 +254,9 @@ This repository is distributed as a **Claude Code Marketplace**.
 
 ```bash
 /marketplace add git@github.com:94wogus-quantit/wogus-plugin.git
-/plugin install wogus-plugins:workflow-bundle      # 4 skills + agent
-/plugin install wogus-plugins:gitlab-mr            # GitLab MR 관리 (7 skills)
-/plugin install wogus-plugins:sequential-thinking  # Sequential Thinking MCP
+/plugin install wogus-plugins:wf                   # 4 skills + agent
+/plugin install wogus-plugins:glmr                 # GitLab MR 관리 (7 skills)
+/plugin install wogus-plugins:seq-think            # Sequential Thinking MCP
 /plugin install wogus-plugins:terraform            # Terraform MCP
 /plugin install wogus-plugins:amplitude            # Amplitude MCP
 /plugin install wogus-plugins:slack                # Slack MCP
@@ -492,12 +492,45 @@ v3.0.0 ~ v3.2.1, v2.0.0 ~ v2.4.0, v1.6.0 등의 아키텍처 결정사항은 다
 
 ---
 
+## Known Issues & Guidelines
+
+### MCP Tool Name 64자 제한
+
+Claude API는 tool name을 **최대 64자**로 제한합니다. MCP 도구 이름은 다음 패턴으로 자동 생성됩니다:
+
+```
+mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
+│           │              │               │
+└─ 12자 ───┘              │               │
+            고정 prefix    MCP 서버 키     도구 함수명
+```
+
+**네이밍 가이드라인** (64자 초과 방지):
+- Plugin name (`plugin.json`의 `name`): **최대 10자** 권장
+- MCP server name (`.mcp.json`의 key): **최대 5자** 권장
+- Tool function name: **최대 30자** 권장
+- 합계: 12 + 10 + 1 + 5 + 2 + 30 = 60자 (4자 여유)
+
+**v3.17.0 단축 매핑**:
+| 이전 이름 | 새 이름 | 이유 |
+|-----------|---------|------|
+| `workflow-bundle` (15자) | `wf` (2자) | Plugin name |
+| `sequential-thinking` (19자) | `seq-think` (9자) | Plugin name |
+| `gitlab-mr` (9자) | `glmr` (4자) | Plugin name |
+| `git-local` (9자) | `git` (3자) | MCP server key |
+| `gitlab-ci` (9자) | `ci` (2자) | MCP server key |
+| `sequential-thinking` (19자) | `st` (2자) | MCP server key |
+
+**에러 증상**: `invalid_request_error` - `tool_reference.tool_name: String should have at most 64 characters`
+
+---
+
 ## Notes
 
-- **Current version**: v3.15.1 (Skills user-invocable 추가 - /슬래시 명령어 호출 가능)
-- **workflow-bundle**: 4 skills + agent + git-local MCP (12개 도구)
-- **sequential-thinking**: 별도 MCP 플러그인
-- **gitlab-mr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인
+- **Current version**: v3.17.0 (Plugin/MCP 이름 단축 - 64자 제한 대응)
+- **wf**: 4 skills + agent + git MCP (12개 도구)
+- **seq-think**: 별도 MCP 플러그인
+- **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치
 - All skills and agents designed for Korean language output
 - Reference files loaded on-demand to manage context efficiently

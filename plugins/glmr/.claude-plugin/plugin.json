@@ -1,0 +1,9 @@
+{
+  "name": "glmr",
+  "version": "1.2.0",
+  "description": "GitLab MR and CI/CD management - MR review, discussions, CI status/retry/trigger/cancel with error analysis",
+  "author": {
+    "name": "94wogus",
+    "email": "94wogus@quantit.io"
+  }
+}

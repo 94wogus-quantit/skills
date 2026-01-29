@@ -16,9 +16,9 @@ Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를
 **v3.14.0 주요 변경**:
 - 🐙 **GitHub MCP 플러그인 추가**: 저장소, 이슈, PR 관리
 - 📦 **8개 독립 플러그인**:
-  - `workflow-bundle`: 4 skills + 1 agent
-  - `sequential-thinking`: Sequential Thinking MCP
-  - `gitlab-mr`: GitLab MR 관리 (7 skills)
+  - `wf`: 4 skills + 1 agent
+  - `seq-think`: Sequential Thinking MCP
+  - `glmr`: GitLab MR 관리 (7 skills)
   - `terraform`, `amplitude`, `slack`, `atlassian`, `github`: 개별 MCP 서버
 
 ## 🌐 언어 정책
@@ -72,8 +72,8 @@ glab mr create --title "feat: JIRA-123 구현"
 
 2. 원하는 플러그인 설치:
    ```bash
-   # 워크플로우 전체 (5 skills + agent + sequential-thinking)
-   /plugin install wogus-plugins:workflow-bundle
+   # 워크플로우 전체 (5 skills + agent + seq-think)
+   /plugin install wogus-plugins:wf
 
    # 또는 개별 MCP만
    /plugin install wogus-plugins:terraform
@@ -122,7 +122,7 @@ glab mr create --title "feat: JIRA-123 구현"
    # Claude Code 재시작
    ```
 
-   - **sequential-thinking**: 별도 설정 없이 자동 동작
+   - **seq-think**: 별도 설정 없이 자동 동작
    - **context7**: [Context7](https://context7.com)에서 API 키 발급 필요
    - **serena**: 코드 심볼 분석 및 검색 (별도 설정 불필요, uvx 자동 설치)
    - **sentry**: [Sentry](https://sentry.io)에서 액세스 토큰 발급 필요 (+ OpenAI API 키)
@@ -156,7 +156,7 @@ glab mr create --title "feat: JIRA-123 구현"
    **각 MCP 서버의 정확한 serverCommand:**
 
    ```json
-   // sequential-thinking 비활성화
+   // seq-think 비활성화
    {
      "deniedMcpServers": [
        {
@@ -569,9 +569,9 @@ mr-review [Branch/MR URL]
     "version": "3.14.0"
   },
   "plugins": [
-    { "name": "workflow-bundle", "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우" },
-    { "name": "sequential-thinking", "description": "Sequential Thinking MCP 서버" },
-    { "name": "gitlab-mr", "description": "GitLab MR 관리 (7 skills)" },
+    { "name": "wf", "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우" },
+    { "name": "seq-think", "description": "Sequential Thinking MCP 서버" },
+    { "name": "glmr", "description": "GitLab MR 관리 (7 skills)" },
     { "name": "terraform", "description": "Terraform 인프라 관리 MCP 서버" },
     { "name": "amplitude", "description": "Amplitude 분석 데이터 MCP 서버" },
     { "name": "slack", "description": "Slack 메시지 검색/히스토리/스레드 MCP 서버" },
@@ -598,7 +598,7 @@ mr-review [Branch/MR URL]
 3. 원하는 플러그인 설치:
    ```bash
    # 워크플로우 전체
-   /plugin install wogus-plugins:workflow-bundle
+   /plugin install wogus-plugins:wf
 
    # 또는 개별 MCP
    /plugin install wogus-plugins:terraform
@@ -651,7 +651,7 @@ wogus-plugin/  (v3.14.0)
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │
 ├── plugins/                   # 모든 플러그인
-│   ├── workflow-bundle/       # 메인 워크플로우 플러그인
+│   ├── wf/                    # 메인 워크플로우 플러그인
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── skills/            # 자동 인식
 │   │   │   ├── analyze/
@@ -660,8 +660,8 @@ wogus-plugin/  (v3.14.0)
 │   │   │   └── record/
 │   │   └── agents/
 │   │       └── requirement-validator.md
-│   ├── sequential-thinking/   # Sequential Thinking MCP
-│   ├── gitlab-mr/             # GitLab MR 관리 (7 skills)
+│   ├── seq-think/             # Sequential Thinking MCP
+│   ├── glmr/                  # GitLab MR 관리 (7 skills)
 │   ├── terraform/
 │   ├── amplitude/
 │   ├── slack/

@@ -1,6 +1,0 @@
-{
-  "gitlab-ci": {
-    "command": "uvx",
-    "args": ["--from", "mcp[cli]", "mcp", "run", "${CLAUDE_PLUGIN_ROOT}/gitlab_ci_server.py"]
-  }
-}

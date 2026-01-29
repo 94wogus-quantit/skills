@@ -16,7 +16,7 @@ Comprehensive checklist for reviewing implementation plans. Use this to ensure t
 ⚠️ **MANDATORY**: Apply the FULL checklist EVERY TIME, regardless of previous reviews.
 
 **Critical Requirements**:
-- [ ] Work through **ALL sections** of this checklist (1-10)
+- [ ] Work through **ALL sections** of this checklist (1-11)
 - [ ] Do not skip sections even if previous review was clean
 - [ ] Document specific issues with task/section references
 - [ ] Look for NEW problems, not just CARRYOVER issues from previous reviews
@@ -319,6 +319,47 @@ When plan references a GitHub repository:
 
 ---
 
+## 11. Efficiency & Necessity
+
+### Idiot Index Evaluation
+- [ ] **Plan-level Idiot Index** calculated (Total effort / Core functionality effort)
+  - 1x-2x: ✅ Efficient
+  - 2x-3x: ⚠️ Review for unnecessary abstractions
+  - 3x-5x: 🔴 Mandatory deletion pass re-run
+  - 5x+: ⛔ Fundamental redesign needed
+- [ ] **Per-task Idiot Index**: No individual task exceeds 5x ratio
+- [ ] Idiot Index calculation documented in plan
+
+### Deletion Check
+- [ ] Every task traces to a **named requirement owner** (not a department)
+- [ ] No tasks justified solely by "best practice" or "convention"
+- [ ] No premature abstraction layers (interfaces for single implementations)
+- [ ] No future-proofing for hypothetical requirements
+- [ ] At least 10% of initial scope was considered for deletion
+
+### Over-Engineering Detection
+- [ ] No custom frameworks where standard library suffices
+- [ ] No feature flags for one-time deployments
+- [ ] No admin panels replaceable by database queries
+- [ ] No configuration systems for < 5 config values
+- [ ] Plan complexity matches problem complexity
+
+### Common Efficiency Issues
+
+**Red Flags**:
+- ❌ Idiot Index > 5x → Plan is over-engineered
+- ❌ Tasks with no named requirement owner → Potential waste
+- ❌ "Future-proofing" as justification → Premature optimization
+- ❌ Custom solution where library exists → Not-invented-here syndrome
+
+**How to Fix**:
+- Re-run deletion pass (Step 2 from 5-Step Algorithm)
+- Challenge each task: "Who requested this? Is it still needed?"
+- Replace custom solutions with standard libraries
+- See `references/planning_mental_model.md` for detailed guide
+
+---
+
 ## Review Output Template
 
 ```markdown
@@ -415,6 +456,25 @@ When plan references a GitHub repository:
 
 ---
 
+### 9-10. GitHub Alignment & Documentation
+[Score: ✅ Aligned / ⚠️ Minor gaps / ❌ Misaligned]
+
+[Assessment of repository alignment and documentation]
+
+---
+
+### 11. Efficiency & Necessity
+[Score: ✅ Efficient / ⚠️ Some bloat / ❌ Over-engineered]
+
+**Idiot Index**: [X.Xx] ([Assessment])
+**Deletion Pass**: [Applied / Not Applied]
+**Unnamed Requirements**: [Count]
+
+**Issues Found**:
+- [Task X]: [Efficiency issue description]
+
+---
+
 ## Summary of Findings
 
 ### Required Changes (Must Fix) 🔴
@@ -504,7 +564,7 @@ Either the plan is ready (Approve), or another iteration is needed (Needs Iterat
 
 **Use this ONLY when ALL of the following are true:**
 - Overall Assessment: "Strong" (NOT "Good" - Good means needs more work!)
-- All critical sections (1-8) score ✅ (green checkmark)
+- All critical sections (1-11) score ✅ (green checkmark)
 - Required Changes (🔴): **ZERO** (not "minor", not "a few" - ZERO!)
 - Suggested Improvements (🟡): **ZERO or only trivial ones** (e.g., minor wording tweaks)
 - No open questions remaining (❓ section empty)

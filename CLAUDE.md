@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.14.0):**
+**Key Artifacts (v3.18.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -44,9 +44,10 @@ wogus-plugin/  (v3.14.0)
 
 ## Available Skills
 
-### analyze (v3.8.0)
-Systematic root cause analysis with branch validation.
+### analyze (v3.18.0)
+Systematic root cause analysis with branch validation and Elon Musk's thinking methodology.
 - **브랜치 자동 생성** (main/master/staging 감지 시)
+- **일론 머스크 사고법**: 5단계 알고리즘, 삭제 원칙, Idiot Index, 요구사항 질의
 - **Output**: `[ISSUE_ID]_REPORT.md`
 - **Integration**: First step in workflow
 
@@ -292,6 +293,34 @@ This repository is distributed as a **Claude Code Marketplace**.
 
 ---
 
+### v3.18.0 - analyze 스킬 강화: 일론 머스크 사고법 도입 (2026-01-30)
+
+**컨텍스트**:
+analyze 스킬의 근본 원인 분석 프로세스에 일론 머스크의 핵심 사고법을 체계적으로 통합하여 분석 품질을 향상시킬 필요가 있었음.
+
+**문제점**:
+- **5단계 알고리즘 부재**: 권장사항이 자동화부터 시작하는 경향 (가장 흔한 실수)
+- **삭제 관점 부재**: 버그를 패치하려는 접근만 있고, 코드 삭제로 구조적 해결하는 관점 부족
+- **효율성 지표 부재**: 수정 비용 대비 변경량 비율(Idiot Index) 미평가
+- **요구사항 질의 부재**: "스펙대로 동작하지만 스펙이 잘못된" 가장 비싼 버그 미식별
+
+**결정**: 5가지 주요 변경
+
+1. **SKILL.md Phase 5에 삭제 가능성 평가 추가**
+2. **SKILL.md Phase 6에 5단계 알고리즘 프레임워크 추가**
+3. **report_template.md 전면 재작성** (한국어화 + 8개 신규 섹션)
+4. **common_bug_patterns.md에 삭제 관점 추가** (13개 패턴 모두)
+5. **reference 파일 확장** (first_principles_guide.md, root_cause_techniques.md)
+
+**영향**:
+- 분석 리포트에 삭제 가능성, 5단계 알고리즘, Idiot Index 평가 포함
+- 기존 워크플로우와 호환 (추가 기능, Breaking Change 없음)
+- +457줄 / -252줄 (6개 파일)
+
+**버전**: v3.17.0 → v3.18.0
+
+---
+
 ### v3.11.0 - 저장소 구조 개편 (2026-01-02)
 
 **컨텍스트**:
@@ -527,7 +556,7 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 
 ## Notes
 
-- **Current version**: v3.17.0 (Plugin/MCP 이름 단축 - 64자 제한 대응)
+- **Current version**: v3.18.0 (analyze 스킬 강화 - 일론 머스크 사고법 도입)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
 - **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

@@ -13,8 +13,8 @@ Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를
 
 이 저장소는 **Skills + Agents (v3.7.0)**를 제공하며, Custom Commands와 MCP Servers는 별도로 설치/설정해야 합니다.
 
-**v3.14.0 주요 변경**:
-- 🐙 **GitHub MCP 플러그인 추가**: 저장소, 이슈, PR 관리
+**v3.18.0 주요 변경**:
+- 🧠 **analyze 스킬 강화**: 일론 머스크 사고법 (5단계 알고리즘, 삭제 원칙, Idiot Index) 도입
 - 📦 **8개 독립 플러그인**:
   - `wf`: 4 skills + 1 agent
   - `seq-think`: Sequential Thinking MCP
@@ -272,7 +272,7 @@ glab mr create --title "feat: JIRA-123 구현"
 
 ## 📦 Available Skills
 
-### analyze (v3.8.0 Updated)
+### analyze (v3.18.0 Updated)
 
 버그와 이슈의 근본 원인을 체계적으로 분석하는 스킬입니다.
 
@@ -281,6 +281,11 @@ glab mr create --title "feat: JIRA-123 구현"
 - 다각도 가설 수립 및 검증
 - 코드베이스 탐색을 통한 문제 지점 파악
 - 상세한 분석 리포트 자동 생성 (`*_REPORT.md`)
+- 🧠 **일론 머스크 사고법 통합** (v3.18.0):
+  - **5단계 알고리즘**: 요구사항 질의 → 삭제 → 단순화 → 가속 → 자동화
+  - **삭제 원칙**: "최고의 부품은 없는 부품이다" — 코드 삭제로 버그를 구조적으로 불가능하게
+  - **Idiot Index**: 버그 수정 비용 / 실제 코드 변경량 비율로 프로세스 효율성 평가
+  - **요구사항 질의**: "스펙대로 동작하지만 스펙이 잘못된" 버그 식별
 
 **v3.5.0 변경사항:**
 - ⚠️ **브랜치 보호**: main/master/staging 브랜치 감지 시 새 feature 브랜치 자동 생성
@@ -566,7 +571,7 @@ mr-review [Branch/MR URL]
 {
   "name": "wogus-plugins",
   "metadata": {
-    "version": "3.14.0"
+    "version": "3.18.0"
   },
   "plugins": [
     { "name": "wf", "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우" },
@@ -646,7 +651,7 @@ mr-review [Branch/MR URL]
 ## 📁 Repository Structure
 
 ```
-wogus-plugin/  (v3.14.0)
+wogus-plugin/  (v3.18.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │

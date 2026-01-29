@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.19.0):**
+**Key Artifacts (v3.20.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -15,7 +15,7 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.19.0)
+wogus-plugin/  (v3.20.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │
@@ -249,7 +249,7 @@ This repository is distributed as a **Claude Code Marketplace**.
 ### Configuration
 
 - **File**: `.claude-plugin/marketplace.json`
-- **Version**: Semantic versioning (current: v3.19.0)
+- **Version**: Semantic versioning (current: v3.20.0)
 - **Plugins**: 8개 독립 플러그인 (wf, glmr, seq-think, terraform, amplitude, slack, atlassian, github)
 - **MCP Servers**: seq-think 별도 플러그인으로 분리 (외부 MCP는 별도 설치)
 
@@ -299,6 +299,31 @@ This repository is distributed as a **Claude Code Marketplace**.
 
 이 섹션에는 최신 3개의 아키텍처 결정사항만 포함합니다.
 이전 버전의 ADR은 Serena 메모리 또는 CHANGELOG.md를 참조하세요.
+
+---
+
+### v3.20.0 - plan_template에 Task Registration Guide 섹션 추가 (2026-01-30)
+
+**컨텍스트**:
+plan 스킬이 생성하는 `*_PLAN.md` 출력물의 템플릿(`plan_template.md`)에 Task Registration 절차가 구체적이지 않아, execute 스킬이 plan을 실행할 때 태스크를 빠짐없이 등록하도록 보장하는 명시적 구조가 부재했음.
+
+**문제점**:
+- **Task Registration 가이드 부재**: plan_template.md의 "Execution Notes" 섹션에 TaskCreate/TaskUpdate 언급만 있고 구체적 등록 절차 없음
+- **execute 연계 약함**: execute Phase 3에서 plan 문서의 Task Breakdown을 파싱할 때 구조화된 등록 체크리스트 부재
+
+**결정**: plan_template.md에 Task Registration Guide 섹션 추가
+
+1. **`## Task Registration Guide` 섹션 신설**: Task Breakdown과 Dependencies & Critical Path 사이에 배치
+2. **`### Registration Table` 템플릿**: subject, activeForm 컬럼으로 모든 태스크 등록 가이드
+3. **`### Task Tracking Rules`**: TaskCreate → TaskUpdate(in_progress) → TaskUpdate(completed) 워크플로우 명시
+
+**영향**:
+- plan 스킬이 생성하는 PLAN.md에 명시적 Task Registration 가이드 포함
+- execute 스킬의 Phase 0에서 모든 태스크를 빠짐없이 등록 가능
+- 기존 워크플로우와 완전 호환 (Breaking Change 없음)
+- 1개 파일 수정 (+20줄)
+
+**버전**: v3.19.0 → v3.20.0
 
 ---
 
@@ -357,43 +382,6 @@ analyze 스킬의 근본 원인 분석 프로세스에 일론 머스크의 핵�
 
 ---
 
-### v3.11.0 - 저장소 구조 개편 (2026-01-02)
-
-**컨텍스트**:
-공식 Claude 플러그인 구조와 일치시키고, 불필요한 폴더를 정리하여 저장소를 단순화할 필요가 있었음.
-
-**문제점**:
-- **비표준 구조**: 스킬들이 루트에 직접 배치되어 공식 구조와 불일치
-- **MCP 설정 중복**: marketplace.json과 각 플러그인에 MCP 설정이 분산
-- **불필요한 폴더**: docs/, .archive/ 폴더가 실제로 사용되지 않음
-
-**결정**: 4가지 주요 변경
-
-1. **plugins/ 폴더 도입**:
-   - 모든 플러그인을 `plugins/` 하위로 이동
-   - 저장소 루트 정리
-
-2. **skills/ 폴더 구조**:
-   - workflow-bundle의 스킬들을 `skills/` 폴더로 이동
-   - 자동 인식 (plugin.json에서 명시적 선언 불필요)
-
-3. **MCP 설정 분리**:
-   - marketplace.json에서 `mcpServers` 제거
-   - 각 플러그인에 `.mcp.json` 파일로 분리
-
-4. **불필요한 폴더 제거**:
-   - `docs/` 폴더 삭제 (ADR은 Serena 메모리로 대체)
-   - `.archive/` 폴더 삭제
-
-**영향**:
-- 공식 Claude 플러그인 구조와 일치
-- marketplace.json이 순수 카탈로그 역할만 수행
-- 저장소 구조 단순화
-
-**버전**: v3.10.0 → v3.11.0
-
----
-
 ## 이전 버전 ADRs
 
 v3.0.0 ~ v3.2.1, v2.0.0 ~ v2.4.0, v1.6.0 등의 아키텍처 결정사항은 다음 디렉토리에서 확인하세요:
@@ -442,7 +430,7 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 
 ## Notes
 
-- **Current version**: v3.19.0 (스킬 전체 영어 지시문 점검 및 TaskTracking·Phase 정합성 개선)
+- **Current version**: v3.20.0 (plan_template에 Task Registration Guide 섹션 추가)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
 - **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

@@ -104,6 +104,29 @@ Use this template when creating `[FEATURE]_PLAN.md` files.
 
 ---
 
+## Task Registration Guide
+
+Register ALL tasks from the Task Breakdown above using `TaskCreate` before starting execution.
+This ensures the execute skill's Phase 0 can track every task without omission.
+
+### Registration Table
+
+| # | subject | activeForm |
+|---|---------|------------|
+| 1 | [Task 1 이름] - P[0-3] | [Task 1 진행형] |
+| 2 | [Task 2 이름] - P[0-3] | [Task 2 진행형] |
+| ... | ... | ... |
+
+### Task Tracking Rules
+
+- **Before execution**: Register all tasks using `TaskCreate` with subject and activeForm
+- **On task start**: `TaskUpdate(taskId, status: "in_progress")`
+- **On task completion**: `TaskUpdate(taskId, status: "completed")`
+- **Rule**: Only ONE task should be `in_progress` at any time
+- **Blocked tasks**: Keep as `pending`, document blocker reason
+
+---
+
 ## Dependencies & Critical Path
 
 ### Dependency Diagram

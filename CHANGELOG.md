@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.19](changelogs/v3.19.md) | 2026-01-30 | 스킬 전체 영어 지시문 점검 및 TaskTracking·Phase 정합성 개선 |
 | [v3.18](changelogs/v3.18.md) | 2026-01-30 | analyze 스킬 강화: 일론 머스크 사고법 도입 |
 | [v3.17](changelogs/v3.17.md) | 2026-01-29 | Plugin/MCP 이름 단축 (API 64자 제한 대응) |
 | [v3.16](changelogs/v3.16.md) | 2026-01-19 | GitLab CI MCP 전환, CI 스킬 5개 삭제 |

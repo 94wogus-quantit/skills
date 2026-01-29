@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.18.0):**
+**Key Artifacts (v3.19.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -15,7 +15,7 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.14.0)
+wogus-plugin/  (v3.19.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │
@@ -249,7 +249,7 @@ This repository is distributed as a **Claude Code Marketplace**.
 ### Configuration
 
 - **File**: `.claude-plugin/marketplace.json`
-- **Version**: Semantic versioning (current: v3.14.0)
+- **Version**: Semantic versioning (current: v3.19.0)
 - **Plugins**: 8개 독립 플러그인 (wf, glmr, seq-think, terraform, amplitude, slack, atlassian, github)
 - **MCP Servers**: seq-think 별도 플러그인으로 분리 (외부 MCP는 별도 설치)
 
@@ -299,6 +299,33 @@ This repository is distributed as a **Claude Code Marketplace**.
 
 이 섹션에는 최신 3개의 아키텍처 결정사항만 포함합니다.
 이전 버전의 ADR은 Serena 메모리 또는 CHANGELOG.md를 참조하세요.
+
+---
+
+### v3.19.0 - 스킬 전체 영어 지시문 점검 및 TaskTracking·Phase 정합성 개선 (2026-01-30)
+
+**컨텍스트**:
+v3.17.0에서 Plugin/MCP 이름을 단축했으나, 스킬 SKILL.md 파일 내부의 MCP 도구명은 업데이트되지 않았음. 또한 execute 스킬에서 deprecated된 TodoWrite API와 잘못된 Phase 개수 표기가 발견됨.
+
+**문제점**:
+- **OLD MCP 이름 잔존**: 4개 스킬 + 1 agent에 `mcp__plugin_workflow-skills_*` 형식 37개 잔존
+- **TodoWrite 미마이그레이션**: execute 스킬에서 deprecated TodoWrite 9개 사용 중 (TaskCreate/TaskUpdate로 전환 필요)
+- **Phase 라벨 불일치**: execute 스킬이 실제 9-Phase인데 "7-Phase"로 표기
+- **TodoList 용어 미통일**: execute 스킬에서 TodoList 7개 잔존 (TaskList로 통일 필요)
+
+**결정**: 4가지 일괄 수정
+
+1. **MCP 도구명 37개 교체** (5개 파일)
+2. **TodoWrite → TaskCreate/TaskUpdate 마이그레이션** (9개, execute 스킬)
+3. **TodoList → TaskList 용어 통일** (7개, execute 스킬)
+4. **"7-Phase" → "9-Phase" 수정** (3개, execute 스킬)
+
+**영향**:
+- 스킬 지시문이 현재 API와 정확히 일치
+- 기존 워크플로우와 완전 호환 (Breaking Change 없음)
+- 5개 파일 수정
+
+**버전**: v3.18.0 → v3.19.0
 
 ---
 
@@ -367,156 +394,6 @@ analyze 스킬의 근본 원인 분석 프로세스에 일론 머스크의 핵�
 
 ---
 
-### v3.7.0 - Plugins 모듈화 (2025-12-19)
-
-**컨텍스트**:
-단일 monolithic 플러그인(workflow-skills)이 모든 기능을 포함하고 있어, 사용자가 필요한 기능만 선택적으로 설치할 수 없었음.
-
-**문제점**:
-- **All-or-Nothing 설치**: 필요하지 않은 MCP 서버도 함께 설치됨
-- **의존성 복잡도**: 외부 MCP (serena, context7, sentry, atlassian)가 함께 번들되어 설치/관리 어려움
-- **mcp-config 스킬 불필요**: 플러그인 분리 후 개별 설치/제거가 가능해져 MCP 관리 스킬이 불필요해짐
-
-**결정**: 3개 독립 플러그인으로 분리
-
-1. **workflow-bundle**:
-   - 5개 Skills: analyze-issue, plan-builder, execute-plan, document, mr-code-review
-   - 1개 Agent: requirement-validator
-   - 1개 MCP: sequential-thinking
-
-2. **terraform**: Terraform MCP 서버만 포함
-
-3. **amplitude**: Amplitude MCP 서버만 포함
-
-**외부 MCP 분리**:
-- serena, context7, sentry, atlassian MCP는 별도 플러그인으로 설치하도록 변경
-- marketplace.json에서 제거
-
-**제거된 스킬**:
-- **mcp-config**: 플러그인 분리로 개별 설치/제거가 가능해져 불필요
-  - `mcp-config/SKILL.md` 삭제
-  - `mcp-config/references/mcp_tools.md` 삭제
-  - `mcp-config/references/settings_template.json` 삭제
-
-**영향**:
-- 사용자가 필요한 기능만 선택적으로 설치 가능
-- 외부 MCP 의존성 명시화
-- mcp-config 스킬 제거로 Skills 수 6개 → 5개
-- Breaking Change: 기존 workflow-skills 사용자는 workflow-bundle로 재설치 필요
-
-**버전**: v3.6.0 → v3.7.0
-
----
-
-### v3.6.0 - mr-code-review 대규모 개선 (2025-12-12)
-
-**컨텍스트**:
-mr-code-review가 단일 파일(MR_CODE_REVIEW.md) 출력, 6가지 검증, 언어별 보안 도구 사용으로 제한적이었음.
-
-**문제점**:
-- **출력 형식 제한**: 마크다운 단일 파일로 GitLab Inline Discussion 자동화 어려움
-- **비즈니스 로직 검증 부재**: JIRA 목표 대비 구현 정확성 검증 누락
-- **언어별 보안 도구**: npm audit은 JavaScript 전용, 다른 언어 지원 필요
-- **Context 손실**: 긴 리뷰에서 Phase 간 맥락 손실 발생
-
-**결정**: 4가지 주요 개선
-
-1. **2개 파일 출력**:
-   - `INLINE_DISCUSSION.json`: GitLab Inline Discussion 자동화용
-   - `SUMMARY_COMMENT.md`: 전체 요약 마크다운
-
-2. **7가지 검증으로 확장**:
-   - 기존 6가지 + "비즈니스 로직 정확성 검증" 추가
-   - JIRA 목표 대비 구현 정확성, 엣지케이스, 경계값 검증
-
-3. **Trivy 범용 보안 스캔**:
-   - npm audit, pip-audit 등 언어별 도구 → Trivy로 통합
-   - JavaScript, Python, Go, Java, Rust 등 모든 언어 지원
-
-4. **Phase별 중간 산출물**:
-   - `.mr-review/1_CONTEXT.md`: 맥락 수집 결과
-   - `.mr-review/2_CODE_ANALYSIS.md`: 코드 분석 결과
-   - `.mr-review/3_SECURITY_ANALYSIS.md`: 보안 분석 결과
-   - Phase 4에서 중간 파일 읽어 최종 리포트 생성
-
-**영향**:
-- GitLab Inline Discussion 자동화 가능
-- 비즈니스 로직 정확성 검증으로 품질 향상
-- 모든 언어 프로젝트에서 보안 스캔 가능
-- Context 손실 없이 긴 리뷰 수행 가능
-- Breaking Change: 출력 파일 변경 (MR_CODE_REVIEW.md → 2개 파일)
-
-**관련 파일**:
-- mr-code-review/SKILL.md: 전체 재구성
-- mr-code-review/references/inline_discussion_template.json: 신규
-- mr-code-review/references/summary_comment_template.md: 신규
-- mr-code-review/references/verification_guides/business_logic_check.md: 신규
-
-**버전**: v3.5.3 → v3.6.0
-
----
-
-### v3.5.0 - 브랜치 검증으로 단순화 (Worktree 제거) (2025-12-11)
-
-**컨텍스트**:
-v3.4.x에서 도입한 Git Worktree 자동 관리 기능이 실무 워크플로우와 맞지 않음. 사용자는 브랜치 분리만으로 충분하며, Worktree는 오히려 복잡도를 증가시킴.
-
-**문제점**:
-- **불필요한 복잡도**: Worktree 생성/관리/삭제 로직이 복잡하고 디버깅 어려움
-- **사용자 혼란**: Worktree 디렉토리 구조가 낯설고 이해하기 어려움
-- **브랜치 보호 부족**: Worktree는 있지만 main/master/staging 브랜치 직접 수정 방지는 부족
-- **실무 미스매치**: 대부분 사용자는 브랜치만 분리하면 충분
-
-**결정**: Worktree 기능 완전 제거, 브랜치 검증으로 대체
-
-**Phase 0 변경사항** (4개 스킬 모두):
-- **이전**: Worktree 생성/확인/이동
-- **이후**: 보호된 브랜치 (main/master/staging) 검증
-
-**브랜치 검증 로직**:
-```bash
-# main, master, staging 브랜치인지 확인
-if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]] || [[ "$CURRENT_BRANCH" == "staging" ]]; then
-  echo "⚠️ 경고: $CURRENT_BRANCH 브랜치에서 작업 중입니다!"
-  echo "⚠️ main/master/staging 브랜치에서는 작업할 수 없습니다."
-  # 사용자 확인 후 진행 또는 중단
-fi
-```
-
-**Skill별 Phase 0 동작**:
-- **analyze-issue**: 보호된 브랜치 감지 시 새 feature 브랜치 자동 생성
-- **plan-builder**: 보호된 브랜치 경고 및 권장 워크플로우 안내
-- **execute-plan**: 보호된 브랜치 경고 (코드 수정 위험 강조)
-- **document**: 보호된 브랜치 경고 (문서 커밋 위험)
-
-**영향**:
-- **단순화**: Worktree 관련 코드 500+ 라인 제거
-- **명확성**: 브랜치 검증만으로 충분한 안전장치 제공
-- **보호 강화**: main/master/staging 3개 브랜치 모두 보호
-- **사용자 친화**: 익숙한 브랜치 워크플로우 유지
-- **Breaking Change**: Worktree 의존 워크플로우는 영향받음 (소수 사용자)
-
-**제거된 기능**:
-- analyze-issue Phase 0: Worktree 자동 생성
-- document Phase 9: Worktree 정리 (삭제/아카이브)
-- Git commit 강제 로직 (Phase 6 직후)
-
-**유지된 기능**:
-- 브랜치 검증 (보호된 브랜치 경고)
-- Git commit/push 옵션 (document Phase 9)
-- CRITICAL 강제 블록 (Phase 0 건너뛰기 방지)
-
-**관련 파일**:
-- analyze-issue/SKILL.md:43-122 - Phase 0 브랜치 검증
-- plan-builder/SKILL.md:67-116 - Phase 0 브랜치 검증
-- execute-plan/SKILL.md:61-112 - Phase 0 브랜치 검증
-- document/SKILL.md:85-131 - Phase 0 브랜치 검증
-- document/SKILL.md:790-834 - Phase 9 Git commit/push (Worktree 제거)
-
-**버전**: v3.4.1 → v3.5.0
-
----
-
 ## 이전 버전 ADRs
 
 v3.0.0 ~ v3.2.1, v2.0.0 ~ v2.4.0, v1.6.0 등의 아키텍처 결정사항은 다음 디렉토리에서 확인하세요:
@@ -565,7 +442,7 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 
 ## Notes
 
-- **Current version**: v3.18.0 (analyze 스킬 강화 - 일론 머스크 사고법 도입)
+- **Current version**: v3.19.0 (스킬 전체 영어 지시문 점검 및 TaskTracking·Phase 정합성 개선)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
 - **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

@@ -167,7 +167,7 @@ Glob({pattern: "*_PLAN.md"})    // Task plans
 Glob({pattern: "*_REVIEW.md"})  // Plan reviews (if any)
 
 // List directory to check for other files
-mcp__plugin_workflow-skills_serena__list_dir({relative_path: ".", recursive: false})
+mcp__plugin_serena_serena__list_dir({relative_path: ".", recursive: false})
 ```
 
 #### 1B. Read and Parse Artifacts
@@ -216,7 +216,7 @@ mcp__plugin_seq-think_st__sequentialthinking({
 
 ```typescript
 // Find README
-mcp__plugin_workflow-skills_serena__find_file({file_mask: "README*", relative_path: "."})
+mcp__plugin_serena_serena__find_file({file_mask: "README*", relative_path: "."})
 
 // Read current README
 Read({file_path: "README.md"})
@@ -309,7 +309,7 @@ Edit({
 
 ```typescript
 // Look for CHANGELOG
-mcp__plugin_workflow-skills_serena__find_file({file_mask: "CHANGELOG*", relative_path: "."})
+mcp__plugin_serena_serena__find_file({file_mask: "CHANGELOG*", relative_path: "."})
 
 // If not found, create new one
 Write({
@@ -366,7 +366,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/ko/).
 
 ```typescript
 // Look for CLAUDE docs
-mcp__plugin_workflow-skills_serena__find_file({file_mask: "CLAUDE*", relative_path: "."})
+mcp__plugin_serena_serena__find_file({file_mask: "CLAUDE*", relative_path: "."})
 // Or check .claude/ directory
 ```
 
@@ -414,7 +414,7 @@ mcp__plugin_workflow-skills_serena__find_file({file_mask: "CLAUDE*", relative_pa
 
 ```typescript
 // Architectural decisions
-mcp__plugin_workflow-skills_serena__write_memory({
+mcp__plugin_serena_serena__write_memory({
   memory_file_name: "architecture_decisions.md",
   content: `
 ## 2025-01-15 - [Feature/Fix Name]
@@ -434,7 +434,7 @@ mcp__plugin_workflow-skills_serena__write_memory({
 })
 
 // Known issues and solutions
-mcp__plugin_workflow-skills_serena__write_memory({
+mcp__plugin_serena_serena__write_memory({
   memory_file_name: "known_issues.md",
   content: `
 ## 2025-01-15 - [Issue Type]
@@ -457,7 +457,7 @@ mcp__plugin_workflow-skills_serena__write_memory({
 })
 
 // Code patterns
-mcp__plugin_workflow-skills_serena__write_memory({
+mcp__plugin_serena_serena__write_memory({
   memory_file_name: "code_patterns.md",
   content: `
 ## 2025-01-15 - [Pattern Name]
@@ -479,7 +479,7 @@ mcp__plugin_workflow-skills_serena__write_memory({
 })
 
 // Dependencies changelog
-mcp__plugin_workflow-skills_serena__write_memory({
+mcp__plugin_serena_serena__write_memory({
   memory_file_name: "dependencies_changelog.md",
   content: `
 ## 2025-01-15 - 의존성 변경
@@ -496,7 +496,7 @@ mcp__plugin_workflow-skills_serena__write_memory({
 })
 
 // Testing patterns
-mcp__plugin_workflow-skills_serena__write_memory({
+mcp__plugin_serena_serena__write_memory({
   memory_file_name: "testing_patterns.md",
   content: `
 ## 2025-01-15 - [Test Category]
@@ -543,7 +543,7 @@ const issueId = extractedFromArtifacts; // e.g., "PROJECT-123"
 
 ```typescript
 // Get issue details
-mcp__plugin_workflow-skills_atlassian__jira_get_issue({
+mcp__plugin_atlassian_atlassian__jira_get_issue({
   issue_key: issueId
 })
 
@@ -604,7 +604,7 @@ npm test
 
 ```typescript
 // Add comprehensive comment
-mcp__plugin_workflow-skills_atlassian__jira_add_comment({
+mcp__plugin_atlassian_atlassian__jira_add_comment({
   issue_key: issueId,
   comment: `
 ## ✅ 구현 완료
@@ -649,12 +649,12 @@ npm test
 
 ```typescript
 // Get available transitions
-mcp__plugin_workflow-skills_atlassian__jira_get_transitions({
+mcp__plugin_atlassian_atlassian__jira_get_transitions({
   issue_key: issueId
 })
 
 // If "Done" transition is available and appropriate:
-mcp__plugin_workflow-skills_atlassian__jira_transition_issue({
+mcp__plugin_atlassian_atlassian__jira_transition_issue({
   issue_key: issueId,
   transition_id: doneTransitionId  // From available transitions
 })

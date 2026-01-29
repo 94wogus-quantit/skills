@@ -13,8 +13,11 @@ Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를
 
 이 저장소는 **Skills + Agents (v3.7.0)**를 제공하며, Custom Commands와 MCP Servers는 별도로 설치/설정해야 합니다.
 
-**v3.18.0 주요 변경**:
-- 🧠 **analyze 스킬 강화**: 일론 머스크 사고법 (5단계 알고리즘, 삭제 원칙, Idiot Index) 도입
+**v3.19.0 주요 변경**:
+- 🔧 **스킬 전체 영어 지시문 점검 및 정합성 개선**:
+  - MCP 도구명 v3.17.0 단축 규칙 반영 (37개 교체)
+  - TodoWrite/TodoList → TaskCreate/TaskUpdate/TaskList 마이그레이션
+  - Phase 라벨 정합성 수정 (7-Phase → 9-Phase)
 - 📦 **8개 독립 플러그인**:
   - `wf`: 4 skills + 1 agent
   - `seq-think`: Sequential Thinking MCP
@@ -386,8 +389,8 @@ claude-code exec "Use mr-review skill to review this MR. Branch: feature/user-au
 승인된 구현 계획을 체계적으로 실행하는 스킬입니다.
 
 **주요 기능:**
-- TodoList 자동 생성 및 진행 추적
-- 8단계 체계적 실행 프로세스
+- TaskList 자동 생성 및 진행 추적
+- 9단계 체계적 실행 프로세스
 - 자동 테스트 실행 및 검증
 - 코드 문서화 및 Serena 메모리 저장
 - **순수 구현에만 집중** (문서 정리는 document 스킬에서 처리)
@@ -508,7 +511,7 @@ analyze
    └─> *_PLAN.md (승인된 고품질 계획)
 
 3. execute [PLAN]
-   └─> TodoList 생성 및 실행
+   └─> TaskList 생성 및 실행
    └─> [Phase 4] 코드 구현
    └─> [Phase 4C] DB Migration 검증 (마이그레이션 작업 시)
    └─> [Phase 5] 테스트 직접 생성 - AAA 패턴 (조건부 필수)
@@ -533,7 +536,7 @@ analyze
 
 **중요**:
 - `plan`는 자동으로 피드백 루프를 반복하여 고품질 계획을 보장합니다
-- `execute`은 7-Phase 구조로 체계적입니다
+- `execute`은 9-Phase 구조로 체계적입니다
 - `execute`은 코드 구현에, `record`는 문서화에 집중하도록 역할이 분리되어 있습니다
 - 완전한 워크플로우를 위해서는 두 단계를 모두 실행해야 합니다
 
@@ -571,7 +574,7 @@ mr-review [Branch/MR URL]
 {
   "name": "wogus-plugins",
   "metadata": {
-    "version": "3.18.0"
+    "version": "3.19.0"
   },
   "plugins": [
     { "name": "wf", "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우" },
@@ -651,7 +654,7 @@ mr-review [Branch/MR URL]
 ## 📁 Repository Structure
 
 ```
-wogus-plugin/  (v3.18.0)
+wogus-plugin/  (v3.19.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │

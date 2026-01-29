@@ -251,10 +251,10 @@ Use this template when creating `[FEATURE]_PLAN.md` files.
 - [ ] Backup/rollback plan confirmed
 
 ### During Execution
-- Use `TodoWrite` to track task progress
+- Use `TaskCreate` to register tasks, `TaskUpdate` to track progress
 - Mark tasks as in_progress/completed systematically
-- Update JIRA with `mcp__plugin_workflow-skills_atlassian__jira_update_issue`
-- Document learnings with `mcp__plugin_workflow-skills_serena__write_memory`
+- Update JIRA with `mcp__plugin_atlassian_atlassian__jira_update_issue`
+- Document learnings with `mcp__plugin_serena_serena__write_memory`
 
 ### After Completion
 - [ ] All tests passing

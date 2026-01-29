@@ -129,53 +129,83 @@ If `is_protected` is `true`:
 
 ---
 
-### Phase 2: Initial Plan Creation
+### Phase 2: Initial Plan Creation (5-Step Algorithm)
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
-Create a structured task plan from requirements or analysis reports.
+Create a structured task plan using the **5-Step Algorithm** as the core thinking methodology. Each step builds on the previous — follow in strict order.
 
-**1. Context Gathering**
+> For detailed process, examples, and Sequential Thinking invocation patterns, see `references/planning_mental_model.md`
 
-Collect all necessary context:
+**Step 1: Context Gathering**
 
-- **Analysis Reports** (if available):
-  - Read `*_REPORT.md` files using Read tool
-  - Extract root cause, affected code locations
-  - Identify recommended fixes and testing requirements
+Collect all necessary context before thinking about tasks:
 
-- **JIRA/Atlassian**:
-  - Use `mcp__plugin_atlassian_atlassian__jira_get_issue` for requirements
-  - Extract acceptance criteria and constraints
-  - Check linked issues and dependencies
+- **Analysis Reports**: Read `*_REPORT.md` files, extract root cause and recommendations
+- **JIRA/Atlassian**: Use `mcp__plugin_atlassian_atlassian__jira_get_issue` for requirements and AC
+- **Codebase**: Use Serena tools (`check_onboarding_performed`, `list_memories`, `find_symbol`, `search_for_pattern`)
+- **Framework Docs**: Use Context7 (`resolve-library-id`, `query-docs`) for best practices
 
-- **Codebase** (using Serena):
-  - Use `mcp__plugin_serena_serena__check_onboarding_performed`
-  - Use `mcp__plugin_serena_serena__list_memories` for project knowledge
-  - Use `mcp__plugin_serena_serena__find_symbol` for affected components
-  - Use `mcp__plugin_serena_serena__search_for_pattern` for similar code
+**Step 2: Requirement Questioning** (Musk Step 1)
 
-- **Framework Documentation** (using Context7):
-  - Use `mcp__plugin_context7_context7__get-library-docs` for best practices
-  - Verify API usage and patterns
+Use `mcp__plugin_seq-think_st__sequentialthinking` to question every requirement:
 
-**2. Plan Structure Creation**
+- Trace each requirement to a **named person** (not a department)
+- Challenge cargo-culted conventions ("we always do it this way")
+- Verify each requirement is **still valid today**
+- Flag requirements without a named owner as deletion candidates
 
-Use `mcp__plugin_seq-think_st__sequentialthinking` to organize the plan.
+> "Requirements from smart people are the most dangerous — nobody questions them."
 
-Reference the template in `references/plan_template.md` for complete structure.
+**Step 3: Deletion Pass** (Musk Step 2)
+
+Use `mcp__plugin_seq-think_st__sequentialthinking` to perform aggressive deletion:
+
+- List all planned components/tasks and attempt to delete each one
+- Target: remove **20-30%** of initial scope
+- Apply the **10% restoration rule**: if nothing is added back later, deletion was too conservative
+- Delete: premature abstractions, future-proofing, unnecessary admin panels, feature flags for one-time deploys
+
+> "If you don't end up adding back at least 10% of what you deleted, you didn't delete enough."
+
+**Step 4: Simplification** (Musk Step 3)
+
+Use `mcp__plugin_seq-think_st__sequentialthinking` to simplify remaining tasks:
+
+- Replace custom solutions with standard libraries where possible
+- Merge overlapping tasks, flatten unnecessary hierarchies
+- Remove over-abstraction layers
+- ⚠️ Only simplify tasks that survived Step 3 — never optimize what should be deleted
+
+**Step 5: Plan Structure Creation** (with Zero-Context Principle)
+
+Reference `references/plan_template.md` for complete structure. Apply **Zero-Context Principle**:
+
+- Every task specifies **exact file paths**, **specific code references**, **runnable test commands**
+- A reader with zero codebase familiarity must be able to execute each task
 
 **Critical Requirements**:
-- ✅ Every task MUST have Testing Strategy
+- ✅ Every task MUST have Testing Strategy (Given/When/Then)
 - ✅ Tasks must be independently verifiable
 - ✅ Clear success criteria for each task
 - ✅ Explicit dependencies (or "None")
 
-**3. Save Initial Plan**
+**Step 6: Acceleration Analysis** (Musk Step 4)
 
-- Save as `[FEATURE]_PLAN.md`
-- Use UPPERCASE for feature name
-- Examples: `USER_AUTH_PLAN.md`, `API_REFACTOR_PLAN.md`
+Use `mcp__plugin_seq-think_st__sequentialthinking` to optimize execution speed:
+
+- Identify parallelizable work streams
+- Remove artificial sequential dependencies
+- Plan for incremental delivery (small PRs, early integration)
+- Document critical path and parallel opportunities in the plan
+
+**Step 7: Save Initial Plan with Idiot Index Self-Check**
+
+- Save as `[FEATURE]_PLAN.md` (UPPERCASE feature name)
+- Before saving, calculate **Idiot Index** (see `references/planning_mental_model.md`):
+  - Idiot Index = Total plan effort / Core functionality effort
+  - If > 3x: re-run Step 3 (Deletion Pass)
+  - If > 5x: fundamental redesign needed
 
 ### Phase 3: ITERATIVE REVIEW LOOP
 

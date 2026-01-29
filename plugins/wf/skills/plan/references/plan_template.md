@@ -35,6 +35,11 @@ Use this template when creating `[FEATURE]_PLAN.md` files.
 
 ## Task Breakdown
 
+> **Zero-Context Principle**: 각 태스크는 코드베이스에 대한 사전 지식 없이도
+> 실행 가능하도록 작성한다. 정확한 파일 경로, 구체적인 코드 스니펫,
+> 실행 가능한 테스트 커맨드를 반드시 포함한다.
+> See `references/planning_mental_model.md` for detailed guidelines.
+
 ### Task 1: [Task Name] - P[0-3] | [S/M/L]
 
 **Goal**: [Clear, specific outcome for this task]
@@ -196,7 +201,7 @@ This ensures the execute skill's Phase 0 can track every task without omission.
 
 ---
 
-## Deployment & Rollout
+## Deployment & Rollout [선택적 - 프로덕션 배포가 필요한 경우에만]
 
 ### Deployment Strategy
 - **Environment Sequence**: Dev → Staging → Production
@@ -228,7 +233,7 @@ This ensures the execute skill's Phase 0 can track every task without omission.
 
 ---
 
-## Documentation & Communication
+## Documentation & Communication [선택적 - 팀 프로젝트인 경우에만]
 
 ### Documentation Updates Required
 - [ ] **API Documentation**: [Which APIs/endpoints]
@@ -245,7 +250,7 @@ This ensures the execute skill's Phase 0 can track every task without omission.
 
 ---
 
-## Post-Implementation
+## Post-Implementation [선택적 - KPI 추적이 필요한 경우에만]
 
 ### Success Metrics
 - **KPI 1**: [Metric name] - Target: [Value]

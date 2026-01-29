@@ -11,18 +11,9 @@ Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를
 - **⚙️ Custom Commands**: 워크플로우 자동화 커맨드 (별도 설치 필요)
 - **🔗 MCP Servers**: 외부 도구/서비스 통합 (별도 설정 필요)
 
-이 저장소는 **Skills + Agents (v3.7.0)**를 제공하며, Custom Commands와 MCP Servers는 별도로 설치/설정해야 합니다.
+이 저장소는 **Skills + Agents**를 제공하며, Custom Commands와 MCP Servers는 별도로 설치/설정해야 합니다.
 
-**v3.19.0 주요 변경**:
-- 🔧 **스킬 전체 영어 지시문 점검 및 정합성 개선**:
-  - MCP 도구명 v3.17.0 단축 규칙 반영 (37개 교체)
-  - TodoWrite/TodoList → TaskCreate/TaskUpdate/TaskList 마이그레이션
-  - Phase 라벨 정합성 수정 (7-Phase → 9-Phase)
-- 📦 **8개 독립 플러그인**:
-  - `wf`: 4 skills + 1 agent
-  - `seq-think`: Sequential Thinking MCP
-  - `glmr`: GitLab MR 관리 (7 skills)
-  - `terraform`, `amplitude`, `slack`, `atlassian`, `github`: 개별 MCP 서버
+> 변경 이력은 [CHANGELOG.md](CHANGELOG.md) 참조.
 
 ## 🌐 언어 정책
 
@@ -35,7 +26,7 @@ Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를
 
 이는 모든 스킬에 강제 적용되는 **필수 정책**입니다.
 
-## 🔒 브랜치 보호 정책 (v3.5.0+)
+## 🔒 브랜치 보호 정책
 
 workflow-skills는 보호된 브랜치(main, master, staging)에서 직접 작업하는 것을 방지합니다.
 
@@ -275,24 +266,16 @@ glab mr create --title "feat: JIRA-123 구현"
 
 ## 📦 Available Skills
 
-### analyze (v3.18.0 Updated)
+### analyze
 
 버그와 이슈의 근본 원인을 체계적으로 분석하는 스킬입니다.
 
 **주요 기능:**
 - JIRA 이슈 및 Sentry 에러 조사
-- 다각도 가설 수립 및 검증
+- 다각도 가설 수립 및 검증 (First Principles + 일론 머스크 사고법)
 - 코드베이스 탐색을 통한 문제 지점 파악
 - 상세한 분석 리포트 자동 생성 (`*_REPORT.md`)
-- 🧠 **일론 머스크 사고법 통합** (v3.18.0):
-  - **5단계 알고리즘**: 요구사항 질의 → 삭제 → 단순화 → 가속 → 자동화
-  - **삭제 원칙**: "최고의 부품은 없는 부품이다" — 코드 삭제로 버그를 구조적으로 불가능하게
-  - **Idiot Index**: 버그 수정 비용 / 실제 코드 변경량 비율로 프로세스 효율성 평가
-  - **요구사항 질의**: "스펙대로 동작하지만 스펙이 잘못된" 버그 식별
-
-**v3.5.0 변경사항:**
-- ⚠️ **브랜치 보호**: main/master/staging 브랜치 감지 시 새 feature 브랜치 자동 생성
-- 🔧 **Worktree 제거**: 복잡한 Worktree 로직 제거, 브랜치 워크플로우로 단순화
+- 브랜치 보호 (main/master/staging 감지 시 feature 브랜치 자동 생성)
 
 **사용 시점:**
 - JIRA 이슈나 버그 리포트 분석 시
@@ -305,7 +288,7 @@ glab mr create --title "feat: JIRA-123 구현"
 /plugin install analyze.zip
 ```
 
-### mr-review (v3.6.0 Updated)
+### mr-review
 
 GitLab MR의 코드 변경사항을 분석하여 맥락 기반 종합 리뷰를 수행하는 스킬입니다.
 
@@ -337,40 +320,17 @@ claude-code exec "Use mr-review skill to review this MR. Branch: feature/user-au
 /plugin install mr-review.zip
 ```
 
-### plan (v3.5.0 Updated)
+### plan
 
 자동 반복 검토를 통해 고품질 구현 계획을 생성하는 스킬입니다.
 
-⚠️ **v3.5.0 변경사항**: 브랜치 보호 (main/master/staging 경고 및 권장 워크플로우 안내)
-
-⚠️ **v2.2.0 주요 개선**: 각 리뷰 iteration마다 **새로운 문제를 탐색**하여 계획 품질을 극대화합니다.
-
 **주요 기능:**
-- **명시적 WHILE 루프**: 계획 생성 → 검토 → 피드백 반영 무한 반복 (ZERO 이슈까지)
-- **엄격한 품질 기준**: "Approve"는 ZERO 이슈일 때만 가능 (Good ≠ Strong)
-- **버전 추적**: 각 반복마다 `*_PLAN_REVIEW_v[N].md` 파일 생성 및 보존
+- **반복 리뷰 루프**: 계획 생성 → 검토 → 피드백 반영 (ZERO 이슈까지 자동 반복)
+- **엄격한 품질 기준**: "Approve"는 ZERO 이슈일 때만 가능
 - **CARRYOVER/NEW 태깅**: 이전 이슈 추적 + 새로 발견한 이슈 구분
-- **Fresh Exploration**: 매 iteration마다 전체 체크리스트를 처음부터 재적용
-- **자동 Iteration**: 사용자 개입 없이 ZERO 이슈까지 자동 반복
 - 모든 태스크에 테스팅 전략 필수 포함
 - 태스크 독립성 검증
-
-**v2.2.0 변경사항 (2025-12-10)**:
-- ✅ **Step A (Review) 6단계 프로세스로 강화**:
-  - Step 1: 이전 리뷰 읽기 (피드백 적용 확인)
-  - Step 3: FULL FRESH Critical Review (MANDATORY - 전체 체크리스트 재적용)
-  - Step 4: CARRYOVER/NEW 이슈 태깅 (진행 추적)
-- ✅ **review_checklist.md 강화**: "MANDATORY: Apply FULL checklist EVERY TIME" 명시
-- ✅ **자동 iteration 강제**: Step D에서 사용자 확인 없이 자동으로 다음 iteration 실행
-- ✅ **CRITICAL INSTRUCTION 블록**: "DO NOT assume", "LOOK FOR NEW PROBLEMS" 명시적 지시
-- 🎯 **결과**: 각 iteration에서 새로운 유형의 문제 발견 보장 (Testing Strategy → Task Independence → Edge Cases...)
-
-**v1.6.0 변경사항 (2025-12-09)**:
-- ✅ Phase 2를 WHILE 루프 구조로 완전 재작성
-- ✅ "Approve with Changes" 제거 → Binary decision (Approve / Needs Iteration)
-- ✅ 리뷰 파일 버전 추적 메커니즘 추가
-- ✅ Loop 다이어그램 및 테스트 시나리오 추가
-- ⚠️ 이전보다 더 많은 반복이 발생할 수 있으나, 계획 품질이 크게 향상됨
+- 브랜치 보호 (feature 브랜치 확인)
 
 **사용 시점:**
 - `*_REPORT.md`에서 구현 계획 생성 시
@@ -384,7 +344,7 @@ claude-code exec "Use mr-review skill to review this MR. Branch: feature/user-au
 /plugin install plan.zip
 ```
 
-### execute (v3.5.0 Updated)
+### execute
 
 승인된 구현 계획을 체계적으로 실행하는 스킬입니다.
 
@@ -392,12 +352,8 @@ claude-code exec "Use mr-review skill to review this MR. Branch: feature/user-au
 - TaskList 자동 생성 및 진행 추적
 - 9단계 체계적 실행 프로세스
 - 자동 테스트 실행 및 검증
-- 코드 문서화 및 Serena 메모리 저장
-- **순수 구현에만 집중** (문서 정리는 document 스킬에서 처리)
-
-**v3.5.0 변경사항:**
-- ⚠️ **브랜치 보호**: main/master/staging 브랜치 경고 (코드 수정 위험 강조)
-- 🔧 **Worktree 제거**: 복잡한 Worktree 로직 제거, 브랜치 워크플로우로 단순화
+- 브랜치 보호 (보호된 브랜치 경고)
+- **순수 구현에만 집중** (문서 정리는 record 스킬에서 처리)
 
 **사용 시점:**
 - 승인된 `*_PLAN.md` 파일 실행 시
@@ -413,9 +369,9 @@ claude-code exec "Use mr-review skill to review this MR. Branch: feature/user-au
 /plugin install execute.zip
 ```
 
-## 🔧 Available Agents (v3.0.0)
+## 🔧 Available Agents
 
-**v3.0.0**: Agent는 Skills에서 실제로 활용되는 것만 유지합니다. 기존 4개 Agent(code-refactorer, test-generator, code-reviewer, performance-analyzer)는 Skills의 Phase에 직접 통합되었습니다.
+Agent는 Skills에서 실제로 활용되는 것만 유지합니다.
 
 ### requirement-validator (유일하게 유지)
 
@@ -453,22 +409,17 @@ JIRA Acceptance Criteria와 코드를 자동 매핑하여 요구사항 달성 �
 
 ---
 
-### record (v3.8.0 Updated)
+### record
 
 워크플로우 아티팩트를 수집하여 프로젝트 문서를 종합적으로 업데이트하는 스킬입니다.
 
 **주요 기능:**
-- 10단계 체계적 문서화 프로세스
-- **README, CHANGELOG, CLAUDE 문서 자동 업데이트**
-- **JIRA 이슈에 구현 완료 사항 정리 및 코멘트**
+- README, CHANGELOG, CLAUDE 문서 자동 업데이트
+- JIRA 이슈에 구현 완료 사항 정리 및 코멘트
 - Serena 메모리에 기술 인사이트 저장
 - 워크플로우 아티팩트 아카이브/정리
-- Keep a Changelog 형식 준수
-
-**v3.5.0 변경사항:**
-- ⚠️ **브랜치 보호**: main/master/staging 브랜치 경고 (문서 커밋 위험)
-- 🔧 **Worktree 제거**: Worktree 정리 로직 제거, 브랜치 워크플로우로 단순화
-- 💾 **Git 커밋/푸시**: 옵션으로 유지 (Phase 9)
+- Git 커밋/푸시
+- 브랜치 보호
 
 **사용 시점:**
 - **`execute` 완료 후 반드시 실행** (README/CHANGELOG 업데이트)
@@ -497,7 +448,7 @@ analyze
 
 ## 📋 권장 워크플로우
 
-### 표준 워크플로우 (v3.0.0)
+### 표준 워크플로우
 
 ```
 1. analyze [JIRA/버그 리포트]
@@ -527,20 +478,11 @@ analyze
    └─> 워크플로우 아티팩트 정리 (*_PLAN.md, *_REPORT.md)
 ```
 
-**v3.0.0 변경사항**:
-- ✅ **Skills 자립성 강화**: Agent 의존 없이 Skills가 직접 기능 수행
-- ✅ **Phase 3D 강화**: 복잡도 분석 + 리팩토링 가이드 직접 제공 (code-refactorer 통합)
-- ✅ **Phase 5 강화**: AAA 패턴으로 테스트 직접 생성 (test-generator 통합)
-- ✅ **Agent 축소**: 5개 → 1개 (requirement-validator만 유지)
-- ✅ **Dead Code 제거**: 72% → 0%
-
 **중요**:
 - `plan`는 자동으로 피드백 루프를 반복하여 고품질 계획을 보장합니다
-- `execute`은 9-Phase 구조로 체계적입니다
 - `execute`은 코드 구현에, `record`는 문서화에 집중하도록 역할이 분리되어 있습니다
-- 완전한 워크플로우를 위해서는 두 단계를 모두 실행해야 합니다
 
-### MR 리뷰 워크플로우 (v3.6.0)
+### MR 리뷰 워크플로우
 
 ```
 mr-review [Branch/MR URL]
@@ -654,7 +596,7 @@ mr-review [Branch/MR URL]
 ## 📁 Repository Structure
 
 ```
-wogus-plugin/  (v3.19.0)
+wogus-plugin/
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │
@@ -674,7 +616,7 @@ wogus-plugin/  (v3.19.0)
 │   ├── amplitude/
 │   ├── slack/
 │   ├── atlassian/
-│   └── github/                # GitHub MCP (v3.14.0 NEW)
+│   └── github/                # GitHub MCP
 │
 ├── changelogs/              # 버전별 변경 이력
 ├── CHANGELOG.md             # 버전 카탈로그

@@ -1,16 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "Skill(workflow-bundle:*)",
-      "mcp__*",
-      "mcp__plugin_workflow-bundle_git-local__*",
-      "mcp__plugin_serena_serena__*",
-      "mcp__plugin_github_github__*",
-      "mcp__plugin_sequential-thinking_sequential-thinking__*"
-    ]
-  },
-  "enabledPlugins": {
-    "plugin-dev@claude-plugins-official": true,
-    "github@wogus-plugins": true
+    "allow": []
   }
 }

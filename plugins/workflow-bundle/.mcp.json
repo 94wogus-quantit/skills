@@ -1,6 +1,0 @@
-{
-  "git-local": {
-    "command": "uvx",
-    "args": ["--from", "mcp[cli]", "mcp", "run", "${CLAUDE_PLUGIN_ROOT}/git_local_server.py"]
-  }
-}

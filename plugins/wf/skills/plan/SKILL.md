@@ -145,18 +145,18 @@ Collect all necessary context:
   - Identify recommended fixes and testing requirements
 
 - **JIRA/Atlassian**:
-  - Use `mcp__plugin_workflow-skills_atlassian__jira_get_issue` for requirements
+  - Use `mcp__plugin_atlassian_atlassian__jira_get_issue` for requirements
   - Extract acceptance criteria and constraints
   - Check linked issues and dependencies
 
 - **Codebase** (using Serena):
-  - Use `mcp__plugin_workflow-skills_serena__check_onboarding_performed`
-  - Use `mcp__plugin_workflow-skills_serena__list_memories` for project knowledge
-  - Use `mcp__plugin_workflow-skills_serena__find_symbol` for affected components
-  - Use `mcp__plugin_workflow-skills_serena__search_for_pattern` for similar code
+  - Use `mcp__plugin_serena_serena__check_onboarding_performed`
+  - Use `mcp__plugin_serena_serena__list_memories` for project knowledge
+  - Use `mcp__plugin_serena_serena__find_symbol` for affected components
+  - Use `mcp__plugin_serena_serena__search_for_pattern` for similar code
 
 - **Framework Documentation** (using Context7):
-  - Use `mcp__plugin_workflow-skills_context7__get-library-docs` for best practices
+  - Use `mcp__plugin_context7_context7__get-library-docs` for best practices
   - Verify API usage and patterns
 
 **2. Plan Structure Creation**

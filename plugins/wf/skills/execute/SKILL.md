@@ -1,6 +1,6 @@
 ---
 name: execute
-description: Execute approved implementation plans with TodoList tracking, test verification, and success criteria validation. Use when you have an approved *_PLAN.md file and need step-by-step implementation with comprehensive tracking. Outputs implemented code, test results, and execution summary. Documentation handled by record skill. Korean triggers: 계획 실행, 플랜 실행, 구현 시작, 개발 시작, 코딩 시작, 작업 시작, 실행해줘, 구현해줘, 만들어줘, 개발해줘, 코드 작성, 기능 구현, 태스크 실행.
+description: Execute approved implementation plans with TaskList tracking, test verification, and success criteria validation. Use when you have an approved *_PLAN.md file and need step-by-step implementation with comprehensive tracking. Outputs implemented code, test results, and execution summary. Documentation handled by record skill. Korean triggers: 계획 실행, 플랜 실행, 구현 시작, 개발 시작, 코딩 시작, 작업 시작, 실행해줘, 구현해줘, 만들어줘, 개발해줘, 코드 작성, 기능 구현, 태스크 실행.
 user-invocable: true
 ---
 
@@ -14,7 +14,7 @@ ALL outputs, documentation, code comments, and communications MUST be in **KOREA
 
 - ✅ **Code comments**: Write in Korean
 - ✅ **Documentation**: Write in Korean
-- ✅ **TodoList items**: Write in Korean
+- ✅ **TaskList items**: Write in Korean
 - ✅ **Progress updates**: Provide in Korean
 - ✅ **User communication**: Respond in Korean
 
@@ -30,7 +30,7 @@ Use this skill when:
 - You have an approved implementation plan file (e.g., `USER_AUTH_PLAN.md`)
 - User requests "execute this plan", "implement the plan", "run execute"
 - Need to systematically implement multiple related tasks
-- Want automatic progress tracking with TodoList
+- Want automatic progress tracking with TaskList
 - Need to ensure all success criteria and tests are verified
 
 **Typical Workflow Position**:
@@ -40,11 +40,11 @@ analyze → plan → **execute** → record
 
 ## Overview
 
-This skill executes approved implementation plans through a 7-phase systematic process:
+This skill executes approved implementation plans through a 9-phase systematic process:
 
 0. **Branch Validation**: Verify working on a feature branch
 1. **Plan Loading & Validation**: Load plan file, parse tasks, verify prerequisites
-2. **TodoList Setup**: Create comprehensive TodoList from all plan tasks
+2. **TaskList Setup**: Create comprehensive TaskList from all plan tasks
 3. **Task Execution**: Execute tasks sequentially, respecting dependencies
 4. **Handle Dependencies**: Manage task dependencies and execution order
 5. **Automated Test Generation** (Conditional): Detect missing tests and generate them
@@ -56,7 +56,7 @@ This skill executes approved implementation plans through a 7-phase systematic p
 
 ---
 
-## Workflow: 7-Phase Execution Process
+## Workflow: 9-Phase Execution Process
 
 ### Phase 0: Task Registration
 
@@ -70,7 +70,7 @@ Register the following Phases in order using `TaskCreate`:
 |------|---------|------------|
 | Phase 1 | Branch Validation | Validating branch |
 | Phase 2 | Plan Loading and Validation | Loading and validating plan |
-| Phase 3 | Setup TodoList from Plan | Setting up TodoList |
+| Phase 3 | Setup TaskList from Plan | Setting up TaskList |
 | Phase 4 | Execute Tasks Sequentially | Executing tasks |
 | Phase 5 | Handle Dependencies | Handling dependencies |
 | Phase 5C | Database Migration Validation (conditional) | Validating database migration |
@@ -154,8 +154,8 @@ If `is_protected` is `true`:
 3. **Validate Prerequisites**
    - Check codebase context:
      ```typescript
-     mcp__plugin_workflow-skills_serena__check_onboarding_performed()
-     mcp__plugin_workflow-skills_serena__get_current_config()
+     mcp__plugin_serena_serena__check_onboarding_performed()
+     mcp__plugin_serena_serena__get_current_config()
      ```
    - Verify required MCP servers are accessible
    - Confirm tools specified in plan are available
@@ -167,32 +167,32 @@ If `is_protected` is `true`:
 
 ---
 
-### Phase 3: Setup TodoList from Plan
+### Phase 3: Setup TaskList from Plan
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
-**Objective**: Create comprehensive TodoList mirroring the entire plan.
+**Objective**: Create comprehensive TaskList mirroring the entire plan using `TaskCreate`.
 
-**TodoList Structure**:
+**TaskList Structure**:
 ```
-TodoWrite({
-  todos: [
-    {content: "[P0] Setup authentication infrastructure", status: "in_progress", activeForm: "Setting up authentication infrastructure"},
-    {content: "[P0] Configure OAuth2 providers (depends on setup)", status: "pending", activeForm: "Configuring OAuth2 providers"},
-    {content: "[P1] Implement user session management", status: "pending", activeForm: "Implementing user session management"},
-    {content: "[P1] Create login/logout endpoints", status: "pending", activeForm: "Creating login/logout endpoints"},
-    {content: "[P2] Add user profile page", status: "pending", activeForm: "Adding user profile page"},
-    {content: "[P3] Implement remember me feature", status: "pending", activeForm: "Implementing remember me feature"}
-  ]
-})
+// Register each plan task using TaskCreate
+TaskCreate({subject: "[P0] Setup authentication infrastructure", description: "...", activeForm: "Setting up authentication infrastructure"})
+TaskCreate({subject: "[P0] Configure OAuth2 providers", description: "depends on setup", activeForm: "Configuring OAuth2 providers"})
+TaskCreate({subject: "[P1] Implement user session management", description: "...", activeForm: "Implementing user session management"})
+TaskCreate({subject: "[P1] Create login/logout endpoints", description: "...", activeForm: "Creating login/logout endpoints"})
+TaskCreate({subject: "[P2] Add user profile page", description: "...", activeForm: "Adding user profile page"})
+TaskCreate({subject: "[P3] Implement remember me feature", description: "...", activeForm: "Implementing remember me feature"})
+
+// Mark first task as in_progress
+TaskUpdate({taskId: firstTaskId, status: "in_progress"})
 ```
 
-**TodoList Principles**:
-- Include ALL tasks from the plan (no skipping)
+**TaskList Principles**:
+- Register ALL tasks from the plan using `TaskCreate` (no skipping)
 - Order by priority: P0 → P1 → P2 → P3
 - Note dependencies in task descriptions
-- Start with first task as "in_progress"
-- Exactly ONE task should be "in_progress" at any time
+- Mark first task as `in_progress` using `TaskUpdate`
+- Exactly ONE task should be `in_progress` at any time
 
 ---
 
@@ -207,7 +207,7 @@ TodoWrite({
 #### 3A. Start Task
 ```typescript
 // Mark current task as in_progress
-TodoWrite({todos: [...previousTodos, {content: taskName, status: "in_progress"}]})
+TaskUpdate({taskId: currentTaskId, status: "in_progress"})
 
 // Review task details
 - Goal: What this task achieves
@@ -224,32 +224,32 @@ Use appropriate tools based on task needs:
 **Code Reading/Understanding**:
 ```typescript
 // Get file overview
-mcp__plugin_workflow-skills_serena__get_symbols_overview({relative_path: "src/auth/service.ts"})
+mcp__plugin_serena_serena__get_symbols_overview({relative_path: "src/auth/service.ts"})
 
 // Find specific symbols
-mcp__plugin_workflow-skills_serena__find_symbol({name_path: "AuthService/login", include_body: true})
+mcp__plugin_serena_serena__find_symbol({name_path: "AuthService/login", include_body: true})
 
 // Find references
-mcp__plugin_workflow-skills_serena__find_referencing_symbols({name_path: "login", relative_path: "src/auth/service.ts"})
+mcp__plugin_serena_serena__find_referencing_symbols({name_path: "login", relative_path: "src/auth/service.ts"})
 
 // Search patterns
-mcp__plugin_workflow-skills_serena__search_for_pattern({substring_pattern: "OAuth.*config"})
+mcp__plugin_serena_serena__search_for_pattern({substring_pattern: "OAuth.*config"})
 ```
 
 **Documentation**:
 ```typescript
 // Get library docs
-mcp__plugin_workflow-skills_context7__resolve-library-id({libraryName: "passport"})
-mcp__plugin_workflow-skills_context7__get-library-docs({context7CompatibleLibraryID: "/jaredhanson/passport"})
+mcp__plugin_context7_context7__resolve-library-id({libraryName: "passport"})
+mcp__plugin_context7_context7__get-library-docs({context7CompatibleLibraryID: "/jaredhanson/passport"})
 ```
 
 **Project Management**:
 ```typescript
 // Get JIRA details
-mcp__plugin_workflow-skills_atlassian__jira_get_issue({issue_key: "PROJ-123"})
+mcp__plugin_atlassian_atlassian__jira_get_issue({issue_key: "PROJ-123"})
 
 // Check Sentry errors
-mcp__plugin_workflow-skills_sentry__get_issue_details({organizationSlug, issueId})
+mcp__plugin_sentry_sentry__get_issue_details({organizationSlug, issueId})
 ```
 
 #### 3C. Implement Task
@@ -259,21 +259,21 @@ Follow the implementation approach defined in the plan:
 **Code Editing**:
 ```typescript
 // Replace symbol body
-mcp__plugin_workflow-skills_serena__replace_symbol_body({
+mcp__plugin_serena_serena__replace_symbol_body({
   name_path: "AuthService/login",
   relative_path: "src/auth/service.ts",
   body: newImplementation
 })
 
 // Insert new code
-mcp__plugin_workflow-skills_serena__insert_after_symbol({
+mcp__plugin_serena_serena__insert_after_symbol({
   name_path: "AuthService",
   relative_path: "src/auth/service.ts",
   body: newMethodCode
 })
 
 // Rename symbols
-mcp__plugin_workflow-skills_serena__rename_symbol({
+mcp__plugin_serena_serena__rename_symbol({
   name_path: "oldName",
   relative_path: "src/auth/service.ts",
   new_name: "newName"
@@ -291,7 +291,7 @@ Check ALL success criteria for the task:
 
 ```typescript
 // Use thinking tool to assess
-mcp__plugin_workflow-skills_serena__think_about_task_adherence()
+mcp__plugin_serena_serena__think_about_task_adherence()
 
 // For each criterion:
 - [ ] Criterion 1: [Check if met]
@@ -315,7 +315,7 @@ pytest tests/test_auth.py -v
 
 ```typescript
 // Mark task as completed
-TodoWrite({todos: [...previousTodos, {content: taskName, status: "completed"}]})
+TaskUpdate({taskId: currentTaskId, status: "completed"})
 
 // Document deviations (if any)
 "✅ Task completed: [Task Name]
@@ -726,20 +726,15 @@ Bash({ command: "git diff --name-only HEAD" })
 // Output: AC implementation status report
 ```
 
-**2. Analyze Results and Update TodoList**
+**2. Analyze Results and Update TaskList**
 
 ```typescript
-// Add unimplemented AC to TodoList
+// Add unimplemented AC to TaskList
 IF (unimplemented AC exists):
-    TodoWrite({
-      todos: [
-        ...existing_todos,
-        {
-          content: "Handle unimplemented AC: Implement AC#2 'Account lock after 5 failures'",
-          status: "pending",
-          activeForm: "Handling unimplemented AC"
-        }
-      ]
+    TaskCreate({
+      subject: "Handle unimplemented AC: Implement AC#2 'Account lock after 5 failures'",
+      description: "AC#2 미구현 - 5회 실패 시 계정 잠금 기능 구현 필요",
+      activeForm: "Handling unimplemented AC"
     })
 ```
 
@@ -767,7 +762,7 @@ IF (unimplemented AC exists):
 4. Write tests (Happy path + Edge cases)
 5. Re-run Phase 6 to re-verify
 
-**Added to TodoList** ✅
+**Added to TaskList** ✅
 ```
 
 **4. Graceful Degradation When No JIRA Issue**
@@ -819,7 +814,7 @@ IF (no JIRA issue):
 
 **Verification Checklist**:
 ```
-- ✓ All tasks marked as completed in TodoList
+- ✓ All tasks marked as completed in TaskList
 - ✓ All success criteria met for all tasks
 - ✓ Unit tests passing
 - ✓ Integration tests passing
@@ -875,18 +870,16 @@ Tasks handled by `record` skill:
 
 3. **Mark Task as Blocked**
    ```typescript
-   TodoWrite({todos: [...previousTodos, {content: taskName, status: "pending"}]})
+   // Keep task as pending (do NOT mark as completed)
+   TaskUpdate({taskId: currentTaskId, status: "pending"})
    ```
    - Do NOT mark as "completed"
    - Document blocker reason
 
 4. **Create Sub-tasks to Resolve**
    ```typescript
-   TodoWrite({todos: [
-     ...previousTodos,
-     {content: "[BLOCKER] Fix [specific issue]", status: "in_progress", activeForm: "Fixing blocker"},
-     {content: "[RETRY] [Original Task]", status: "pending", activeForm: "Retrying original task"}
-   ]})
+   TaskCreate({subject: "[BLOCKER] Fix [specific issue]", description: "...", activeForm: "Fixing blocker"})
+   TaskCreate({subject: "[RETRY] [Original Task]", description: "...", activeForm: "Retrying original task"})
    ```
 
 5. **Ask for User Guidance**
@@ -952,7 +945,7 @@ Tasks handled by `record` skill:
 ## Execution Principles
 
 1. **Follow the Plan**: Stick to defined approach unless blocked
-2. **Track Everything**: Use TodoWrite after EACH task (not in batches)
+2. **Track Everything**: Use TaskUpdate after EACH task (not in batches)
 3. **One Task at a Time**: Exactly ONE task "in_progress" at any moment
 4. **Verify Thoroughly**: Check ALL success criteria before marking complete
 5. **Communicate Issues**: Report problems immediately, don't guess solutions
@@ -1141,7 +1134,7 @@ All plan objectives achieved. Project documentation updated. Temporary files cle
 - ✓ Understand critical path
 
 ### During Execution
-- ✓ Update TodoList after EACH task (not batched)
+- ✓ Update TaskList after EACH task (not batched)
 - ✓ Keep exactly ONE task as "in_progress"
 - ✓ Verify success criteria before marking complete
 - ✓ Run tests continuously, not just at the end
@@ -1159,12 +1152,12 @@ All plan objectives achieved. Project documentation updated. Temporary files cle
 
 This skill does not require additional resource directories (scripts/, references/, or assets/). All execution logic is contained within this SKILL.md file, and the skill relies on Claude's ability to:
 
-1. Use TodoWrite for task tracking
+1. Use TaskCreate/TaskUpdate for task tracking
 2. Use Serena MCP tools for code operations
 3. Use Atlassian MCP tools for project management
 4. Use Sentry MCP tools for error tracking
 5. Use Context7 MCP tools for documentation
-6. Follow the 7-phase systematic execution process
+6. Follow the 9-phase systematic execution process
 7. Maintain comprehensive progress tracking
 
 **Note**: Documentation and file cleanup are handled by `record` skill.

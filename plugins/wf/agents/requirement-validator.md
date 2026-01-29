@@ -32,7 +32,7 @@ You are a requirement validation expert who connects JIRA Acceptance Criteria to
 
 ```typescript
 // JIRA 이슈 조회
-mcp__plugin_workflow-skills_atlassian__jira_get_issue({
+mcp__plugin_atlassian_atlassian__jira_get_issue({
   cloudId: process.env.ATLASSIAN_CLOUD_ID,
   issueIdOrKey: "PROJ-123"
 })

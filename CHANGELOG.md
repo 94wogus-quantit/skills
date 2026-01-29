@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.21](changelogs/v3.21.md) | 2026-01-30 | 문서 구조 개선: CLAUDE.md 경량화, README.md 정리, 역할 분리 |
 | [v3.20](changelogs/v3.20.md) | 2026-01-30 | plan_template에 Task Registration Guide 섹션 추가 |
 | [v3.19](changelogs/v3.19.md) | 2026-01-30 | 스킬 전체 영어 지시문 점검 및 TaskTracking·Phase 정합성 개선 |
 | [v3.18](changelogs/v3.18.md) | 2026-01-30 | analyze 스킬 강화: 일론 머스크 사고법 도입 |

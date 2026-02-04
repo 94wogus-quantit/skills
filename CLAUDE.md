@@ -183,7 +183,7 @@ Claude Code Marketplace로 배포. 8개 독립 플러그인 (wf, glmr, seq-think
 
 | 버전 | 변경 요약 |
 |------|----------|
-| v3.23.0 | Evidence Trail 기능: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가 |
+| v3.24.0 | SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가 |
 | v3.22.0 | plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context 원칙 통합 |
 | v3.21.0 | 문서 구조 개선: CLAUDE.md 경량화, README.md 정리, 역할 분리 |
 
@@ -311,7 +311,7 @@ mcp__plugin_slack_slack__conversations_replies(
 
 ## Notes
 
-- **Current version**: v3.23.0 (Evidence Trail: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가)
+- **Current version**: v3.24.0 (SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
 - **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

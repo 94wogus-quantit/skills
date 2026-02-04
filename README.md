@@ -7,11 +7,10 @@ Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를
 **Plugin**은 Claude Code를 확장하는 모든 기능의 총칭입니다:
 
 - **🤖 Skills**: AI 기반 워크플로우 오케스트레이터 (분석, 계획, 실행, 문서화 등)
-- **🔧 Agents**: AC (Acceptance Criteria) 추적 자동화 (v3.0.0: requirement-validator만 유지)
-- **⚙️ Custom Commands**: 워크플로우 자동화 커맨드 (별도 설치 필요)
-- **🔗 MCP Servers**: 외부 도구/서비스 통합 (별도 설정 필요)
+- **🔧 Agents**: AC (Acceptance Criteria) 추적 자동화 (requirement-validator)
+- **🔗 MCP Servers**: 외부 도구/서비스 통합 (seq-think, terraform, amplitude, slack, atlassian, github)
 
-이 저장소는 **Skills + Agents**를 제공하며, Custom Commands와 MCP Servers는 별도로 설치/설정해야 합니다.
+이 저장소는 **Skills + Agents + MCP Servers**를 제공합니다.
 
 > 변경 이력은 [CHANGELOG.md](CHANGELOG.md) 참조.
 
@@ -84,37 +83,39 @@ glab mr create --title "feat: JIRA-123 구현"
 
 4. **MCP 서버 설정** (선택사항):
 
-   일부 MCP 서버는 환경 변수 설정이 필요합니다:
+   일부 MCP 서버는 환경 변수 설정이 필요합니다. **프로젝트 루트**에 `.claude/settings.json` 파일을 생성하세요:
 
-   ```bash
-   # ~/.zshenv 또는 ~/.bashrc에 추가
+   ```jsonc
+   {
+     "env": {
+       // Context7 - 라이브러리 문서 조회
+       "CONTEXT7_API_KEY": "your-api-key-here",
 
-   # Context7 API 키 (라이브러리 문서 조회용)
-   export CONTEXT7_API_KEY="your-api-key-here"
+       // Sentry - 에러 트래킹
+       "SENTRY_ACCESS_TOKEN": "your-sentry-token-here",
+       "SENTRY_HOST": "your-org.sentry.io",
+       "OPENAI_API_KEY": "your-openai-api-key-here",  // Sentry AI 분석용
 
-   # Sentry 설정 (에러 트래킹용)
-   export SENTRY_ACCESS_TOKEN="your-sentry-token-here"
-   export SENTRY_HOST="your-org.sentry.io"  # 예: quantit-io.sentry.io
+       // Atlassian - JIRA/Confluence 연동
+       "ATLASSIAN_URL": "https://your-company.atlassian.net",
+       "ATLASSIAN_USERNAME": "your.email@company.com",
+       "ATLASSIAN_API_TOKEN": "your-api-token-here",
 
-   # OpenAI API 키 (Sentry MCP 내부 AI 분석용)
-   export OPENAI_API_KEY="your-openai-api-key-here"
+       // Amplitude - 사용자 행동 분석
+       "AMPLITUDE_API_KEY": "your-amplitude-api-key-here",
 
-   # Atlassian API 토큰 (JIRA/Confluence 연동용) - v3.10.0 Updated
-   export ATLASSIAN_URL="https://your-company.atlassian.net"
-   export ATLASSIAN_USERNAME="your.email@company.com"
-   export ATLASSIAN_API_TOKEN="your-api-token-here"
+       // Slack - 메시지 검색/히스토리
+       "SLACK_BOT_TOKEN": "xoxb-your-bot-token-here",
 
-   # Amplitude API 키 (사용자 행동 분석용) - v3.2.0 NEW
-   export AMPLITUDE_API_KEY="your-amplitude-api-key-here"
-
-   # Slack Bot 토큰 (Slack 메시지 검색/히스토리 조회용) - v3.9.0 NEW
-   export SLACK_BOT_TOKEN="xoxb-your-bot-token-here"
-
-   # GitHub Personal Access Token (저장소/이슈/PR 관리용) - v3.14.0 NEW
-   export GITHUB_TOKEN="ghp_your-personal-access-token-here"
-
-   # Claude Code 재시작
+       // GitHub - 저장소/이슈/PR 관리
+       "GITHUB_TOKEN": "ghp_your-personal-access-token-here"
+     }
+   }
    ```
+
+   > **참고**: 실제 사용 시 주석(`//`)을 제거하세요. 위 예시는 가독성을 위한 JSONC 형식입니다.
+
+   **주의**: `.claude/settings.json`은 `.gitignore`에 추가하여 민감한 정보가 커밋되지 않도록 하세요.
 
    - **seq-think**: 별도 설정 없이 자동 동작
    - **context7**: [Context7](https://context7.com)에서 API 키 발급 필요
@@ -130,127 +131,7 @@ glab mr create --title "feat: JIRA-123 구현"
 
 5. **MCP 서버 비활성화** (선택사항):
 
-   특정 MCP 서버를 사용하지 않으려면 `.claude/settings.local.json`에서 `deniedMcpServers`를 사용합니다.
-
-   **주의**:
-   - `serverCommand`는 전체 명령어 배열을 **정확히 일치**시켜야 합니다.
-   - 환경 변수(`${CONTEXT7_API_KEY}`)는 **실제 값으로 치환**해야 합니다.
-   - 현재 API 키 확인: `echo $CONTEXT7_API_KEY`
-
-   ```json
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
-       }
-     ]
-   }
-   ```
-
-   **각 MCP 서버의 정확한 serverCommand:**
-
-   ```json
-   // seq-think 비활성화
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
-       }
-     ]
-   }
-
-   // context7 비활성화 (v3.0.2+)
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["npx", "-y", "@upstash/context7-mcp"]
-       }
-     ]
-   }
-
-   // serena 비활성화
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["uvx", "--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant", "--enable-web-dashboard", "false"]
-       }
-     ]
-   }
-
-   // sentry 비활성화 (v3.0.2+)
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["npx", "-y", "@sentry/mcp-server@latest"]
-       }
-     ]
-   }
-
-   // atlassian 비활성화
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["uvx", "mcp-atlassian"]
-       }
-     ]
-   }
-
-   // terraform 비활성화 (v3.2.0+)
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["docker", "run", "-i", "--rm", "hashicorp/terraform-mcp-server"]
-       }
-     ]
-   }
-
-   // amplitude 비활성화
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["npx", "-y", "amplitude-mcp-server"]
-       }
-     ]
-   }
-
-   // slack 비활성화
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["npx", "-y", "slack-mcp-server@latest", "--transport", "stdio"]
-       }
-     ]
-   }
-
-   // github 비활성화
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["npx", "-y", "@modelcontextprotocol/server-github"]
-       }
-     ]
-   }
-
-   // 여러 개 동시 비활성화 (예: context7 + sentry + serena)
-   {
-     "deniedMcpServers": [
-       {
-         "serverCommand": ["npx", "-y", "@upstash/context7-mcp"]
-       },
-       {
-         "serverCommand": ["npx", "-y", "@sentry/mcp-server@latest"]
-       },
-       {
-         "serverCommand": ["uvx", "--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant", "--enable-web-dashboard", "false"]
-       }
-     ]
-   }
-   ```
-
-   **확인 방법:**
-   ```bash
-   claude mcp list
-   ```
+   특정 MCP 서버를 사용하지 않으려면 Claude Code 내에서 `/mcp` 명령어를 실행하고 원하는 서버를 선택하여 disable할 수 있습니다.
 
 ### 로컬 패키징으로 설치
 
@@ -507,94 +388,13 @@ mr-review [Branch/MR URL]
 ```
 
 
-## 📦 Marketplace Distribution
+## 📦 설치
 
-이 저장소는 **Claude Code Marketplace**로 배포되어 있습니다.
+Git URL로 직접 설치합니다:
 
-### 마켓플레이스 설정
-
-마켓플레이스 구성은 [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json)에 정의되어 있습니다:
-
-```json
-{
-  "name": "wogus-plugins",
-  "metadata": {
-    "version": "3.19.0"
-  },
-  "plugins": [
-    { "name": "wf", "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우" },
-    { "name": "seq-think", "description": "Sequential Thinking MCP 서버" },
-    { "name": "glmr", "description": "GitLab MR 관리 (7 skills)" },
-    { "name": "terraform", "description": "Terraform 인프라 관리 MCP 서버" },
-    { "name": "amplitude", "description": "Amplitude 분석 데이터 MCP 서버" },
-    { "name": "slack", "description": "Slack 메시지 검색/히스토리/스레드 MCP 서버" },
-    { "name": "atlassian", "description": "Jira/Confluence 연동 MCP 서버" },
-    { "name": "github", "description": "GitHub 저장소/이슈/PR 관리 MCP 서버" }
-  ]
-}
+```bash
+/plugin install git@github.com:94wogus-quantit/wogus-plugin.git
 ```
-
-### 마켓플레이스 사용 방법
-
-**사용자 입장:**
-
-1. 마켓플레이스 추가:
-   ```bash
-   /marketplace add git@github.com:94wogus-quantit/wogus-plugin.git
-   ```
-
-2. 사용 가능한 스킬 확인:
-   ```bash
-   /marketplace list
-   ```
-
-3. 원하는 플러그인 설치:
-   ```bash
-   # 워크플로우 전체
-   /plugin install wogus-plugins:wf
-
-   # 또는 개별 MCP
-   /plugin install wogus-plugins:terraform
-   /plugin install wogus-plugins:amplitude
-   /plugin install wogus-plugins:slack
-   /plugin install wogus-plugins:atlassian
-   /plugin install wogus-plugins:github
-   ```
-
-**배포자 입장:**
-
-1. **GitHub Public 저장소 설정**
-   - 저장소를 public으로 설정
-   - `.claude-plugin/marketplace.json` 파일 작성
-   - 스킬 소스 디렉토리 구조 유지
-
-2. **버전 관리**
-   - `marketplace.json`의 `metadata.version` 업데이트
-   - 변경사항 커밋 및 푸시
-   - 사용자는 마켓플레이스 갱신으로 최신 버전 확인 가능
-
-3. **스킬 추가/수정**
-   ```bash
-   # 새 스킬 생성
-   python3 ~/.claude/.../init_skill.py new-skill --path .
-
-   # marketplace.json의 skills 배열에 추가
-   # "skills": [..., "./new-skill"]
-
-   # Git 커밋 및 푸시
-   git add .
-   git commit -m "feat: add new-skill"
-   git push
-   ```
-
-### 마켓플레이스 vs 로컬 패키징
-
-| 방식 | 장점 | 단점 |
-|------|------|------|
-| **Marketplace** | ✅ 자동 업데이트<br>✅ 중앙 관리<br>✅ 간편한 설치 | ⚠️ GitHub 의존성<br>⚠️ Public 저장소 필요 |
-| **로컬 패키징** | ✅ 오프라인 가능<br>✅ 버전 고정 | ⚠️ 수동 업데이트<br>⚠️ 패키징 필요 |
-
-**권장**: 개인/팀 사용은 Marketplace, 특정 버전 고정이 필요한 경우 로컬 패키징 사용
 
 ## 📁 Repository Structure
 

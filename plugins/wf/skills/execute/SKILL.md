@@ -118,13 +118,63 @@ Returns:
   - message: 상태 메시지
 ```
 
-**2. Handle Protected Branch**
+**2. Branch Decision**
 
-If `is_protected` is `true`:
-- Display warning: "⚠️ 보호된 브랜치에서 코드 수정은 위험합니다!"
-- Recommend: "먼저 `analyze [JIRA-ID]`를 실행하여 feature 브랜치를 생성하세요"
-- Ask user: "보호된 브랜치에서 계속 진행하시겠습니까?"
-- If user declines: Abort skill execution
+- **If `is_protected` is `false`**: Proceed directly to Phase 2
+- **If `is_protected` is `true`**: Proceed to Step 3
+
+**3. Ask User - Branch Action**
+
+Use `AskUserQuestion` tool to provide options:
+
+```yaml
+questions:
+  - question: "현재 보호된 브랜치({branch})에서 작업 중입니다. 어떻게 진행할까요?"
+    header: "Branch"
+    options:
+      - label: "새 브랜치 생성 (Recommended)"
+        description: "feature 브랜치를 생성하여 안전하게 작업합니다"
+      - label: "현재 브랜치에서 계속"
+        description: "⚠️ 보호된 브랜치에서 직접 작업합니다 (권장하지 않음)"
+```
+
+- **If "새 브랜치 생성" selected**: Proceed to Step 4
+- **If "현재 브랜치에서 계속" selected**: Display warning and proceed to Phase 2
+  - Output: `⚠️ 보호된 브랜치({branch})에서 코드를 수정합니다. 변경사항이 직접 반영됩니다.`
+
+**4. Ask User - Branch Name**
+
+Use `AskUserQuestion` tool to select branch name:
+
+```yaml
+questions:
+  - question: "생성할 브랜치 이름을 선택하세요"
+    header: "Name"
+    options:
+      - label: "feature/{PLAN_NAME}"
+        description: "PLAN 파일명 기반 추천 브랜치 이름"
+      - label: "직접 입력"
+        description: "원하는 브랜치 이름을 직접 입력합니다"
+```
+
+**Branch Name Suggestion Logic**:
+- If PLAN file exists: Suggest `feature/{ID_from_PLAN}` format
+- If JIRA ID exists: Suggest `feature/JIRA-123` format
+- Otherwise: Suggest `feature/execute-{YYYYMMDD}` format
+
+**5. Create Feature Branch**
+
+Use `create_feature_branch` MCP tool:
+
+```
+Tool: create_feature_branch
+Args:
+  - branch_name: 선택된 또는 입력된 브랜치 이름
+Returns:
+  - success: 성공 여부
+  - branch: 생성된 브랜치 이름
+  - message: 결과 메시지
+```
 
 ---
 
@@ -713,17 +763,31 @@ Add generated test results to execution report:
 
 **1. Call requirement-validator Agent (Mode 3)**
 
-```typescript
-// Notify user
-"🤖 Verifying AC achievement with requirement-validator agent..."
+First, collect changed files via Git diff:
 
-// Collect changed files via Git diff
-Bash({ command: "git diff --name-only HEAD" })
+```bash
+git diff --name-only HEAD
+```
 
-// Call Agent
-// Mode 3: Post-validation
-// Input: JIRA issue key, git diff result
-// Output: AC implementation status report
+Then use `Task` tool to invoke the requirement-validator agent:
+
+```yaml
+Tool: Task
+Args:
+  subagent_type: "wf:requirement-validator"
+  description: "AC post-validation"
+  prompt: |
+    Mode 3: Post-validation
+
+    구현 결과가 모든 AC를 충족하는지 검증합니다.
+
+    Input:
+    - JIRA issue key: {JIRA_KEY}
+    - Git diff 결과: {changed_files}
+
+    Output:
+    - AC 구현 상태 리포트
+    - 미구현 AC 목록 (있는 경우)
 ```
 
 **2. Analyze Results and Update TaskList**
@@ -1145,6 +1209,41 @@ All plan objectives achieved. Project documentation updated. Temporary files cle
 - ✓ Verify ALL tests pass
 - ✓ Present comprehensive execution summary
 - ✓ **Run `record` skill** for documentation and cleanup
+
+---
+
+### Phase 9: Next Step Confirmation
+
+After completing all tests and verification, ask the user whether to proceed to documentation.
+
+**Use `AskUserQuestion` tool:**
+
+```yaml
+questions:
+  - question: "구현이 완료되었습니다. 다음 단계로 진행할까요?"
+    header: "Next"
+    options:
+      - label: "record 스킬 실행 (Recommended)"
+        description: "문서화, CHANGELOG 작성, Git commit/push를 수행합니다"
+      - label: "여기서 종료"
+        description: "구현만 완료하고 종료합니다 (문서화는 나중에)"
+```
+
+- **If "record 스킬 실행" selected**: Invoke the `record` skill
+  - Output: `✅ record 스킬을 실행합니다...`
+- **If "여기서 종료" selected**: End the workflow with reminder
+  - Output: `✅ 구현이 완료되었습니다. 나중에 record 스킬을 실행하여 문서화를 완료하세요.`
+
+**Tasks handled by `record` skill:**
+- Update README
+- Write CHANGELOG
+- Add architectural decisions to CLAUDE.md
+- Save learnings to Serena memory
+- Clean up workflow artifacts (*_PLAN.md, *_REPORT.md)
+- Git commit/push
+- Update JIRA issue
+
+**⚠️ IMPORTANT**: Do not perform documentation in execute. Documentation is handled centrally in record.
 
 ---
 

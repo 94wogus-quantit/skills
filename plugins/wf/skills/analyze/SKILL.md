@@ -102,23 +102,62 @@ Returns:
   - message: 상태 메시지
 ```
 
-**2. Create Feature Branch (If Needed)**
+**2. Branch Decision (If Protected)**
 
-If `is_protected` is `true`, use `create_feature_branch` MCP tool:
+- **If `is_protected` is `false`**: Proceed directly to Phase 2
+- **If `is_protected` is `true`**: Proceed to Step 3
+
+**3. Ask User - Branch Action**
+
+Use `AskUserQuestion` tool to provide options:
+
+```yaml
+questions:
+  - question: "현재 보호된 브랜치({branch})에서 작업 중입니다. 어떻게 진행할까요?"
+    header: "Branch"
+    options:
+      - label: "새 브랜치 생성 (Recommended)"
+        description: "feature 브랜치를 생성하여 안전하게 작업합니다"
+      - label: "현재 브랜치에서 계속"
+        description: "⚠️ 보호된 브랜치에서 직접 작업합니다 (권장하지 않음)"
+```
+
+- **If "새 브랜치 생성" selected**: Proceed to Step 4
+- **If "현재 브랜치에서 계속" selected**: Display warning and proceed to Phase 2
+  - Output: `⚠️ 보호된 브랜치({branch})에서 작업합니다. 변경사항이 직접 반영됩니다.`
+
+**4. Ask User - Branch Name**
+
+Use `AskUserQuestion` tool to select branch name:
+
+```yaml
+questions:
+  - question: "생성할 브랜치 이름을 선택하세요"
+    header: "Name"
+    options:
+      - label: "feature/{JIRA-ID}"
+        description: "JIRA ID 기반 추천 브랜치 이름"
+      - label: "직접 입력"
+        description: "원하는 브랜치 이름을 직접 입력합니다"
+```
+
+**Branch Name Suggestion Logic**:
+- If JIRA ID exists: Suggest `feature/JIRA-123` format
+- If no JIRA ID: Suggest `feature/analyze-{YYYYMMDD}` format
+
+**5. Create Feature Branch**
+
+Use `create_feature_branch` MCP tool:
 
 ```
 Tool: create_feature_branch
 Args:
-  - branch_name: "feature/JIRA-123" (JIRA ID에서 추출)
+  - branch_name: 선택된 또는 입력된 브랜치 이름
 Returns:
   - success: 성공 여부
   - branch: 생성된 브랜치 이름
   - message: 결과 메시지
 ```
-
-**Branch Naming Convention**:
-- JIRA ID가 있으면: `feature/JIRA-123`
-- JIRA ID가 없으면: 사용자에게 브랜치 이름 요청
 
 ---
 
@@ -346,11 +385,24 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to:
 
 **1. Call requirement-validator Agent (Mode 1)**
 
-```
-"🤖 Running requirement-validator agent for AC reverse tracing..."
-// Mode 1: Reverse Tracing
-// Input: Bug file path, function name
-// Output: Related AC list
+Use `Task` tool to invoke the requirement-validator agent:
+
+```yaml
+Tool: Task
+Args:
+  subagent_type: "wf:requirement-validator"
+  description: "AC reverse tracing"
+  prompt: |
+    Mode 1: Reverse Tracing
+
+    버그 위치에서 관련 AC를 역추적합니다.
+
+    Input:
+    - 버그 파일 경로: {bug_file_path}
+    - 함수명: {function_name}
+
+    Output:
+    - 관련 AC 목록과 매핑 결과
 ```
 
 **2. Add Results to Report**
@@ -644,6 +696,32 @@ analyze [JIRA]
 ```
 
 The generated report becomes input for the `plan` skill to create an implementation plan.
+
+---
+
+### Phase 9: Next Step Confirmation
+
+After completing the report, ask the user whether to proceed to the next workflow step.
+
+**Use `AskUserQuestion` tool:**
+
+```yaml
+questions:
+  - question: "분석 리포트가 완성되었습니다. 다음 단계로 진행할까요?"
+    header: "Next"
+    options:
+      - label: "plan 스킬 실행 (Recommended)"
+        description: "분석 결과를 바탕으로 구현 계획을 수립합니다"
+      - label: "여기서 종료"
+        description: "분석만 완료하고 종료합니다"
+```
+
+- **If "plan 스킬 실행" selected**: Invoke the `plan` skill with the generated report
+  - Output: `✅ plan 스킬을 실행합니다...`
+- **If "여기서 종료" selected**: End the workflow
+  - Output: `✅ 분석이 완료되었습니다. 리포트: {REPORT_FILE}`
+
+---
 
 ## Resources
 

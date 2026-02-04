@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, GitLab MR, Sequential Thinking, Terraform, Amplitude, Slack, Atlassian, GitHub (한국어 기본)",
-    "version": "3.23.0",
+    "version": "3.24.0",
     "repository": "https://github.com/94wogus-quantit/wogus-plugin",
     "homepage": "https://github.com/94wogus-quantit/wogus-plugin#readme",
     "license": "Private"

@@ -183,7 +183,7 @@ Claude Code Marketplace로 배포. 8개 독립 플러그인 (wf, glmr, seq-think
 
 | 버전 | 변경 요약 |
 |------|----------|
-| v3.23.0 | Evidence Trail 기능: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가 |
+| v3.24.0 | SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가 |
 | v3.22.0 | plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context 원칙 통합 |
 | v3.21.0 | 문서 구조 개선: CLAUDE.md 경량화, README.md 정리, 역할 분리 |
 
@@ -229,9 +229,89 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 
 ---
 
+## Quick Reference
+
+### Available MCP Tools
+
+**Git MCP (wf 포함):**
+- `get_current_branch`, `check_branch_protection`, `create_feature_branch`
+- `git_status`, `git_add`, `git_commit`, `git_diff`, `git_push`, `git_squash`
+
+**CI MCP (glmr 포함):**
+- `ci_status`, `ci_list`, `ci_jobs`, `ci_trace`
+- `ci_cancel_job`, `ci_cancel_pipeline`, `ci_trigger_job`, `ci_run`, `ci_retry_job`
+- `mr_get`, `mr_discussions`, `mr_resolve_discussion`
+
+### Workflow Summary
+
+```
+analyze → *_REPORT.md
+    ↓
+plan → *_PLAN.md (iterative review until ZERO issues)
+    ↓
+execute → Code implementation + tests
+    ↓
+record → README, CHANGELOG, CLAUDE docs update
+```
+
+---
+
+## Slack MCP Usage
+
+### Critical: content_type Setting
+
+**Always use `text/plain`** for Slack messages (never `text/markdown`):
+
+```python
+mcp__plugin_slack_slack__conversations_add_message(
+    channel_id="CHANNEL_ID",
+    payload="Message with <@USER_ID> mention",
+    content_type="text/plain"  # REQUIRED for mentions to work
+)
+```
+
+**Warning**: If `content_type` is omitted or set to `text/markdown`, `<@USER_ID>` format gets escaped and mentions won't work.
+
+### Slack Formatting
+
+| Element | Format | Example |
+|---------|--------|---------|
+| User mention | `<@USER_ID>` | `<@U08P1RR2996>` |
+| Team mention | `<!subteam^ID>` | `<!subteam^S04D8GC39F0>` |
+| Channel link | `<#CHANNEL_ID>` | `<#C0518DH4DHU>` |
+| URL with text | `<URL\|display>` | `<https://example.com\|링크>` |
+
+### Message Template Example
+
+```
+cc <!subteam^TEAM_ID>
+
+[Project] Task Title (JIRA-XXX)
+
+Description here
+
+Key Points:
+• Item 1
+• Item 2
+
+JIRA: <https://atlassian.net/browse/XXX|JIRA-XXX>
+PR: <https://github.com/org/repo/pull/123|PR#123>
+```
+
+### Check Thread Replies
+
+```python
+mcp__plugin_slack_slack__conversations_replies(
+    channel_id="CHANNEL_ID",
+    thread_ts="message_timestamp"
+)
+```
+
+---
+
 ## Notes
 
-- **Current version**: v3.23.0 (Evidence Trail: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가)
+- **Current version**: v3.24.0 (SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
 - **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

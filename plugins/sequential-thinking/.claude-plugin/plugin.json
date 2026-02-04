@@ -1,8 +1,0 @@
-{
-  "name": "sequential-thinking",
-  "description": "Sequential Thinking MCP 서버 - 체계적인 단계별 사고를 위한 도구",
-  "author": {
-    "name": "Anthropic",
-    "url": "https://github.com/modelcontextprotocol/servers"
-  }
-}

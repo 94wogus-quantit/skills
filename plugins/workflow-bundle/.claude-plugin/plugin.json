@@ -1,8 +1,0 @@
-{
-  "name": "workflow-bundle",
-  "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우 (4 skills + agent)",
-  "author": {
-    "name": "94wogus",
-    "email": "94wogus@quantit.io"
-  }
-}

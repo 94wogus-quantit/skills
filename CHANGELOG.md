@@ -15,6 +15,13 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.23](changelogs/v3.23.md) | 2026-01-30 | Evidence Trail 기능: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가 |
+| [v3.22](changelogs/v3.22.md) | 2026-01-30 | plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context 원칙 통합 |
+| [v3.21](changelogs/v3.21.md) | 2026-01-30 | 문서 구조 개선: CLAUDE.md 경량화, README.md 정리, 역할 분리 |
+| [v3.20](changelogs/v3.20.md) | 2026-01-30 | plan_template에 Task Registration Guide 섹션 추가 |
+| [v3.19](changelogs/v3.19.md) | 2026-01-30 | 스킬 전체 영어 지시문 점검 및 TaskTracking·Phase 정합성 개선 |
+| [v3.18](changelogs/v3.18.md) | 2026-01-30 | analyze 스킬 강화: 일론 머스크 사고법 도입 |
+| [v3.17](changelogs/v3.17.md) | 2026-01-29 | Plugin/MCP 이름 단축 (API 64자 제한 대응) |
 | [v3.16](changelogs/v3.16.md) | 2026-01-19 | GitLab CI MCP 전환, CI 스킬 5개 삭제 |
 | [v3.15](changelogs/v3.15.md) | 2026-01-19 | git-local MCP 확장, Skills user-invocable 추가 |
 | [v3.14](changelogs/v3.14.md) | 2026-01-12 | GitHub MCP 플러그인 추가 |

@@ -11,6 +11,7 @@ user-invocable: true
 > **NEVER stop after just one feedback cycle.**
 >
 > After reviewing the plan, if there are any changes needed:
+>
 > 1. Apply feedback
 > 2. Review again
 > 3. Still have changes? → Go back to step 1
@@ -46,6 +47,7 @@ Create production-ready implementation plans through systematic refinement cycle
 **Process**: Plan → Review → Apply Feedback → Review Again → Apply Feedback → Review Again → ... → Final Approved Plan
 
 **Output**:
+
 - `[FEATURE]_PLAN.md` - Thoroughly reviewed, production-ready implementation plan
 - Intermediate review artifacts automatically cleaned up
 
@@ -54,6 +56,7 @@ Create production-ready implementation plans through systematic refinement cycle
 ## When to Use This Skill
 
 Use this skill when:
+
 - Creating implementation plans from `*_REPORT.md` analysis files
 - Planning complex features or architectural changes
 - Need high-confidence plans before execution
@@ -73,14 +76,15 @@ Use this skill when:
 
 Register the following Phases in order using `TaskCreate`:
 
-| Task | subject | activeForm |
-|------|---------|------------|
-| Phase 1 | Branch Validation | Validating branch |
-| Phase 2 | Initial Plan Creation | Creating initial plan |
+| Task    | subject               | activeForm                 |
+| ------- | --------------------- | -------------------------- |
+| Phase 1 | Branch Validation     | Validating branch          |
+| Phase 2 | Initial Plan Creation | Creating initial plan      |
 | Phase 3 | Iterative Review Loop | Reviewing plan iteratively |
-| Phase 4 | Finalization | Finalizing plan |
+| Phase 4 | Finalization          | Finalizing plan            |
 
 **Task Tracking Rules**:
+
 - On Phase entry: `TaskUpdate(taskId, status: "in_progress")`
 - On Phase completion: `TaskUpdate(taskId, status: "completed")`
 - Only **one Phase** should be `in_progress` at any time
@@ -98,6 +102,7 @@ Register the following Phases in order using `TaskCreate`:
 > - **NEVER** start plan creation (Phase 2) without completing Phase 1
 >
 > **Why this matters**:
+>
 > - Plan files (PLAN.md) should be committed in feature branches, not main/master
 > - Running in main/master may cause merge conflicts later
 > - Branch isolation ensures clean separation of work
@@ -159,6 +164,7 @@ questions:
 ```
 
 **Branch Name Suggestion Logic**:
+
 - If REPORT file exists: Suggest `feature/{ID_from_REPORT}` format
 - If JIRA ID exists: Suggest `feature/JIRA-123` format
 - Otherwise: Suggest `feature/plan-{YYYYMMDD}` format
@@ -198,9 +204,9 @@ Collect all necessary context before thinking about tasks:
 
 > **⚠️ Evidence Trail**: After collecting context, record ALL sources and key findings in a Context Log table. This log will be included in the final PLAN's "Context & Reasoning" section.
 >
-> | # | 소스 | 핵심 발견 |
-> |---|------|-----------|
-> | 1 | [소스명] | [발견 내용] |
+> | #   | 소스     | 핵심 발견   |
+> | --- | -------- | ----------- |
+> | 1   | [소스명] | [발견 내용] |
 
 **Step 2: Requirement Questioning** (Musk Step 1)
 
@@ -247,6 +253,7 @@ Reference `references/plan_template.md` for complete structure. Apply **Zero-Con
 - A reader with zero codebase familiarity must be able to execute each task
 
 **Critical Requirements**:
+
 - ✅ Every task MUST have Testing Strategy (Given/When/Then)
 - ✅ Tasks must be independently verifiable
 - ✅ Clear success criteria for each task
@@ -280,6 +287,7 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to optimize execution speed:
 This phase implements an explicit WHILE-style loop that repeats until ZERO issues remain.
 
 ### Loop Entry Condition
+
 - Initial plan exists: `[FEATURE]_PLAN.md`
 - Iteration counter: N = 1
 
@@ -377,10 +385,12 @@ This phase implements an explicit WHILE-style loop that repeats until ZERO issue
    - **Audit trail**: What improved each iteration?
 
    **Example**:
+
    ```markdown
    ### Required Changes (Must Fix) 🔴
 
    #### Testing Strategy Issues (CRITICAL)
+
    1. [CARRYOVER] **Task A**: Test cases still too generic - need specific Given/When/Then
    2. [NEW] **Task C**: Missing edge case testing for null inputs
    3. [NEW] **Task D**: No test commands provided
@@ -402,6 +412,7 @@ This phase implements an explicit WHILE-style loop that repeats until ZERO issue
    # Plan Review: [Plan Name] (Iteration [N])
 
    ## Executive Summary
+
    - **Overall Assessment**: Strong / Good / Needs Improvement / Major Concerns
    - **Recommendation**: Approve / Needs Iteration
 
@@ -410,17 +421,21 @@ This phase implements an explicit WHILE-style loop that repeats until ZERO issue
    ### Required Changes (Must Fix) 🔴
 
    #### Testing Strategy Issues
+
    1. [CARRYOVER] **Task A**: Test cases still too generic - need specific Given/When/Then
    2. [NEW] **Task C**: Missing edge case testing for null inputs
 
    ### Suggested Improvements (Should Fix) 🟡
+
    1. [CARRYOVER] **Task B**: Consider adding integration tests
    2. [NEW] **Task D**: Enhance error messages
 
    ### Optional Enhancements (Nice to Have) 🟢
+
    1. [Enhancement]
 
    ### Questions for Clarification ❓
+
    1. [Ambiguous aspect]
    ```
 
@@ -437,6 +452,7 @@ total_issues = required_changes_count + suggested_improvements_count
 ```
 
 Extract from review:
+
 - Overall Assessment value
 - Recommendation value
 
@@ -492,6 +508,7 @@ ELSE:
 ```
 
 **⛔ STRICT Approval Criteria (ALL must be true):**
+
 - Overall Assessment: "Strong"
 - Recommendation: "Approve"
 - Required Changes: ZERO
@@ -548,14 +565,12 @@ ELSE:
    - [ ] Dependencies still correct
 
 7. **Update and Track Iteration**
-
    - Save updated `[FEATURE]_PLAN.md`
    - **KEEP review file `[FEATURE]_PLAN_REVIEW_v[N].md`** (do NOT delete yet!)
    - Increment iteration counter: N = N + 1
    - Output iteration transition message (see template below)
 
 8. **MANDATORY: Loop Back to Step A**
-
    - **Do NOT skip this step!**
    - **Do NOT ask user for approval** - automatic iteration is the core principle
    - Go back to Step A with new iteration number (N+1)
@@ -680,6 +695,7 @@ END WHILE
 ```
 
 **⚠️ Red Flags to Watch:**
+
 - If iteration 1 shows "Approve" → Review was too lenient, be more critical!
 - If iteration > 5 → Plan may need fundamental restructuring
 - If same issues reappear → Changes not addressing root cause
@@ -726,6 +742,7 @@ rm [FEATURE]_PLAN_REVIEW_v[1-9].md [FEATURE]_PLAN_REVIEW_v[0-9][0-9].md
 ```
 
 **Why preserve review history?**
+
 - Audit trail of iterative improvements
 - Learning resource for future planning
 - Evidence of thorough review process
@@ -739,17 +756,20 @@ Include review iteration summary in final output:
 ## Review Iterations History
 
 ### Iteration 1
-- **Review File**: [FEATURE]_PLAN_REVIEW_v1.md
+
+- **Review File**: [FEATURE]\_PLAN_REVIEW_v1.md
 - **Issues Found**: [X] Required Changes, [Y] Suggested Improvements
 - **Key Changes Applied**: [Summary]
 
 ### Iteration 2
-- **Review File**: [FEATURE]_PLAN_REVIEW_v2.md
+
+- **Review File**: [FEATURE]\_PLAN_REVIEW_v2.md
 - **Issues Found**: [X] Required Changes, [Y] Suggested Improvements
 - **Key Changes Applied**: [Summary]
 
 ### Iteration N (Final)
-- **Review File**: [FEATURE]_PLAN_REVIEW_FINAL.md
+
+- **Review File**: [FEATURE]\_PLAN_REVIEW_FINAL.md
 - **Issues Found**: ZERO ✅
 - **Result**: Approved - Ready for execution
 ```
@@ -760,44 +780,52 @@ Include review iteration summary in final output:
 # ✅ Plan Creation Complete
 
 ## Final Plan
-- **File**: [FEATURE]_PLAN.md
+
+- **File**: [FEATURE]\_PLAN.md
 - **Quality**: Approved after [N] review iterations
 - **Tasks**: [X] tasks across [Y] priorities
 
 ## Review Iterations
+
 1. Initial Plan → [Issues found]
 2. Iteration 1 → [Improvements made]
 3. Iteration N → [Approved] ✅
 
 ## Key Improvements Made
+
 - [Improvement 1]
 - [Improvement 2]
 
 ## Ready for Execution
+
 Run: `execute [FEATURE]_PLAN.md`
 ```
 
 ## Best Practices
 
 **Planning:**
+
 - Start with comprehensive context gathering
 - Use sequential thinking for organization
 - Be specific about testing requirements
 - Make tasks independently verifiable
 
 **Reviewing:**
+
 - Be thorough and critical
 - Focus on Required Changes vs Nice-to-Have
 - Verify every task has testing strategy
 - Check task independence carefully
 
 **Applying Feedback:**
+
 - Address Required Changes first
 - Don't skip testing strategy fixes
 - Verify changes after applying
 - Maintain plan consistency
 
 **Iteration (⚠️ CRITICAL):**
+
 - **NEVER stop after just 1 iteration** - this is almost always wrong
 - Minimum 2-3 iterations is NORMAL and expected
 - Complex plans may need 4-5+ iterations
@@ -807,6 +835,7 @@ Run: `execute [FEATURE]_PLAN.md`
 - Quality over speed - rushing leads to bad plans
 
 **When to Ask User:**
+
 - Clarifying ambiguous requirements
 - Choosing between valid approaches
 - Confirming major architectural decisions
@@ -860,6 +889,7 @@ questions:
 ## Common Iteration Patterns
 
 **Why Multiple Iterations Are Necessary:**
+
 - First draft ALWAYS has issues - that's normal
 - Each review catches different problems
 - Fixing one issue often reveals others

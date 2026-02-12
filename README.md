@@ -299,6 +299,7 @@ JIRA Acceptance Criteria와 코드를 자동 매핑하여 요구사항 달성 �
 
 **주요 기능:**
 - README, CHANGELOG, CLAUDE 문서 자동 업데이트
+- **ARCHITECTURE.md 자동 생성/업데이트** (matklad 패턴: 조감도, 코드맵, 불변성, 횡단 관심사)
 - JIRA 이슈에 구현 완료 사항 정리 및 코멘트
 - Serena 메모리에 기술 인사이트 저장
 - 워크플로우 아티팩트 아카이브/정리
@@ -355,6 +356,7 @@ analyze
 
 4. record (필수)
    └─> README 업데이트 (기능, API, 설정 등)
+   └─> ARCHITECTURE.md 생성/업데이트 (matklad 패턴)
    └─> CHANGELOG 업데이트 (변경 이력)
    └─> CLAUDE 문서 업데이트 (아키텍처 결정사항)
    └─> Serena 메모리 저장 (기술 인사이트)

@@ -28,6 +28,7 @@ ALL outputs, documentation, CHANGELOG entries, and communications MUST be in **K
 ## When to Use This Skill
 
 Use this skill when:
+
 - Implementation work is complete and needs documentation
 - User requests "문서화해줘", "document this", "update documentation"
 - **After `execute` completes** (mandatory for README/CHANGELOG updates)
@@ -38,6 +39,7 @@ Use this skill when:
 - As part of release preparation
 
 **Typical Workflow Position**:
+
 ```
 analyze → plan → execute → **record**
 ```
@@ -67,14 +69,15 @@ This skill provides a 9-phase process to collect all artifacts generated from th
 
 ### Documentation Purpose and Audience
 
-| Document | Purpose | Target Audience | Update Timing |
-|------|------|-----------|---------------|
-| **README.md** | Project overview and onboarding | New developers | On major architecture changes |
-| **CLAUDE.md** | AI work guidelines | Claude Code | On workflow/convention changes |
-| **CHANGELOG.md** | Detailed change history | All developers, PM | After all feature implementation/bug fixes |
-| **Serena Memory** | Complex technical patterns | Claude Code | On 50+ line code changes |
+| Document          | Purpose                         | Target Audience    | Update Timing                              |
+| ----------------- | ------------------------------- | ------------------ | ------------------------------------------ |
+| **README.md**     | Project overview and onboarding | New developers     | On major architecture changes              |
+| **CLAUDE.md**     | AI work guidelines              | Claude Code        | On workflow/convention changes             |
+| **CHANGELOG.md**  | Detailed change history         | All developers, PM | After all feature implementation/bug fixes |
+| **Serena Memory** | Complex technical patterns      | Claude Code        | On 50+ line code changes                   |
 
 **Key Principles**:
+
 - Each document has a clear purpose and target audience
 - Avoid duplication and place information in appropriate documents
 - Maintain a maintainable document structure
@@ -91,20 +94,21 @@ This skill provides a 9-phase process to collect all artifacts generated from th
 
 Register the following Phases in order using `TaskCreate`:
 
-| Task | subject | activeForm |
-|------|---------|------------|
-| Phase 1 | Branch Validation | Validating branch |
-| Phase 2 | Discovery and Collection | Discovering and collecting artifacts |
-| Phase 3 | README Update | Updating README |
-| Phase 4 | CHANGELOG Update | Updating CHANGELOG |
-| Phase 5 | CLAUDE Documentation Update | Updating CLAUDE docs |
-| Phase 6 | Serena Memory Update | Updating Serena memory |
-| Phase 7 | JIRA Issue Update | Updating JIRA issue |
-| Phase 8 | Additional Documentation | Writing additional docs |
-| Phase 9 | Verification and Quality Check | Verifying quality |
-| Phase 10 | Cleanup Workflow Artifacts | Cleaning up artifacts |
+| Task     | subject                        | activeForm                           |
+| -------- | ------------------------------ | ------------------------------------ |
+| Phase 1  | Branch Validation              | Validating branch                    |
+| Phase 2  | Discovery and Collection       | Discovering and collecting artifacts |
+| Phase 3  | README Update                  | Updating README                      |
+| Phase 4  | CHANGELOG Update               | Updating CHANGELOG                   |
+| Phase 5  | CLAUDE Documentation Update    | Updating CLAUDE docs                 |
+| Phase 6  | Serena Memory Update           | Updating Serena memory               |
+| Phase 7  | JIRA Issue Update              | Updating JIRA issue                  |
+| Phase 8  | Additional Documentation       | Writing additional docs              |
+| Phase 9  | Verification and Quality Check | Verifying quality                    |
+| Phase 10 | Cleanup Workflow Artifacts     | Cleaning up artifacts                |
 
 **Task Tracking Rules**:
+
 - On Phase entry: `TaskUpdate(taskId, status: "in_progress")`
 - On Phase completion: `TaskUpdate(taskId, status: "completed")`
 - Only **one Phase** should be `in_progress` at any time
@@ -122,6 +126,7 @@ Register the following Phases in order using `TaskCreate`:
 > - **NEVER** start documentation (Phase 2) without completing Phase 1
 >
 > **Why this matters**:
+>
 > - Verifies git branch before committing documentation
 > - Ensures documentation updates are in feature branches
 > - Prevents accidental commits to protected branches
@@ -183,6 +188,7 @@ questions:
 ```
 
 **Branch Name Suggestion Logic**:
+
 - If PLAN/REPORT file exists: Suggest `feature/{ID_from_file}` format
 - If JIRA ID exists: Suggest `feature/JIRA-123` format
 - Otherwise: Suggest `feature/record-{YYYYMMDD}` format
@@ -213,17 +219,18 @@ Returns:
 
 ```typescript
 // Search for all relevant files
-Glob({pattern: "*_REPORT.md"})  // Analysis reports
-Glob({pattern: "*_PLAN.md"})    // Task plans
-Glob({pattern: "*_REVIEW.md"})  // Plan reviews (if any)
+Glob({ pattern: "*_REPORT.md" }); // Analysis reports
+Glob({ pattern: "*_PLAN.md" }); // Task plans
+Glob({ pattern: "*_REVIEW.md" }); // Plan reviews (if any)
 
 // List directory to check for other files
-mcp__plugin_serena_serena__list_dir({relative_path: ".", recursive: false})
+mcp__plugin_serena_serena__list_dir({ relative_path: ".", recursive: false });
 ```
 
 #### 1B. Read and Parse Artifacts
 
 For each file found:
+
 ```typescript
 Read({file_path: artifactPath})
 
@@ -286,13 +293,16 @@ Read({file_path: "README.md"})
 Prepare updates based on content extracted from workflow artifacts:
 
 **Features Section**:
+
 ```markdown
 ## Features
 
 ### ✨ [New Feature Name] (Added: 2025-01-15)
+
 [Brief description from plan/implementation]
 
 **Key Capabilities:**
+
 - [Capability 1]
 - [Capability 2]
 
@@ -303,38 +313,41 @@ Prepare updates based on content extracted from workflow artifacts:
 ```
 
 **API Documentation**:
+
 ```markdown
 ## API Reference
 
 ### New Endpoints
 
 #### `POST /api/new-endpoint`
+
 [Description]
 
 **Request:**
 \`\`\`json
 {
-  "field": "value"
+"field": "value"
 }
 \`\`\`
 
 **Response:**
 \`\`\`json
 {
-  "result": "success"
+"result": "success"
 }
 \`\`\`
 ```
 
 **Configuration**:
+
 ```markdown
 ## Configuration
 
 ### Environment Variables
 
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `NEW_VAR` | [Description] | `default` | Yes |
+| Variable  | Description   | Default   | Required |
+| --------- | ------------- | --------- | -------- |
+| `NEW_VAR` | [Description] | `default` | Yes      |
 ```
 
 #### 2C. Apply README Updates
@@ -344,8 +357,8 @@ Prepare updates based on content extracted from workflow artifacts:
 Edit({
   file_path: "README.md",
   old_string: "## Features\n[old content]",
-  new_string: "## Features\n\n### ✨ New Feature\n...\n\n[old content]"
-})
+  new_string: "## Features\n\n### ✨ New Feature\n...\n\n[old content]",
+});
 ```
 
 ---
@@ -360,7 +373,10 @@ Edit({
 
 ```typescript
 // Look for CHANGELOG
-mcp__plugin_serena_serena__find_file({file_mask: "CHANGELOG*", relative_path: "."})
+mcp__plugin_serena_serena__find_file({
+  file_mask: "CHANGELOG*",
+  relative_path: ".",
+});
 
 // If not found, create new one
 Write({
@@ -373,8 +389,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/ko/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/lang/ko/).
 
 ## [Unreleased]
-`
-})
+`,
+});
 ```
 
 #### 3B. Add New Entry
@@ -383,24 +399,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/ko/).
 ## [Unreleased] - 2025-01-15
 
 ### Added
+
 - [New feature from plan]
 - [New API endpoint]
 - [New configuration option]
 
 ### Changed
+
 - [Updated feature from report]
 - [Modified behavior]
 
 ### Fixed
+
 - [Bug fix from issue report]
 - Resolved: [ISSUE-123] [Issue title]
 
 ### Technical Details
+
 - **Dependencies**: [New/updated dependencies]
 - **Breaking Changes**: [If any]
 - **Related Issues**: [ISSUE-123]
 
 ### Testing
+
 - [New tests added]
 - [Coverage improvements]
 ```
@@ -417,13 +438,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/ko/).
 
 ```typescript
 // Look for CLAUDE docs
-mcp__plugin_serena_serena__find_file({file_mask: "CLAUDE*", relative_path: "."})
+mcp__plugin_serena_serena__find_file({
+  file_mask: "CLAUDE*",
+  relative_path: ".",
+});
 // Or check .claude/ directory
 ```
 
 #### 4B. Update Sections
 
 **Architecture Decisions**:
+
 ```markdown
 ## 아키텍처 결정사항
 
@@ -439,6 +464,7 @@ mcp__plugin_serena_serena__find_file({file_mask: "CLAUDE*", relative_path: "."})
 ```
 
 **Troubleshooting Guide**:
+
 ```markdown
 ## 문제 해결 가이드
 
@@ -481,8 +507,8 @@ mcp__plugin_serena_serena__write_memory({
 
 ### 주의사항
 [Important considerations]
-`
-})
+`,
+});
 
 // Known issues and solutions
 mcp__plugin_serena_serena__write_memory({
@@ -504,8 +530,8 @@ mcp__plugin_serena_serena__write_memory({
 
 ### 관련 코드
 - [file.ts:123] - [Description]
-`
-})
+`,
+});
 
 // Code patterns
 mcp__plugin_serena_serena__write_memory({
@@ -526,8 +552,8 @@ mcp__plugin_serena_serena__write_memory({
 
 ### 주의사항
 [Pitfalls or considerations]
-`
-})
+`,
+});
 
 // Dependencies changelog
 mcp__plugin_serena_serena__write_memory({
@@ -543,8 +569,8 @@ mcp__plugin_serena_serena__write_memory({
 
 ### 제거된 의존성
 - \`package-name\`: [Why removed]
-`
-})
+`,
+});
 
 // Testing patterns
 mcp__plugin_serena_serena__write_memory({
@@ -562,8 +588,8 @@ mcp__plugin_serena_serena__write_memory({
 
 ### 테스트 실행
 [Commands to run tests]
-`
-})
+`,
+});
 ```
 
 ---
@@ -595,8 +621,8 @@ const issueId = extractedFromArtifacts; // e.g., "PROJECT-123"
 ```typescript
 // Get issue details
 mcp__plugin_atlassian_atlassian__jira_get_issue({
-  issue_key: issueId
-})
+  issue_key: issueId,
+});
 
 // Check current status:
 // - If "In Progress" → Can transition to "Done"
@@ -608,35 +634,42 @@ mcp__plugin_atlassian_atlassian__jira_get_issue({
 
 Write implementation summary based on workflow artifacts:
 
-```markdown
+````markdown
 ## 구현 완료 요약
 
 ### 변경사항
+
 - ✅ [주요 기능 1]: [설명]
 - ✅ [주요 기능 2]: [설명]
 - ✅ [버그 수정]: [설명]
 
 ### 구현 세부사항
+
 **파일 변경:**
+
 - `src/feature/module.ts`: [변경 내용]
 - `src/api/endpoint.ts`: [새 엔드포인트 추가]
 
 **테스트:**
+
 - ✅ 단위 테스트 추가 ([X]개)
 - ✅ 통합 테스트 추가 ([Y]개)
 - ✅ 모든 테스트 통과
 
 **문서:**
+
 - ✅ README 업데이트
 - ✅ CHANGELOG 업데이트
 - ✅ API 문서 업데이트
 
 ### 관련 문서
+
 - README: [변경된 섹션]
 - CHANGELOG: [Unreleased] 섹션
 - 기술 문서: [링크 또는 위치]
 
 ### 테스트 방법
+
 ```bash
 # 테스트 실행 명령어
 npm test
@@ -644,12 +677,15 @@ npm test
 # 기능 확인 방법
 [실행 예제]
 ```
+````
 
 ### 배포 노트
+
 - **Breaking Changes**: [있다면 명시]
 - **Dependencies**: [새로 추가된 의존성]
 - **Configuration**: [새 환경 변수나 설정]
-```
+
+````
 
 #### 6D. Add Comment to JIRA Issue
 
@@ -694,21 +730,21 @@ npm test
 *문서 업데이트: ${new Date().toISOString().split('T')[0]}*
 `
 })
-```
+````
 
 #### 6E. Transition Issue Status (Optional)
 
 ```typescript
 // Get available transitions
 mcp__plugin_atlassian_atlassian__jira_get_transitions({
-  issue_key: issueId
-})
+  issue_key: issueId,
+});
 
 // If "Done" transition is available and appropriate:
 mcp__plugin_atlassian_atlassian__jira_transition_issue({
   issue_key: issueId,
-  transition_id: doneTransitionId  // From available transitions
-})
+  transition_id: doneTransitionId, // From available transitions
+});
 ```
 
 #### 6F. Verification
@@ -722,6 +758,7 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 ```
 
 **⚠️ Important Notes**:
+
 - Skip this step if JIRA issue ID cannot be found
 - Issue status transition is optional depending on team workflow
 - Do not include sensitive information (passwords, keys, etc.) in comments
@@ -740,6 +777,7 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 # Migration Guide: [Old Version] → [New Version]
 
 ## 개요
+
 [What changed and why]
 
 ## 중단되는 변경사항
@@ -757,6 +795,7 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 \`\`\`
 
 **마이그레이션 단계:**
+
 1. [Step 1]
 2. [Step 2]
 ```
@@ -830,9 +869,9 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 
 ```typescript
 // Find remaining artifacts
-Glob({pattern: "*_REPORT.md"})
-Glob({pattern: "*_PLAN.md"})
-Glob({pattern: "*_REVIEW.md"})
+Glob({ pattern: "*_REPORT.md" });
+Glob({ pattern: "*_PLAN.md" });
+Glob({ pattern: "*_REVIEW.md" });
 ```
 
 #### 9B. Confirm with User
@@ -873,17 +912,20 @@ questions:
 Based on user choice:
 
 **Option 1: Delete**
+
 ```bash
 rm [files]
 ```
 
 **Option 2: Archive**
+
 ```bash
 mkdir -p .claude/archives/$(date +%Y-%m)
 mv [files] .claude/archives/$(date +%Y-%m)/
 ```
 
 **Option 3: Keep**
+
 - Do nothing
 
 #### 9D. Git Commit and Push
@@ -952,28 +994,32 @@ questions:
 
 Present comprehensive summary **in Korean**:
 
-```markdown
+````markdown
 # 문서화 완료 요약
 
 ## 업데이트된 문서
 
 ### 📘 README.md
+
 - **Features 섹션**: [추가된 기능 목록]
 - **API 섹션**: [추가/변경된 엔드포인트]
 - **Configuration 섹션**: [새 환경 변수]
 - **Breaking Changes**: [if any]
 
 ### 📝 CHANGELOG.md
+
 - **버전**: [Unreleased] / [X.Y.Z]
 - **Added**: [X개 항목]
 - **Changed**: [Y개 항목]
 - **Fixed**: [Z개 항목]
 
 ### 🤖 CLAUDE Documentation
+
 - **아키텍처 결정**: [새 결정사항]
 - **문제해결 가이드**: [새 이슈 해결방법]
 
 ### 🧠 Serena Memories
+
 - `architecture_decisions.md`: [저장된 결정사항]
 - `known_issues.md`: [저장된 이슈 정보]
 - `code_patterns.md`: [저장된 패턴]
@@ -981,11 +1027,13 @@ Present comprehensive summary **in Korean**:
 - `testing_patterns.md`: [테스트 패턴]
 
 ### 📋 JIRA Issue (if applicable)
+
 - **이슈**: [ISSUE-123]
 - **코멘트 추가**: 구현 완료 사항, 테스트 정보, 문서 링크
 - **상태 업데이트**: [In Progress → Done] (if applicable)
 
 ### 📚 추가 문서 (if created)
+
 - [Migration Guide]
 - [API Documentation]
 - [Architecture Diagrams]
@@ -993,23 +1041,29 @@ Present comprehensive summary **in Korean**:
 ## 처리된 워크플로우 아티팩트
 
 ### 분석 리포트
+
 - [REPORT files] → 문서에 반영
 
 ### 작업 계획
+
 - [PLAN files] → 문서에 반영
 
 ### 구현 결과
+
 - [Implementation details] → 모든 문서에 반영
 
 ## 정리 현황
 
 ### 아카이브됨
+
 - [Files] → .claude/archives/YYYY-MM/
 
 ### 삭제됨
+
 - [Files] → 완전히 제거됨
 
 ### 유지됨
+
 - [Files] → 참고용으로 보관
 
 ## 문서 품질
@@ -1028,8 +1082,11 @@ Present comprehensive summary **in Korean**:
    git add README.md CHANGELOG.md .claude/
    git commit -m "docs: update documentation after implementation"
    ```
+````
+
 3. 문서 배포 (if applicable)
 4. 팀원들에게 변경사항 공유
+
 ```
 
 ---
@@ -1051,10 +1108,12 @@ Present comprehensive summary **in Korean**:
 
 **Typical Usage**:
 ```
+
 analyze
-  → plan
-  → execute (code implementation + tests)
-  → record (documentation + Git commit/push)
+→ plan
+→ execute (code implementation + tests)
+→ record (documentation + Git commit/push)
+
 ```
 
 **When to Use**:
@@ -1099,3 +1158,4 @@ This skill does not require additional resource directories (scripts/, reference
 8. Handle cleanup with user confirmation
 
 The skill is self-contained and ready for use without external dependencies.
+```

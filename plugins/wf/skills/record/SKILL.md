@@ -51,17 +51,18 @@ The `execute` skill only handles code implementation and testing. This skill is 
 
 ## Overview
 
-This skill provides a 9-phase process to collect all artifacts generated from the workflow and systematically update project documentation:
+This skill provides a 10-phase process to collect all artifacts generated from the workflow and systematically update project documentation:
 
 1. **Discovery & Collection**: Find and collect workflow artifacts
 2. **README Update**: Update project README with features, API, settings, etc.
-3. **CHANGELOG Update**: Add change history in Keep a Changelog format
-4. **CLAUDE Documentation**: Update architecture decisions and troubleshooting guides
-5. **Serena Memory**: Save technical insights to memory
-6. **JIRA Issue Update**: Summarize implementation completion and add comments to JIRA issue
-7. **Additional Docs**: Create migration guides, API docs, etc. as needed
-8. **Verification**: Verify documentation quality and completeness
-9. **Cleanup**: Clean up workflow artifacts (archive or delete)
+3. **ARCHITECTURE.md Update**: Create or update high-level codebase mental map (matklad pattern)
+4. **CHANGELOG Update**: Add change history in Keep a Changelog format
+5. **CLAUDE Documentation**: Update architecture decisions and troubleshooting guides
+6. **Serena Memory**: Save technical insights to memory
+7. **JIRA Issue Update**: Summarize implementation completion and add comments to JIRA issue
+8. **Additional Docs**: Create migration guides, API docs, etc. as needed
+9. **Verification**: Verify documentation quality and completeness
+10. **Cleanup**: Clean up workflow artifacts (archive or delete)
 
 ---
 
@@ -69,12 +70,13 @@ This skill provides a 9-phase process to collect all artifacts generated from th
 
 ### Documentation Purpose and Audience
 
-| Document          | Purpose                         | Target Audience    | Update Timing                              |
-| ----------------- | ------------------------------- | ------------------ | ------------------------------------------ |
-| **README.md**     | Project overview and onboarding | New developers     | On major architecture changes              |
-| **CLAUDE.md**     | AI work guidelines              | Claude Code        | On workflow/convention changes             |
-| **CHANGELOG.md**  | Detailed change history         | All developers, PM | After all feature implementation/bug fixes |
-| **Serena Memory** | Complex technical patterns      | Claude Code        | On 50+ line code changes                   |
+| Document              | Purpose                                  | Target Audience    | Update Timing                              |
+| --------------------- | ---------------------------------------- | ------------------ | ------------------------------------------ |
+| **README.md**         | Project overview and onboarding          | New developers     | On major architecture changes              |
+| **ARCHITECTURE.md**   | High-level codebase mental map           | All developers     | On structural/module-level changes         |
+| **CLAUDE.md**         | AI work guidelines                       | Claude Code        | On workflow/convention changes             |
+| **CHANGELOG.md**      | Detailed change history                  | All developers, PM | After all feature implementation/bug fixes |
+| **Serena Memory**     | Complex technical patterns               | Claude Code        | On 50+ line code changes                   |
 
 **Key Principles**:
 
@@ -99,13 +101,14 @@ Register the following Phases in order using `TaskCreate`:
 | Phase 1  | Branch Validation              | Validating branch                    |
 | Phase 2  | Discovery and Collection       | Discovering and collecting artifacts |
 | Phase 3  | README Update                  | Updating README                      |
-| Phase 4  | CHANGELOG Update               | Updating CHANGELOG                   |
-| Phase 5  | CLAUDE Documentation Update    | Updating CLAUDE docs                 |
-| Phase 6  | Serena Memory Update           | Updating Serena memory               |
-| Phase 7  | JIRA Issue Update              | Updating JIRA issue                  |
-| Phase 8  | Additional Documentation       | Writing additional docs              |
-| Phase 9  | Verification and Quality Check | Verifying quality                    |
-| Phase 10 | Cleanup Workflow Artifacts     | Cleaning up artifacts                |
+| Phase 4  | ARCHITECTURE.md Update         | Updating ARCHITECTURE.md             |
+| Phase 5  | CHANGELOG Update               | Updating CHANGELOG                   |
+| Phase 6  | CLAUDE Documentation Update    | Updating CLAUDE docs                 |
+| Phase 7  | Serena Memory Update           | Updating Serena memory               |
+| Phase 8  | JIRA Issue Update              | Updating JIRA issue                  |
+| Phase 9  | Additional Documentation       | Writing additional docs              |
+| Phase 10 | Verification and Quality Check | Verifying quality                    |
+| Phase 11 | Cleanup Workflow Artifacts     | Cleaning up artifacts                |
 
 **Task Tracking Rules**:
 
@@ -363,7 +366,143 @@ Edit({
 
 ---
 
-### Phase 4: CHANGELOG Update
+### Phase 4: ARCHITECTURE.md Update
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+
+**Objective**: Create or update the project's ARCHITECTURE.md — a high-level "mental map" of the codebase for developers.
+
+> **Design Philosophy** (based on [matklad's ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html)):
+>
+> - The biggest gap between a newcomer and a core contributor is knowledge of the project's **physical structure**
+> - ARCHITECTURE.md shares this "mental map" at low cost and high value
+> - It is a **map of the country**, NOT a collection of state maps
+> - Only include **stable, high-level information** that changes infrequently
+> - Use **symbol/module names** instead of links (readers can search; links rot)
+> - Keep it **concise**: every regular contributor should read it
+
+#### 4A. Find or Determine ARCHITECTURE.md Applicability
+
+```typescript
+// Look for existing ARCHITECTURE file
+mcp__plugin_serena_serena__find_file({
+  file_mask: "ARCHITECTURE*",
+  relative_path: ".",
+});
+
+// Also check if one exists but named differently
+Glob({ pattern: "**/ARCHITECTURE*" });
+```
+
+**Skip this phase if**:
+
+- No structural/architectural changes were made (e.g., bug fix within existing module)
+- The project is too small to benefit (<1k lines)
+- User explicitly opts out
+
+If ARCHITECTURE.md does not exist yet, **create it immediately** using the template in 4C. Analyze the current project structure from workflow artifacts and codebase exploration to populate the initial content.
+
+#### 4B. Determine Structural Changes
+
+From workflow artifacts (Phase 2), identify changes relevant to ARCHITECTURE.md:
+
+- New modules or significant components added
+- Changes to module relationships or dependency direction
+- New architectural invariants or constraints introduced
+- Changes to cross-cutting concerns (logging, error handling, auth, etc.)
+- Renamed or restructured directories
+
+**If no structural changes found**: Skip update, proceed to Phase 5.
+
+#### 4C. Update or Create Sections
+
+Follow matklad's principles for each section:
+
+**Bird's Eye View** (조감도):
+
+```markdown
+## Bird's Eye View
+
+[프로젝트가 해결하는 핵심 문제를 2-3문장으로 설명]
+[핵심 기술적 접근법 설명]
+```
+
+- Stable, high-level description of what the project does and how
+- Changes very rarely — only update if the project's fundamental purpose or approach changes
+
+**Code Map** (코드맵):
+
+```markdown
+## Code Map
+
+### `src/core/`
+
+핵심 비즈니스 로직. `Engine` 타입이 진입점.
+
+### `src/api/`
+
+HTTP API 계층. `src/core/`에 의존하며, 외부 프레임워크 의존성 없음.
+
+### `src/storage/`
+
+데이터 영속성 계층. `Repository` 트레이트가 핵심 추상화.
+```
+
+Rules for Code Map:
+
+- Cover ONLY top-level modules/directories and their purpose
+- **Name important types, traits, functions** (readers search by symbol name)
+- Describe relationships between modules ("X depends on Y", "Z is independent")
+- Do NOT describe internal implementation details
+- Keep entries to **1-3 sentences** each
+- Verify: items close together in the codemap should be close in the directory structure
+
+**Architectural Invariants** (아키텍처 불변성):
+
+```markdown
+## Architectural Invariants
+
+- `src/core/`는 외부 프레임워크에 의존하지 않음 (순수 도메인 로직)
+- 모든 DB 접근은 `Repository` 인터페이스를 통해서만 수행
+- API 응답은 항상 `ApiResponse<T>` 래퍼를 사용
+```
+
+Rules for Invariants:
+
+- Focus on what is **NOT done** (absence is harder to notice than presence)
+- State rules that all contributors should know and follow
+- Include the "why" briefly
+
+**Cross-cutting Concerns** (횡단 관심사):
+
+```markdown
+## Cross-cutting Concerns
+
+### Error Handling
+
+모든 에러는 `AppError` 타입으로 통일. `src/error.rs` 참조.
+
+### Logging
+
+`tracing` 크레이트 사용. 구조화된 로깅 패턴은 `src/logging.rs` 참조.
+```
+
+#### 4D. Quality Verification
+
+Before completing this phase, verify:
+
+```
+- [ ] Concise enough that every regular contributor should read it
+- [ ] Only contains stable information (won't change every sprint)
+- [ ] Uses symbol/module names instead of line-number links
+- [ ] Is a "country map", not a "collection of state maps"
+- [ ] Nearby items in Code Map are actually nearby in directory structure
+- [ ] Does NOT include implementation details of individual modules
+```
+
+---
+
+### Phase 5: CHANGELOG Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
@@ -428,7 +567,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/ko/).
 
 ---
 
-### Phase 5: CLAUDE Documentation Update
+### Phase 6: CLAUDE Documentation Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
@@ -481,7 +620,7 @@ mcp__plugin_serena_serena__find_file({
 
 ---
 
-### Phase 6: Serena Memory Update
+### Phase 7: Serena Memory Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
@@ -594,7 +733,7 @@ mcp__plugin_serena_serena__write_memory({
 
 ---
 
-### Phase 7: JIRA Issue Update
+### Phase 8: JIRA Issue Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
@@ -765,7 +904,7 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 
 ---
 
-### Phase 8: Additional Documentation
+### Phase 9: Additional Documentation
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
@@ -814,7 +953,7 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 
 ---
 
-### Phase 9: Verification and Quality Check
+### Phase 10: Verification and Quality Check
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
@@ -826,6 +965,8 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 - [ ] README reflects all new features
 - [ ] README includes all API changes
 - [ ] README has updated configuration
+- [ ] ARCHITECTURE.md reflects structural changes (if any)
+- [ ] ARCHITECTURE.md is concise and uses symbol names (not links)
 - [ ] CHANGELOG has proper entries
 - [ ] CHANGELOG follows Keep a Changelog format
 - [ ] CLAUDE docs updated with decisions
@@ -857,7 +998,7 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 
 ---
 
-### Phase 10: Cleanup Workflow Artifacts
+### Phase 11: Cleanup Workflow Artifacts
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
@@ -986,7 +1127,7 @@ questions:
 - **If "Push하지 않기" selected**: Skip push
   - Output: `ℹ️ 나중에 수동으로 push하세요: git push`
 
-**When to run**: After all documentation updates are complete (after Phase 1-9).
+**When to run**: After all documentation updates are complete (after Phase 1-10).
 
 ---
 
@@ -1005,6 +1146,13 @@ Present comprehensive summary **in Korean**:
 - **API 섹션**: [추가/변경된 엔드포인트]
 - **Configuration 섹션**: [새 환경 변수]
 - **Breaking Changes**: [if any]
+
+### 🏗️ ARCHITECTURE.md (if updated)
+
+- **Bird's Eye View**: [변경 여부]
+- **Code Map**: [추가/수정된 모듈]
+- **Architectural Invariants**: [새로운 불변 규칙]
+- **Cross-cutting Concerns**: [변경된 횡단 관심사]
 
 ### 📝 CHANGELOG.md
 
@@ -1153,7 +1301,7 @@ This skill does not require additional resource directories (scripts/, reference
 3. Use Serena MCP tools for memory storage
 4. Use Atlassian MCP tools for JIRA integration
 5. Use Sequential Thinking for organization
-6. Follow the 9-phase systematic documentation process
+6. Follow the 10-phase systematic documentation process
 7. Maintain comprehensive documentation quality
 8. Handle cleanup with user confirmation
 

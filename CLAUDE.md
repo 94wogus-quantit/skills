@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 문서 | 독자 | 포함 내용 | 포함하지 않는 것 |
 |------|------|----------|-----------------|
 | **CLAUDE.md** | AI Agent | 구조, 규칙, 개발 가이드라인, Known Issues, ADR 요약 | MCP 도구 목록, 설치 가이드, 상세 ADR 전문 |
+| **ARCHITECTURE.md** | 모든 개발자 | 조감도, 코드맵, 아키텍처 불변성, 횡단 관심사 | 모듈 내부 구현 세부사항, 자주 변하는 정보 |
 | **README.md** | 사용자(사람) | 설치, 사용법, 기능 소개, Marketplace 배포 | 아키텍처 결정사항, 개발 가이드라인 |
 | **CHANGELOG.md** | 둘 다 | 버전 인덱스 + changelogs/ 링크 | 상세 변경 내용 (changelogs/에 위임) |
 
@@ -14,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.23.0):**
+**Key Artifacts (v3.25.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -23,7 +24,7 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.23.0)
+wogus-plugin/  (v3.25.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │
@@ -45,6 +46,7 @@ wogus-plugin/  (v3.23.0)
 │   ├── atlassian/
 │   └── github/                # GitHub MCP (v3.14.0 NEW)
 │
+├── ARCHITECTURE.md      # High-level codebase mental map (matklad pattern)
 ├── CLAUDE.md            # This file
 ├── README.md            # User-facing documentation
 └── CHANGELOG.md         # Version history
@@ -75,10 +77,11 @@ Execute approved implementation plans with TodoList tracking.
 - **Output**: Code implementation + test results
 - **Integration**: Third step in workflow
 
-### record (v3.8.0)
+### record (v3.25.0)
 Consolidate workflow artifacts and update project documentation.
+- **ARCHITECTURE.md 자동 생성/업데이트** (matklad 패턴: 조감도, 코드맵, 불변성, 횡단 관심사)
 - **브랜치 검증** + Git commit/push
-- **Output**: Updated README, CHANGELOG, CLAUDE docs
+- **Output**: Updated README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs
 - **Integration**: Final step in workflow
 
 ### mr-review (v3.8.0)
@@ -183,9 +186,9 @@ Claude Code Marketplace로 배포. 8개 독립 플러그인 (wf, glmr, seq-think
 
 | 버전 | 변경 요약 |
 |------|----------|
+| v3.25.0 | record 스킬 ARCHITECTURE.md 지원 추가 (matklad 패턴) |
 | v3.24.0 | SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가 |
 | v3.22.0 | plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context 원칙 통합 |
-| v3.21.0 | 문서 구조 개선: CLAUDE.md 경량화, README.md 정리, 역할 분리 |
 
 상세 내용은 [docs/architecture/decisions/](docs/architecture/decisions/) 참조.
 이전 버전 ADR (v1.x ~ v3.17.0)도 동일 디렉토리에서 확인 가능.
@@ -251,7 +254,7 @@ plan → *_PLAN.md (iterative review until ZERO issues)
     ↓
 execute → Code implementation + tests
     ↓
-record → README, CHANGELOG, CLAUDE docs update
+record → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 ```
 
 ---
@@ -311,7 +314,7 @@ mcp__plugin_slack_slack__conversations_replies(
 
 ## Notes
 
-- **Current version**: v3.24.0 (SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가)
+- **Current version**: v3.25.0 (record 스킬 ARCHITECTURE.md 지원 추가)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
 - **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

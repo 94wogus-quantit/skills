@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.25](changelogs/v3.25.md) | 2026-02-12 | record 스킬 ARCHITECTURE.md 지원 추가 (matklad 패턴) |
 | [v3.24](changelogs/v3.24.md) | 2026-02-04 | SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가 |
 | [v3.23](changelogs/v3.23.md) | 2026-01-30 | Evidence Trail 기능: analyze/plan 스킬에 수집 context·사고 과정 추적 기능 추가 |
 | [v3.22](changelogs/v3.22.md) | 2026-01-30 | plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context 원칙 통합 |

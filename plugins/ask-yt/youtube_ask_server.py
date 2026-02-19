@@ -83,17 +83,18 @@ def _get_or_init_page(cdp_port: int) -> Page:
             _pw = None
 
     # CDP 포트가 열려있지 않으면 Chrome 자동 실행
-    if not _is_cdp_running(cdp_port):
+    cdp_check = _is_cdp_running(cdp_port)
+    if not cdp_check:
         _launch_chrome(cdp_port)
 
     # 새 연결
     try:
         _pw = sync_playwright().start()
         browser = _pw.chromium.connect_over_cdp(f"http://localhost:{cdp_port}")
-    except Exception:
+    except Exception as e:
         _pw = None
         raise ValueError(
-            f"Chrome CDP 연결에 실패했습니다 (포트: {cdp_port})"
+            f"Chrome CDP 연결에 실패했습니다 (포트: {cdp_port}, cdp_check={cdp_check}): {type(e).__name__}: {e}"
         )
 
     # 일반 웹 페이지 찾기 (chrome-error://, chrome://, devtools:// 등 특수 페이지 제외)

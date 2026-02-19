@@ -286,6 +286,43 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to optimize execution speed:
 
 This phase implements an explicit WHILE-style loop that repeats until ZERO issues remain.
 
+---
+
+#### ⭐ Preferred Method: ralph-loop Skill (If Available)
+
+**Attempt to delegate the entire review loop to the `ralph-loop` skill for automated refinement.**
+
+**Step 0: Try ralph-loop Integration**
+
+Attempt to invoke the ralph-loop skill using the Skill tool:
+
+```
+Tool: Skill
+Args:
+  skill: "ralph-loop:ralph-loop"
+  args: "[FEATURE]_PLAN.md"
+```
+
+**Success Path:**
+- If ralph-loop completes successfully:
+  - Review iterations handled automatically by ralph-loop
+  - Final plan will be refined and approved
+  - **Skip to Phase 4 (Finalization)**
+
+**Fallback Path:**
+- If ralph-loop is NOT available (tool not found):
+  - Output: `ℹ️ ralph-loop skill not available, using built-in review loop`
+  - Proceed to **Fallback Method** below
+- If ralph-loop invocation fails:
+  - Output: `⚠️ ralph-loop failed, falling back to built-in review loop`
+  - Proceed to **Fallback Method** below
+
+---
+
+#### 🔄 Fallback Method: Built-in Review Loop
+
+**Use this method when ralph-loop is not available or fails.**
+
 ### Loop Entry Condition
 
 - Initial plan exists: `[FEATURE]_PLAN.md`

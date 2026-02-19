@@ -145,6 +145,29 @@ glab mr create --title "feat: JIRA-123 구현"
    /plugin install analyze.zip
    ```
 
+## 💡 Recommended Plugins
+
+**wf:plan** 스킬의 성능을 극대화하려면 Claude 공식 플러그인을 활성화하세요:
+
+### ralph-loop (계획서 자동 반복 검토)
+
+**기능**: 계획서 품질을 자동으로 반복 개선합니다.
+
+**활성화 방법**:
+
+`~/.claude/settings.json`에 추가:
+```json
+{
+  "ralph-loop@claude-plugins-official": true
+}
+```
+
+**효과**:
+- ✅ **ralph-loop 활성화**: wf:plan이 자동으로 반복 검토 루프를 실행하여 계획서 품질을 향상시킵니다
+- ⚠️ **ralph-loop 미활성화**: 수동 피드백 적용 방식으로 fallback (여전히 작동하지만 덜 자동화됨)
+
+**권장 대상**: 고품질 계획서가 필요한 복잡한 프로젝트
+
 ## 📦 Available Skills
 
 ### analyze

@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.25.0):**
+**Key Artifacts (v3.26.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -24,7 +24,7 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.25.0)
+wogus-plugin/  (v3.26.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (8 plugins)
 │
@@ -61,18 +61,20 @@ Systematic root cause analysis with branch validation and Elon Musk's thinking m
 - **Output**: `[ISSUE_ID]_REPORT.md`
 - **Integration**: First step in workflow
 
-### plan (v3.23.0)
+### plan (v3.26.0)
 Create high-quality, thoroughly reviewed implementation plans with 5-Step Algorithm methodology.
 - **5단계 알고리즘**: 요구사항 질의 → 삭제 → 단순화 → 가속 → 자동화
 - **Idiot Index**: 계획 효율성 메트릭 (과잉 설계 방지)
 - **Zero-Context 원칙**: 정확한 파일 경로·코드 스니펫·테스트 커맨드 필수
+- **ralph-loop 통합**: 자동 반복 검토 (optional, graceful degradation)
 - **Iterative review loop** (ZERO 이슈까지 반복, 11개 섹션 체크리스트)
 - **브랜치 검증** (feature 브랜치 확인)
 - **Output**: `[FEATURE]_PLAN.md`
 - **Integration**: Second step in workflow
 
-### execute (v3.8.0)
-Execute approved implementation plans with TodoList tracking.
+### execute (v3.26.0)
+Execute approved implementation plans with TodoList tracking and auto-recovery.
+- **Auto-recovery loop**: 테스트/검증 실패 시 자동 복구 (최대 3회, 8가지 실패 타입)
 - **브랜치 검증** (보호된 브랜치 경고)
 - **Output**: Code implementation + test results
 - **Integration**: Third step in workflow
@@ -186,9 +188,9 @@ Claude Code Marketplace로 배포. 8개 독립 플러그인 (wf, glmr, seq-think
 
 | 버전 | 변경 요약 |
 |------|----------|
+| v3.26.0 | ralph-loop 통합 + auto-recovery: plan/execute 스킬 자동화 대폭 개선 |
 | v3.25.0 | record 스킬 ARCHITECTURE.md 지원 추가 (matklad 패턴) |
 | v3.24.0 | SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가 |
-| v3.22.0 | plan 스킬 업그레이드: 5단계 알고리즘, Idiot Index, Zero-Context 원칙 통합 |
 
 상세 내용은 [docs/architecture/decisions/](docs/architecture/decisions/) 참조.
 이전 버전 ADR (v1.x ~ v3.17.0)도 동일 디렉토리에서 확인 가능.
@@ -229,6 +231,17 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 ### 버전 업데이트 시 marketplace.json 동기화
 
 버전을 올릴 때 (record 스킬 등으로 문서화 시) **반드시 `.claude-plugin/marketplace.json`의 해당 플러그인 버전도 함께 업데이트**할 것. CLAUDE.md, README.md, CHANGELOG.md와 marketplace.json 간 버전 불일치가 발생하지 않도록 확인.
+
+### Optional Dependency: ralph-loop
+
+**wf:plan** 스킬은 `ralph-loop@claude-plugins-official` 플러그인과 통합되어 더 나은 성능을 제공합니다:
+
+- ✅ **With ralph-loop**: 완전 자동화된 반복 검토 루프 (권장)
+- ⚠️ **Without ralph-loop**: 수동 피드백 적용 방식으로 fallback (여전히 작동)
+
+**활성화 방법**: `~/.claude/settings.json`에 `"ralph-loop@claude-plugins-official": true` 추가
+
+**호출 방식**: `Skill(ralph-loop:ralph-loop)` 형식으로 트리거
 
 ---
 
@@ -314,7 +327,7 @@ mcp__plugin_slack_slack__conversations_replies(
 
 ## Notes
 
-- **Current version**: v3.25.0 (record 스킬 ARCHITECTURE.md 지원 추가)
+- **Current version**: v3.26.0 (ralph-loop 통합 + auto-recovery: plan/execute 스킬 자동화 대폭 개선)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
 - **glmr/terraform/amplitude/slack/atlassian/github**: 독립 플러그인

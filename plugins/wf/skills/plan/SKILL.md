@@ -68,6 +68,36 @@ Use this skill when:
 
 ## Planning Workflow
 
+### Startup: Mode Detection *(Run First, Every Time)*
+
+Before any phase, detect whether this is a normal first run or a ralph-loop restart.
+
+**1. Check Ralph Loop State**
+
+Attempt to read `.claude/ralph-loop.local.md` using the Read tool.
+
+- **File not found**: → **NORMAL MODE** → Proceed to Phase 0
+- **File found, `active: false`**: → **NORMAL MODE** → Proceed to Phase 0
+- **File found, `active: true`**: → **RALPH LOOP ITERATION MODE**
+
+**2. Ralph Loop Iteration Mode**
+
+Extract from `.claude/ralph-loop.local.md`:
+- `iteration:` field → current iteration number N
+- File content below frontmatter → PLAN filename (e.g. `ASK_YT_PLAN.md`)
+
+Output:
+```
+🔄 Ralph Loop Iteration #[N] detected
+   Plan: [FEATURE]_PLAN.md
+   → Skipping to Phase 3 (review only)
+```
+
+**⛔ SKIP Phase 0, Phase 1, Phase 2 entirely.**
+**→ Jump directly to Phase 3: Ralph Loop Single Iteration.**
+
+---
+
 ### Phase 0: Task Registration
 
 ⚠️ **CRITICAL: DO NOT SKIP PHASE 0**
@@ -288,34 +318,58 @@ This phase implements an explicit WHILE-style loop that repeats until ZERO issue
 
 ---
 
-#### ⭐ Preferred Method: ralph-loop Skill (If Available)
+#### ⭐ Preferred Method: ralph-loop Integration
 
-**Attempt to delegate the entire review loop to the `ralph-loop` skill for automated refinement.**
+**Step 0: Determine Review Mode**
 
-**Step 0: Try ralph-loop Integration**
+**IF RALPH LOOP ITERATION MODE** (detected at Startup):
+→ Proceed directly to **[Ralph Loop: Single Iteration]** below.
 
-Attempt to invoke the ralph-loop skill using the Skill tool:
+**IF NORMAL MODE (first run)**:
+
+Attempt to start ralph-loop with a completion promise:
 
 ```
 Tool: Skill
 Args:
   skill: "ralph-loop:ralph-loop"
-  args: "[FEATURE]_PLAN.md"
+  args: "[FEATURE]_PLAN.md --completion-promise PLAN_APPROVED"
 ```
 
-**Success Path:**
-- If ralph-loop completes successfully:
-  - Review iterations handled automatically by ralph-loop
-  - Final plan will be refined and approved
-  - **Skip to Phase 4 (Finalization)**
+- **If Skill call succeeds**: ralph-loop is now active → Proceed to **[Ralph Loop: Single Iteration]**
+- **If Skill call fails / not available**:
+  - Output: `ℹ️ ralph-loop not available, using built-in review loop`
+  - Proceed to **[Fallback Method]** below
 
-**Fallback Path:**
-- If ralph-loop is NOT available (tool not found):
-  - Output: `ℹ️ ralph-loop skill not available, using built-in review loop`
-  - Proceed to **Fallback Method** below
-- If ralph-loop invocation fails:
-  - Output: `⚠️ ralph-loop failed, falling back to built-in review loop`
-  - Proceed to **Fallback Method** below
+---
+
+#### 🔁 Ralph Loop: Single Iteration
+
+This is ONE iteration of the review cycle. ralph-loop handles restarting between iterations automatically via its Stop hook.
+
+**Steps:**
+
+1. Run **Steps A → B → C** (review, count issues, decision gate) from the Fallback Method below.
+
+2. **Decision Gate Result:**
+
+   **IF approved** (ZERO issues, Assessment = "Strong", Recommendation = "Approve"):
+   - Run Phase 4 (Finalization) steps.
+   - Output the **exact** completion promise text:
+     ```
+     PLAN_APPROVED
+     ```
+   - *(ralph-loop detects this string and stops the loop automatically)*
+
+   **IF not approved** (issues remain):
+   - Run **Step D** (Apply Feedback) once.
+   - Save updated `[FEATURE]_PLAN.md`.
+   - Output:
+     ```
+     🔄 Iteration [N] complete - [X] issues remain
+        → ralph-loop will restart for Iteration [N+1]
+     ```
+   - **STOP.** Do NOT loop internally. ralph-loop's Stop hook handles the next iteration.
 
 ---
 

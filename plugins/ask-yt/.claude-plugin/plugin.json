@@ -1,6 +1,6 @@
 {
   "name": "ask-yt",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "YouTube 영상의 내장 AI(Ask/질문하기)에게 질문하는 MCP 서버 + Skill (Playwright CDP 기반)",
   "author": {
     "name": "94wogus",

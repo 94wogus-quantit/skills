@@ -223,4 +223,65 @@ Format and display the answer to the user.
 
 - If `chips` is empty, omit the "추천 후속 질문" section.
 - If the user wants to ask more questions, loop back to Phase 3.
-- When done, call `mcp__plugin_ask-yt_yt__close_session` to clean up.
+- When done, call `mcp__plugin_ask-yt_yt__close_session`, then proceed to **Phase 5**.
+
+---
+
+## Phase 5: Generate Insight Document
+
+After closing the session, compile all Q&A from the conversation into a markdown document.
+
+**Step 5-1: Determine file name**
+
+Extract the video ID from the URL:
+
+```python
+import re
+video_id = re.search(r'[?&]v=([^&]+)', url).group(1)
+filename = f"YT_{video_id}_INSIGHTS.md"
+```
+
+**Step 5-2: Write the document**
+
+Use the Write tool to create `{filename}` in the current working directory.
+
+**문서 형식**:
+
+```markdown
+# YouTube AI 인사이트
+
+> **영상**: {url}
+> **일시**: {YYYY-MM-DD}
+> **질문 수**: {n}개
+
+---
+
+## Q1. {question_1}
+
+{answer_1}
+
+---
+
+## Q2. {question_2}
+
+{answer_2}
+
+(모든 Q&A 쌍 포함)
+
+---
+
+## 종합 인사이트
+
+- {핵심 takeaway 1}
+- {핵심 takeaway 2}
+- ...
+```
+
+**Rules:**
+- Include ALL Q&A pairs from the session in order
+- Omit chip suggestions (UI artifacts, not document content)
+- "종합 인사이트" section: synthesize 3-5 most valuable takeaways across all answers. **Omit this section if only 1 question was asked.**
+
+**Step 5-3: Notify user**
+
+Tell the user: `📄 인사이트 문서가 저장되었습니다: {filename}`

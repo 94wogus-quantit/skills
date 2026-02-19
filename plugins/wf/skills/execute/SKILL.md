@@ -843,9 +843,13 @@ IF (no JIRA issue):
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
-**Objective**: Comprehensively test all implemented functionality.
+**Objective**: Comprehensively test all implemented functionality with automatic failure recovery.
 
-**Testing Phases**:
+---
+
+#### Step A: Run All Tests
+
+Execute comprehensive test suite:
 
 1. **Unit Tests**
    ```bash
@@ -876,11 +880,349 @@ IF (no JIRA issue):
    npm run test:security
    ```
 
+---
+
+#### Step B: Analyze Test Results & Verification
+
+**Comprehensive Verification**:
+
+Run ALL verification checks:
+
+```typescript
+const verificationResults = {
+  // Test Results
+  unitTests: runUnitTests(),
+  integrationTests: runIntegrationTests(),
+  manualTests: runManualTests(),
+
+  // Quality Checks
+  successCriteria: checkAllSuccessCriteria(),
+  noRegression: checkNoRegression(),
+  codeStandards: checkCodeStandards(),
+  noConsoleErrors: checkConsoleErrors(),
+  performance: checkPerformance(),
+  security: checkSecurity()
+};
+
+const allPassed = Object.values(verificationResults).every(result => result.passed);
+```
+
+**Exit Condition Check**:
+
+```typescript
+IF (allPassed):
+  → ✅ All tests & verifications passed!
+  → Skip to "Execution Complete" section
+
+ELSE (any check failed):
+  → ❌ Failures detected in: {failedChecks}
+  → Proceed to Step C (Auto-Recovery Loop)
+```
+
+---
+
+#### Step C: Test Failure Auto-Recovery Loop
+
+⚠️ **AUTOMATIC RECOVERY**: This loop automatically analyzes failures and attempts fixes.
+
+**Loop Variables**:
+- `retry_count = 0`
+- `max_retries = 3`
+
+**WHILE (tests fail AND retry_count < max_retries) DO:**
+
+##### C-1: Analyze Failure Root Cause
+
+Use `mcp__plugin_seq-think_st__sequentialthinking` to classify failure type:
+
+```typescript
+// Analyze verification failures
+const failureType = classify({
+  verificationResults,
+  testOutput,
+  implementedCode,
+  planRequirements
+});
+
+// Failure types:
+// 1. IMPLEMENTATION_BUG: Code has bugs (wrong logic, syntax error, etc.)
+// 2. PLAN_DESIGN_FLAW: Plan itself is flawed (wrong approach, missing requirements)
+// 3. SUCCESS_CRITERIA_UNMET: Success criteria not achieved
+// 4. CODE_STANDARDS_VIOLATION: Linting, formatting, convention violations
+// 5. PERFORMANCE_ISSUE: Performance below acceptable thresholds
+// 6. SECURITY_ISSUE: Security vulnerability detected
+// 7. REGRESSION: Existing functionality broken
+// 8. ENVIRONMENT_ISSUE: External issue (DB not running, API down, etc.)
+```
+
+**Classification Criteria**:
+
+| Type | Indicators | Example |
+|------|-----------|---------|
+| **IMPLEMENTATION_BUG** | Logic error, wrong calculation, missing null check | `Expected 100, got 0` → calculation bug |
+| **PLAN_DESIGN_FLAW** | Fundamental approach wrong, missing AC, architectural issue | Test expects feature X, but plan doesn't include X |
+| **SUCCESS_CRITERIA_UNMET** | Task completed but success criteria not met | "User can login" criterion failed - login flow broken |
+| **CODE_STANDARDS_VIOLATION** | ESLint errors, formatting issues, naming conventions | `Unexpected var, use let/const instead` |
+| **PERFORMANCE_ISSUE** | Response time, memory usage, query performance | API response 5s (target: <500ms) |
+| **SECURITY_ISSUE** | Vulnerabilities, exposed secrets, injection risks | SQL injection risk, exposed API key |
+| **REGRESSION** | Previously working feature now broken | User logout worked before, now throws error |
+| **ENVIRONMENT_ISSUE** | Connection errors, missing dependencies, permission issues | `ECONNREFUSED`, `Module not found` |
+
+##### C-2: Apply Fix Strategy
+
+**Strategy 1: Implementation Bug** (코드 수정)
+
+```typescript
+IF (failureType === "IMPLEMENTATION_BUG"):
+  1. Identify buggy code location from test output
+  2. Fix the implementation using Edit/Write tools
+  3. Re-run failed tests
+  4. IF (tests pass):
+       → Continue to Step C-4
+     ELSE:
+       → retry_count++, continue loop
+```
+
+**Strategy 2: Plan Design Flaw** (계획 재작성 → 재실행)
+
+```typescript
+IF (failureType === "PLAN_DESIGN_FLAW"):
+
+  Output: "🔄 Plan design flaw detected - invoking plan skill to revise"
+
+  1. ⚠️ **Invoke plan skill with failure context**:
+
+     Tool: Skill
+     Args:
+       skill: "wf:plan"
+       args: |
+         REVISION MODE: Fix plan based on test failures
+
+         Original Plan: [FEATURE]_PLAN.md
+         Test Failures:
+         {failure_details}
+
+         Root Cause: {root_cause_analysis}
+
+         Required Changes:
+         - {required_change_1}
+         - {required_change_2}
+
+  2. Wait for revised plan: [FEATURE]_PLAN_v2.md
+
+  3. ⚠️ **Re-execute from Phase 3 with revised plan**:
+     - Load revised plan
+     - Re-setup TaskList from revised plan
+     - Re-execute all tasks with new approach
+     - Re-run tests
+
+  4. IF (tests pass):
+       → ✅ Plan revision successful, exit loop
+     ELSE:
+       → retry_count++, continue loop
+```
+
+**Strategy 3: Success Criteria Unmet** (코드 수정 또는 기준 재검토)
+
+```typescript
+IF (failureType === "SUCCESS_CRITERIA_UNMET"):
+
+  Output: "⚠️ Success criteria not met - analyzing gap"
+
+  1. Identify which criteria failed:
+     - Compare plan success criteria vs actual behavior
+     - Document gaps
+
+  2. Determine if fixable with code changes:
+     IF (fixable with implementation):
+       → Fix code to meet criteria
+       → Re-run verification
+     ELSE (criteria unrealistic or plan flaw):
+       → Invoke plan skill to revise criteria
+       → Re-execute with updated plan
+
+  3. retry_count++, continue loop
+```
+
+**Strategy 4: Code Standards Violation** (자동 수정)
+
+```typescript
+IF (failureType === "CODE_STANDARDS_VIOLATION"):
+
+  Output: "🔧 Code standards violation - auto-fixing"
+
+  1. Run auto-fixers:
+     npm run lint:fix
+     npm run format
+     prettier --write .
+
+  2. For unfixable violations:
+     - Manually fix based on linter output
+     - Update code to follow conventions
+
+  3. Re-run verification
+  4. retry_count++, continue loop
+```
+
+**Strategy 5: Performance Issue** (최적화)
+
+```typescript
+IF (failureType === "PERFORMANCE_ISSUE"):
+
+  Output: "⚡ Performance issue - optimizing"
+
+  1. Profile performance bottleneck:
+     - Identify slow queries, loops, API calls
+     - Use Sequential Thinking to find root cause
+
+  2. Apply optimization strategy:
+     - Add caching
+     - Optimize queries (add indexes, reduce N+1)
+     - Use pagination
+     - Lazy loading
+
+  3. IF (optimization insufficient):
+       → Invoke plan skill to redesign approach
+       → Re-execute with optimized plan
+
+  4. Re-run performance tests
+  5. retry_count++, continue loop
+```
+
+**Strategy 6: Security Issue** (보안 패치)
+
+```typescript
+IF (failureType === "SECURITY_ISSUE"):
+
+  Output: "🔒 Security issue - patching"
+
+  1. Analyze security vulnerability:
+     - SQL injection risk → Use parameterized queries
+     - XSS risk → Sanitize inputs
+     - Exposed secrets → Move to env vars
+     - CSRF risk → Add CSRF tokens
+
+  2. Apply security fix:
+     - Fix vulnerable code
+     - Add validation/sanitization
+     - Update dependencies if needed
+
+  3. Re-run security tests
+  4. retry_count++, continue loop
+```
+
+**Strategy 7: Regression** (롤백 또는 수정)
+
+```typescript
+IF (failureType === "REGRESSION"):
+
+  Output: "⏮️ Regression detected - analyzing"
+
+  1. Identify what broke:
+     - Use git diff to find changes
+     - Identify affected components
+
+  2. Fix regression:
+     IF (simple fix):
+       → Fix breaking change
+       → Ensure both old and new features work
+     ELSE (fundamental conflict):
+       → Invoke plan skill to redesign
+       → Resolve conflict in plan
+       → Re-execute
+
+  3. Re-run all tests (including regression tests)
+  4. retry_count++, continue loop
+```
+
+**Strategy 8: Environment Issue** (사용자 개입 필요)
+
+```typescript
+IF (failureType === "ENVIRONMENT_ISSUE"):
+
+  Output: "⚠️ Environment issue detected - user intervention required"
+
+  1. Document environment problem:
+     - Error message
+     - Missing dependency/service
+     - Required fix
+
+  2. Ask user for guidance using AskUserQuestion:
+     - "Fix environment and retry"
+     - "Skip this test (not recommended)"
+     - "Abort execution"
+
+  3. STOP LOOP → Exit to Error Handling
+```
+
+##### C-3: Output Retry Status
+
+```markdown
+🔄 Auto-Recovery Attempt #{retry_count + 1}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Failure Type: {IMPLEMENTATION_BUG | PLAN_DESIGN_FLAW}
+Strategy: {Fix code | Revise plan}
+Action Taken: {description}
+
+Next: Re-running tests...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+##### C-4: Increment Retry Counter
+
+```typescript
+retry_count++
+```
+
+##### C-5: Re-run Tests
+
+Re-execute test suite from Step A
+
+##### C-6: Check Exit Condition
+
+```typescript
+IF (all tests pass):
+  → ✅ Tests passed after retry!
+  → EXIT LOOP → Success
+
+ELSE IF (retry_count >= max_retries):
+  → ❌ Max retries (3) reached
+  → EXIT LOOP → Ask user for guidance
+
+ELSE:
+  → Continue to C-1 (next retry iteration)
+```
+
+**END WHILE**
+
+---
+
+#### Step D: Final Decision
+
+After exiting the loop:
+
+```typescript
+IF (all tests pass):
+  → ✅ Testing successful!
+  → Proceed to "Execution Complete" section
+
+ELSE (max retries reached):
+  → ❌ Unable to fix after 3 attempts
+  → Output failure summary
+  → Ask user for manual intervention
+
+  Use AskUserQuestion:
+    - "Manually fix and resume"
+    - "Abort execution and investigate"
+```
+
+---
+
 **Verification Checklist**:
 ```
 - ✓ All tasks marked as completed in TaskList
 - ✓ All success criteria met for all tasks
-- ✓ Unit tests passing
+- ✓ Unit tests passing (after auto-recovery if needed)
 - ✓ Integration tests passing
 - ✓ Manual tests verified
 - ✓ No regression in existing functionality

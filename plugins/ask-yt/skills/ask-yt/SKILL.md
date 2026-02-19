@@ -1,14 +1,6 @@
 ---
 name: ask-yt
-description: |
-  Ask YouTube's built-in Gemini AI about video content using CDP automation.
-  Use when user provides a YouTube URL and wants to ask questions about the video.
-  Supports multi-turn questioning: open the panel once, ask multiple questions.
-  Triggers on:
-  - "YouTube 영상에 대해 질문해줘" + URL
-  - "이 유튜브 영상 요약해줘" + URL
-  - "/ask-yt [URL] [question]"
-  - User wants to query YouTube's Ask/질문하기 built-in AI feature
+description: Ask YouTube's built-in Gemini AI about video content using CDP automation. Use when user provides a YouTube URL and wants to ask questions about the video. Supports multi-turn questioning: open the panel once, ask multiple questions. Triggers on: "YouTube 영상에 대해 질문해줘" + URL, "이 유튜브 영상 요약해줘" + URL, "/ask-yt [URL] [question]", User wants to query YouTube's Ask/질문하기 built-in AI feature
 ---
 
 ## ⚠️ Language Policy

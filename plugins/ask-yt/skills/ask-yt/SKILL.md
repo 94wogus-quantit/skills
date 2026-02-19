@@ -186,50 +186,78 @@ args:
 
 ---
 
-## Phase 3: Ask Questions
+## Phase 3: Deep-Dive Questioning Loop
 
-Call `mcp__plugin_ask-yt_yt__ask_video` for each question:
+Execute a chain questioning strategy: **every answer seeds the next question**. Do NOT ask generic questions — always base the next question on specific content from the previous answer.
 
-```
-tool: mcp__plugin_ask-yt_yt__ask_video
-args:
-  question: <질문 텍스트>
-  timeout_ms: 30000   (기본값, 필요 시 증가)
-```
+### Step 3-1: Opening (2 questions)
 
-Repeat without calling `open_ask_panel` again for follow-up questions on the same video.
+Ask these two questions first to map the territory:
+
+1. `이 영상의 핵심 내용을 전체적으로 요약해줘` — broad map of the video
+2. Based on the summary answer: pick the **single most surprising or counterintuitive claim** and ask specifically about it
+
+### Step 3-2: Answer Analysis (run after EVERY answer)
+
+After receiving each answer, extract:
+
+| Element | What to look for |
+|---------|-----------------|
+| **Named claim** | A specific assertion that could be challenged or expanded |
+| **Unexplained mechanism** | Something stated as fact but without "how" |
+| **Specific term/concept** | A named methodology, framework, or proper noun |
+| **Implied consequence** | An outcome mentioned but not fully explored |
+| **Chip hints** | The returned chips often signal important untouched topics |
+
+Rank these by how much depth they could yield. Pick the TOP ONE and go to Step 3-3.
+
+### Step 3-3: Follow-up Question Formulation
+
+Formulate the next question using EXACT terms and quotes from the previous answer. Choose one pattern:
+
+| Pattern | Template |
+|---------|----------|
+| **Mechanism** | `앞서 "[exact term]"을 언급했는데, 이게 실제로 어떻게 동작하는지 메커니즘을 구체적으로 설명해줘` |
+| **Evidence** | `"[specific claim]"의 구체적인 수치, 사례, 또는 실험 결과가 있어?` |
+| **Implication** | `[concept]이 실제 [개발자/기업/학생]에게 어떤 구체적인 변화를 요구하는지 설명해줘` |
+| **Counter** | `[claim]에 반하는 사례나 이 주장의 한계는 어떤 게 있어?` |
+| **Connection** | `앞서 말한 [topic A]와 [topic B]가 실제로 어떻게 연결되는지 설명해줘` |
+| **Drill-down** | `[specific sub-topic from answer]에 대해 훨씬 더 자세히 설명해줘` |
+
+**NEVER ask a question already answered. NEVER ask a generic question like "더 설명해줘" without anchoring to specific content.**
+
+### Step 3-4: Loop Termination
+
+Stop the loop when:
+- **12+ questions asked** AND all major themes have at least one deep-dive follow-up, OR
+- **Hard limit: 15 questions**
+- Last 2 consecutive answers yielded no new concepts (diminishing returns)
+
+On termination → call `close_session` → proceed to **Phase 5**.
 
 ---
 
-## Phase 4: Display Result
+## Phase 4: Display & Loop
 
-Format and display the answer to the user.
+After each `ask_video` call:
 
-**출력 형식**:
+1. Show the answer to the user in this compact format:
 
 ```markdown
-## YouTube AI 답변
+**[Q{n}]** {question}
 
 {answer}
-
----
-
-### 💡 추천 후속 질문
-
-- {chip_1}
-- {chip_2}
-- {chip_3}
 ```
 
-- If `chips` is empty, omit the "추천 후속 질문" section.
-- If the user wants to ask more questions, loop back to Phase 3.
-- When done, call `mcp__plugin_ask-yt_yt__close_session`, then proceed to **Phase 5**.
+2. Immediately return to **Phase 3, Step 3-2** to analyze and formulate the next question.
+3. Do NOT wait for user input between questions — keep the chain moving autonomously.
+4. When the termination condition in Step 3-4 is met, call `close_session` and proceed to Phase 5.
 
 ---
 
 ## Phase 5: Generate Insight Document
 
-After closing the session, compile all Q&A from the conversation into a markdown document.
+After closing the session, compile all Q&A into a structured insight document.
 
 **Step 5-1: Determine file name**
 
@@ -252,7 +280,7 @@ Use the Write tool to create `{filename}` in the current working directory.
 
 > **영상**: {url}
 > **일시**: {YYYY-MM-DD}
-> **질문 수**: {n}개
+> **질문 수**: {n}개 (심층 체인 질문)
 
 ---
 
@@ -266,21 +294,47 @@ Use the Write tool to create `{filename}` in the current working directory.
 
 {answer_2}
 
-(모든 Q&A 쌍 포함)
+(모든 Q&A 쌍 포함 — 생략하지 말 것)
 
 ---
 
-## 종합 인사이트
+## 핵심 주제별 인사이트
 
-- {핵심 takeaway 1}
-- {핵심 takeaway 2}
-- ...
+### {주제 1: 자동 추출}
+{주제 1에 해당하는 Q&A들을 종합한 심층 분석, 2-4 단락}
+
+### {주제 2}
+{...}
+
+(주요 주제 3-5개)
+
+---
+
+## 실전 적용 가이드
+
+- **당장 할 수 있는 것**: {즉시 실행 가능한 액션 3개}
+- **중기적으로 바꿔야 할 것**: {3-6개월 내 변화 2-3개}
+- **장기적으로 고려할 것**: {큰 방향성 1-2개}
+
+---
+
+## 핵심 명언 & 개념
+
+> "{영상에서 나온 인상적인 발언 1}"
+
+> "{인상적인 발언 2}"
+
+- **[핵심 개념 1]**: {한 줄 정의}
+- **[핵심 개념 2]**: {한 줄 정의}
 ```
 
 **Rules:**
-- Include ALL Q&A pairs from the session in order
-- Omit chip suggestions (UI artifacts, not document content)
-- "종합 인사이트" section: synthesize 3-5 most valuable takeaways across all answers. **Omit this section if only 1 question was asked.**
+- Include ALL Q&A pairs verbatim — do NOT summarize or truncate them
+- Omit chip suggestions (UI artifacts)
+- "핵심 주제별 인사이트": group related Q&As by theme and synthesize — this is the main analytical value
+- "실전 적용 가이드": concrete, actionable — no vague statements
+- "핵심 명언 & 개념": extract exact quotes and define key terms introduced in the video
+- If fewer than 3 questions were asked, omit everything except Q&A pairs and a brief 종합 인사이트 section
 
 **Step 5-3: Notify user**
 

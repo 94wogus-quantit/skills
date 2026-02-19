@@ -1,5 +1,6 @@
+import queue
 import subprocess
-import sys
+import threading
 import time
 import urllib.request
 
@@ -7,10 +8,6 @@ from mcp.server.fastmcp import FastMCP
 from playwright.sync_api import sync_playwright, Page, TimeoutError as PlaywrightTimeout
 
 mcp = FastMCP("youtube-ask")
-
-# 세션 상태 - MCP 서버가 살아있는 동안 유지
-_pw = None
-_page: Page | None = None
 
 # macOS/Linux/Windows Chrome 실행 경로 후보
 _CHROME_PATHS = [
@@ -22,9 +19,52 @@ _CHROME_PATHS = [
     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",   # Windows 32bit
 ]
 
+# ─── Playwright 전용 스레드 ────────────────────────────────────────────────
+# FastMCP는 asyncio 루프에서 실행되므로 Playwright Sync API를 직접 호출 불가.
+# 전용 스레드에서 모든 Playwright 작업을 처리한다.
+
+_task_queue: queue.Queue = queue.Queue()
+_pw_thread: threading.Thread | None = None
+
+# 세션 상태 — Playwright 전용 스레드 내에서만 접근
+_pw = None
+_page: Page | None = None
+
+
+def _playwright_worker() -> None:
+    """Playwright 전용 스레드: 큐에서 작업을 꺼내 실행한다."""
+    while True:
+        item = _task_queue.get()
+        if item is None:  # 종료 신호
+            break
+        fn, result_q = item
+        try:
+            result_q.put(("ok", fn()))
+        except Exception as exc:
+            result_q.put(("err", exc))
+
+
+def _ensure_pw_thread() -> None:
+    global _pw_thread
+    if _pw_thread is None or not _pw_thread.is_alive():
+        _pw_thread = threading.Thread(target=_playwright_worker, daemon=True)
+        _pw_thread.start()
+
+
+def _run(fn):
+    """fn()을 Playwright 전용 스레드에서 실행하고 결과를 반환한다."""
+    _ensure_pw_thread()
+    result_q: queue.SimpleQueue = queue.SimpleQueue()
+    _task_queue.put((fn, result_q))
+    status, value = result_q.get()
+    if status == "err":
+        raise value
+    return value
+
+
+# ─── 내부 헬퍼 (Playwright 전용 스레드 내에서만 호출) ─────────────────────
 
 def _is_cdp_running(cdp_port: int) -> bool:
-    """CDP 포트가 이미 열려있는지 확인."""
     try:
         urllib.request.urlopen(f"http://localhost:{cdp_port}/json/version", timeout=2)
         return True
@@ -33,7 +73,6 @@ def _is_cdp_running(cdp_port: int) -> bool:
 
 
 def _find_chrome() -> str | None:
-    """시스템에 설치된 Chrome 실행 파일 경로 반환."""
     import os
     for path in _CHROME_PATHS:
         if os.path.isfile(path):
@@ -42,11 +81,10 @@ def _find_chrome() -> str | None:
 
 
 def _launch_chrome(cdp_port: int) -> None:
-    """Chrome을 CDP 모드로 백그라운드 실행."""
     chrome = _find_chrome()
     if not chrome:
         raise ValueError(
-            "Chrome을 찾을 수 없습니다. Chrome을 설치하거나 직접 실행해주세요:\n"
+            "Chrome을 찾을 수 없습니다. Chrome을 직접 실행해주세요:\n"
             f"  chrome --remote-debugging-port={cdp_port}"
         )
     subprocess.Popen(
@@ -54,24 +92,19 @@ def _launch_chrome(cdp_port: int) -> None:
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    # 포트 열릴 때까지 최대 10초 대기
     for _ in range(20):
         if _is_cdp_running(cdp_port):
             return
         time.sleep(0.5)
-    raise ValueError(
-        f"Chrome을 실행했지만 CDP 포트 {cdp_port}가 열리지 않았습니다"
-    )
+    raise ValueError(f"Chrome을 실행했지만 CDP 포트 {cdp_port}가 열리지 않았습니다")
 
 
 def _get_or_init_page(cdp_port: int) -> Page:
-    """기존 CDP 연결 페이지를 반환하거나, 없으면 새로 연결한다."""
     global _pw, _page
 
-    # 이미 연결된 페이지가 유효한지 확인
     if _page is not None:
         try:
-            _page.title()  # 살아있는지 ping
+            _page.title()
             return _page
         except Exception:
             _page = None
@@ -82,22 +115,16 @@ def _get_or_init_page(cdp_port: int) -> Page:
                     pass
             _pw = None
 
-    # CDP 포트가 열려있지 않으면 Chrome 자동 실행
-    cdp_check = _is_cdp_running(cdp_port)
-    if not cdp_check:
+    if not _is_cdp_running(cdp_port):
         _launch_chrome(cdp_port)
 
-    # 새 연결
     try:
         _pw = sync_playwright().start()
         browser = _pw.chromium.connect_over_cdp(f"http://localhost:{cdp_port}")
     except Exception as e:
         _pw = None
-        raise ValueError(
-            f"Chrome CDP 연결에 실패했습니다 (포트: {cdp_port}, cdp_check={cdp_check}): {type(e).__name__}: {e}"
-        )
+        raise ValueError(f"Chrome CDP 연결에 실패했습니다 (포트: {cdp_port}): {e}")
 
-    # 일반 웹 페이지 찾기 (chrome-error://, chrome://, devtools:// 등 특수 페이지 제외)
     _page = None
     if browser.contexts:
         for ctx in browser.contexts:
@@ -113,15 +140,15 @@ def _get_or_init_page(cdp_port: int) -> Page:
                 break
 
     if _page is None:
-        # 일반 페이지가 없으면 새로 생성
         if browser.contexts:
             _page = browser.contexts[0].new_page()
         else:
-            context = browser.new_context()
-            _page = context.new_page()
+            _page = browser.new_context().new_page()
 
     return _page
 
+
+# ─── MCP 도구 ─────────────────────────────────────────────────────────────
 
 @mcp.tool()
 def open_ask_panel(url: str, cdp_port: int = 9222, timeout_ms: int = 30000) -> dict:
@@ -137,59 +164,54 @@ def open_ask_panel(url: str, cdp_port: int = 9222, timeout_ms: int = 30000) -> d
     Returns:
         {"status": "ok", "url": "...", "message": "Ask 패널이 열렸습니다"}
     """
-    global _page
+    def work():
+        global _page
+        page = _get_or_init_page(cdp_port)
+        page.goto(url, wait_until="domcontentloaded")
 
-    page = _get_or_init_page(cdp_port)
-
-    # 영상 페이지로 이동
-    page.goto(url, wait_until="domcontentloaded")
-
-    # Ask 버튼 로드 대기 (SPA 특성상 필수)
-    try:
-        page.wait_for_selector(
-            'button[aria-label="질문하기"], button[aria-label="Ask"], button[aria-label="추가 작업"]',
-            timeout=15000
-        )
-    except PlaywrightTimeout:
-        raise ValueError(f"이 영상에서 Ask 기능이 지원되지 않습니다: {url}")
-
-    # 버튼 탐지 및 클릭 (2분기)
-    ask_button = page.query_selector(
-        'button[aria-label="질문하기"], button[aria-label="Ask"]'
-    )
-    if ask_button and ask_button.is_visible():
-        ask_button.click()
-    else:
-        more_button = page.query_selector('button[aria-label="추가 작업"]')
-        if not more_button:
-            raise ValueError(f"이 영상에서 Ask 기능이 지원되지 않습니다: {url}")
-        more_button.click()
         try:
-            page.wait_for_selector("ytd-menu-popup-renderer", timeout=5000)
+            page.wait_for_selector(
+                'button[aria-label="질문하기"], button[aria-label="Ask"], button[aria-label="추가 작업"]',
+                timeout=15000,
+            )
         except PlaywrightTimeout:
             raise ValueError(f"이 영상에서 Ask 기능이 지원되지 않습니다: {url}")
-        menu_item = page.query_selector("ytd-menu-service-item-renderer.iron-selected")
-        if not menu_item:
-            menu_item = page.query_selector(
-                'xpath=//yt-formatted-string[contains(text(),"질문하기") or contains(text(),"Ask")]'
+
+        ask_button = page.query_selector('button[aria-label="질문하기"], button[aria-label="Ask"]')
+        if ask_button and ask_button.is_visible():
+            ask_button.click()
+        else:
+            more_button = page.query_selector('button[aria-label="추가 작업"]')
+            if not more_button:
+                raise ValueError(f"이 영상에서 Ask 기능이 지원되지 않습니다: {url}")
+            more_button.click()
+            try:
+                page.wait_for_selector("ytd-menu-popup-renderer", timeout=5000)
+            except PlaywrightTimeout:
+                raise ValueError(f"이 영상에서 Ask 기능이 지원되지 않습니다: {url}")
+            menu_item = page.query_selector("ytd-menu-service-item-renderer.iron-selected")
+            if not menu_item:
+                menu_item = page.query_selector(
+                    'xpath=//yt-formatted-string[contains(text(),"질문하기") or contains(text(),"Ask")]'
+                )
+            if not menu_item:
+                raise ValueError(f"이 영상에서 Ask 기능이 지원되지 않습니다: {url}")
+            menu_item.click()
+
+        try:
+            page.wait_for_selector(
+                'ytd-engagement-panel-section-list-renderer'
+                '[target-id="PAyouchat"]'
+                '[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]',
+                timeout=timeout_ms,
             )
-        if not menu_item:
-            raise ValueError(f"이 영상에서 Ask 기능이 지원되지 않습니다: {url}")
-        menu_item.click()
+        except PlaywrightTimeout:
+            raise ValueError(f"Ask 패널이 열리지 않았습니다: {url}")
 
-    # 패널 로드 대기
-    try:
-        page.wait_for_selector(
-            'ytd-engagement-panel-section-list-renderer'
-            '[target-id="PAyouchat"]'
-            '[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]',
-            timeout=timeout_ms
-        )
-    except PlaywrightTimeout:
-        raise ValueError(f"Ask 패널이 열리지 않았습니다: {url}")
+        _page = page
+        return {"status": "ok", "url": url, "message": "Ask 패널이 열렸습니다"}
 
-    _page = page
-    return {"status": "ok", "url": url, "message": "Ask 패널이 열렸습니다"}
+    return _run(work)
 
 
 @mcp.tool()
@@ -205,70 +227,60 @@ def ask_video(question: str, timeout_ms: int = 30000) -> dict:
     Returns:
         {"answer": "...", "chips": ["추천질문1", "추천질문2"]}
     """
-    global _page
+    def work():
+        global _page
+        if _page is None:
+            raise ValueError("open_ask_panel()을 먼저 호출해주세요")
+        try:
+            _page.title()
+        except Exception:
+            _page = None
+            raise ValueError("페이지 연결이 끊겼습니다. open_ask_panel()을 다시 호출해주세요")
 
-    if _page is None:
-        raise ValueError("open_ask_panel()을 먼저 호출해주세요")
+        page = _page
 
-    try:
-        _page.title()  # 페이지가 살아있는지 확인
-    except Exception:
-        _page = None
-        raise ValueError("페이지 연결이 끊겼습니다. open_ask_panel()을 다시 호출해주세요")
+        input_el = page.query_selector("textarea.chatInputViewModelChatInput")
+        if not input_el:
+            raise ValueError("Ask 패널이 열려있지 않습니다. open_ask_panel()을 먼저 호출해주세요")
 
-    page = _page
+        textarea = page.wait_for_selector("textarea.chatInputViewModelChatInput", timeout=10000)
+        textarea.click()
+        page.keyboard.type(question, delay=30)
 
-    # 입력창 확인 (패널이 열려있는지)
-    input_el = page.query_selector("textarea.chatInputViewModelChatInput")
-    if not input_el:
-        raise ValueError("Ask 패널이 열려있지 않습니다. open_ask_panel()을 먼저 호출해주세요")
+        initial_md_count = len(page.query_selector_all("markdown-div"))
+        initial_chips_count = len(page.query_selector_all("button.ytwYouChatChipsDataChip"))
 
-    # 질문 입력 (keyboard.type으로 Polymer 이벤트 정상 트리거)
-    textarea = page.wait_for_selector("textarea.chatInputViewModelChatInput", timeout=10000)
-    textarea.click()
-    page.keyboard.type(question, delay=30)
+        page.keyboard.press("Enter")
 
-    # 전송 전 초기 개수 기억 (반드시 Enter 전에 기록)
-    import time as _time
-    initial_md_count = len(page.query_selector_all('markdown-div'))
-    initial_chips_count = len(page.query_selector_all("button.ytwYouChatChipsDataChip"))
+        deadline = time.time() + timeout_ms / 1000
+        while time.time() < deadline:
+            if len(page.query_selector_all("markdown-div")) > initial_md_count:
+                break
+            time.sleep(0.5)
+        else:
+            raise ValueError(f"AI 응답 대기 시간 초과 ({timeout_ms}ms)")
 
-    # Enter 키로 전송
-    page.keyboard.press('Enter')
+        deadline = time.time() + timeout_ms / 1000
+        while time.time() < deadline:
+            if len(page.query_selector_all("button.ytwYouChatChipsDataChip")) > initial_chips_count:
+                break
+            time.sleep(0.5)
+        else:
+            raise ValueError(f"AI 응답 완성 대기 시간 초과 ({timeout_ms}ms)")
 
-    # 새 markdown-div(AI 답변) 등장 대기 (Trusted Types CSP 우회: polling)
-    deadline = _time.time() + timeout_ms / 1000
-    while _time.time() < deadline:
-        if len(page.query_selector_all('markdown-div')) > initial_md_count:
-            break
-        _time.sleep(0.5)
-    else:
-        raise ValueError(f"AI 응답 대기 시간 초과 ({timeout_ms}ms)")
+        responses = page.query_selector_all("markdown-div")
+        if not responses:
+            raise ValueError("AI 응답을 찾을 수 없습니다")
+        answer_text = responses[-1].inner_text()
 
-    # AI 응답 완성 대기 (streaming: chips 개수 증가로 완성 감지)
-    deadline = _time.time() + timeout_ms / 1000
-    while _time.time() < deadline:
-        if len(page.query_selector_all("button.ytwYouChatChipsDataChip")) > initial_chips_count:
-            break
-        _time.sleep(0.5)
-    else:
-        raise ValueError(f"AI 응답 완성 대기 시간 초과 ({timeout_ms}ms)")
+        chips = [
+            c.inner_text()
+            for c in page.query_selector_all('button.ytwYouChatChipsDataChip[data-disabled="false"]')
+        ]
 
-    # 마지막 markdown-div = 방금 받은 AI 답변
-    responses = page.query_selector_all('markdown-div')
-    if not responses:
-        raise ValueError("AI 응답을 찾을 수 없습니다")
-    answer_text = responses[-1].inner_text()
+        return {"answer": answer_text, "chips": chips}
 
-    # follow-up chips 추출
-    chips = [
-        c.inner_text()
-        for c in page.query_selector_all(
-            'button.ytwYouChatChipsDataChip[data-disabled="false"]'
-        )
-    ]
-
-    return {"answer": answer_text, "chips": chips}
+    return _run(work)
 
 
 @mcp.tool()
@@ -280,17 +292,18 @@ def close_session() -> dict:
     Returns:
         {"status": "ok", "message": "세션이 종료되었습니다"}
     """
-    global _pw, _page
+    def work():
+        global _pw, _page
+        _page = None
+        if _pw:
+            try:
+                _pw.stop()
+            except Exception:
+                pass
+            _pw = None
+        return {"status": "ok", "message": "세션이 종료되었습니다"}
 
-    _page = None
-    if _pw:
-        try:
-            _pw.stop()
-        except Exception:
-            pass
-        _pw = None
-
-    return {"status": "ok", "message": "세션이 종료되었습니다"}
+    return _run(work)
 
 
 if __name__ == "__main__":

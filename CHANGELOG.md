@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.27](changelogs/v3.27.md) | 2026-02-19 | ask-yt 플러그인 신규 추가: YouTube 내장 AI(Ask/질문하기) CDP 자동화 |
 | [v3.26](changelogs/v3.26.md) | 2026-02-13 | ralph-loop 통합 + auto-recovery: plan/execute 스킬 자동화 대폭 개선 |
 | [v3.25](changelogs/v3.25.md) | 2026-02-12 | record 스킬 ARCHITECTURE.md 지원 추가 (matklad 패턴) |
 | [v3.24](changelogs/v3.24.md) | 2026-02-04 | SKILL UX 개선: AskUserQuestion/Task 패턴, 도구 레퍼런스 추가 |

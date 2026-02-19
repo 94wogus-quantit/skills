@@ -1,0 +1,12 @@
+{
+  "name": "ask-yt",
+  "description": "YouTube 영상의 내장 AI(Ask/질문하기)에게 질문하는 MCP 서버 + Skill (Playwright CDP 기반)",
+  "version": "1.0.0",
+  "skills": [
+    {
+      "name": "ask-yt",
+      "description": "YouTube URL과 질문을 받아 YouTube 내장 Gemini AI 응답을 반환합니다",
+      "path": "./skills/ask-yt"
+    }
+  ]
+}

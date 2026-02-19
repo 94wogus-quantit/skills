@@ -74,6 +74,9 @@ glab mr create --title "feat: JIRA-123 구현"
    /plugin install wogus-plugins:slack
    /plugin install wogus-plugins:atlassian
    /plugin install wogus-plugins:github
+
+   # YouTube Ask AI 자동화
+   /plugin install wogus-plugins:ask-yt
    ```
 
 3. 설치 확인:
@@ -354,6 +357,59 @@ analyze
     └─> README, CHANGELOG, CLAUDE 문서, Serena 메모리
 ```
 
+## 🎬 ask-yt: YouTube AI 자동화
+
+YouTube 내장 AI "질문하기(Ask)" 기능을 CDP(Playwright) 기반으로 자동화합니다.
+
+**주요 기능:**
+- URL + 질문 → YouTube Gemini AI 응답 자동 반환
+- 멀티턴 대화: 패널 한 번 열고 여러 질문 연속 가능
+- 추천 후속 질문(chips) 자동 제공
+- Chrome 프로필 복사를 통한 로그인 세션 유지
+
+**사전 요구사항:**
+
+1. Chrome CDP 모드 실행 (macOS):
+
+   ```bash
+   # 1. 기존 Chrome 종료
+   pkill -9 -f "Google Chrome"
+
+   # 2. 프로필 복사 (로그인 세션 유지)
+   rm -rf ~/Library/Application\ Support/Google/Chrome-CDP
+   mkdir -p ~/Library/Application\ Support/Google/Chrome-CDP
+   cp -r ~/Library/Application\ Support/Google/Chrome/Default \
+         ~/Library/Application\ Support/Google/Chrome-CDP/Default
+   rm -f ~/Library/Application\ Support/Google/Chrome-CDP/Default/LOCK
+
+   # 3. CDP 모드로 실행
+   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+     --remote-debugging-port=9222 \
+     --user-data-dir="$HOME/Library/Application Support/Google/Chrome-CDP" \
+     --profile-directory="Default" \
+     2>/dev/null &
+
+   # 4. 연결 확인
+   curl -s http://localhost:9222/json/version | python3 -c \
+     "import sys,json; d=json.load(sys.stdin); print('✅', d['Browser'])"
+   ```
+
+**설치:**
+```bash
+/plugin install wogus-plugins:ask-yt
+```
+
+**사용 예시:**
+```
+# Skill 트리거
+"이 유튜브 영상 요약해줘: https://www.youtube.com/watch?v=xxxxx"
+"/ask-yt https://www.youtube.com/watch?v=xxxxx 핵심 내용이 뭐야?"
+```
+
+> 상세 설정 가이드는 [plugins/ask-yt/README.md](plugins/ask-yt/README.md) 참조.
+
+---
+
 ## 📋 권장 워크플로우
 
 ### 표준 워크플로우
@@ -426,7 +482,7 @@ Git URL로 직접 설치합니다:
 ```
 wogus-plugin/
 ├── .claude-plugin/
-│   └── marketplace.json       # 카탈로그 (8 plugins)
+│   └── marketplace.json       # 카탈로그 (9 plugins)
 │
 ├── plugins/                   # 모든 플러그인
 │   ├── wf/                    # 메인 워크플로우 플러그인
@@ -445,6 +501,7 @@ wogus-plugin/
 │   ├── slack/
 │   ├── atlassian/
 │   └── github/                # GitHub MCP
+│   └── ask-yt/                # YouTube Ask CDP 자동화 (NEW)
 │
 ├── changelogs/              # 버전별 변경 이력
 ├── CHANGELOG.md             # 버전 카탈로그

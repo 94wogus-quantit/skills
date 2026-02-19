@@ -1,0 +1,6 @@
+{
+  "yt": {
+    "command": "uvx",
+    "args": ["--from", "mcp[cli]", "--with", "playwright", "mcp", "run", "${CLAUDE_PLUGIN_ROOT}/youtube_ask_server.py"]
+  }
+}

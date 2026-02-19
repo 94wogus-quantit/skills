@@ -13,7 +13,7 @@ Claude Code를 확장하는 플러그인 컬렉션입니다. 핵심은 **워크�
 
 ### `.claude-plugin/marketplace.json`
 
-마켓플레이스 카탈로그. 8개 독립 플러그인의 메타데이터(이름, 설명, 소스 경로, 태그)를 정의합니다. 사용자가 `/marketplace` 명령으로 설치할 플러그인 목록을 결정합니다.
+마켓플레이스 카탈로그. 9개 독립 플러그인의 메타데이터(이름, 설명, 소스 경로, 태그)를 정의합니다. 사용자가 `/marketplace` 명령으로 설치할 플러그인 목록을 결정합니다.
 
 ### `plugins/wf/`
 
@@ -37,6 +37,14 @@ Sequential Thinking MCP. 체계적 단계별 사고를 위한 MCP 서버 래퍼.
 ### `plugins/atlassian/`, `plugins/slack/`, `plugins/github/`, `plugins/amplitude/`, `plugins/terraform/`
 
 각각 외부 서비스 통합 MCP 플러그인. `plugin.json` + `.mcp.json`으로 구성되며 스킬 없이 MCP 도구만 제공.
+
+### `plugins/ask-yt/`
+
+YouTube 내장 AI "질문하기(Ask)" CDP 자동화 플러그인. `youtube_ask_server.py` (Python Playwright MCP 서버) + `ask-yt` 스킬로 구성.
+
+- `youtube_ask_server.py` — FastMCP 서버. 3개 도구: `open_ask_panel` (패널 열기), `ask_video` (질문), `close_session` (종료). 글로벌 `_pw`/`_page` 상태로 멀티턴 대화 지원.
+- `skills/ask-yt/SKILL.md` — Chrome CDP 설정 가이드(Phase 0) 포함. URL+질문 → AI 응답 자동화 플로우.
+- `.mcp.json` — `uvx --from mcp[cli] --with playwright mcp run` 패턴으로 실행. `--with playwright` 필수.
 
 ### `changelogs/`
 

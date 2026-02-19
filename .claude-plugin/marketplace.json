@@ -75,6 +75,14 @@
       "source": "./plugins/github",
       "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/github",
       "tags": ["github", "repository", "issue", "pull-request", "git"]
+    },
+    {
+      "name": "ask-yt",
+      "description": "YouTube 내장 AI(Ask/질문하기) CDP 자동화 - URL + 질문 → Gemini AI 응답 (Playwright 기반)",
+      "category": "productivity",
+      "source": "./plugins/ask-yt",
+      "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/ask-yt",
+      "tags": ["youtube", "ai", "ask", "cdp", "playwright", "gemini"]
     }
   ]
 }

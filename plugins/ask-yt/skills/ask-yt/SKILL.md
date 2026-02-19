@@ -184,158 +184,319 @@ args:
 
 **On connection error** → immediately run Phase 0 (automated setup), then retry `open_ask_panel`.
 
+**After successful open_ask_panel**, initialize the JSONL log file using Bash:
+
+```bash
+python3 -c "
+import re, json, sys
+url = sys.argv[1]
+video_id = re.search(r'[?&]v=([^&]+)', url).group(1)
+filename = f'YT_{video_id}_raw.jsonl'
+open(filename, 'w').close()  # truncate/create fresh
+print(filename)
+" "<YouTube URL>"
+```
+
+Save the returned filename (e.g. `YT_EQ-Rnx-k-Ec_raw.jsonl`) — use it in every Phase 4 append step.
+
 ---
 
-## Phase 3: Deep-Dive Questioning Loop
+## Phase 3: Complete Video Dissection
 
-Execute a chain questioning strategy: **every answer seeds the next question**. Do NOT ask generic questions — always base the next question on specific content from the previous answer.
+**Goal**: Ask enough questions that someone who reads the final document does NOT need to watch the video. Cover every section, every claim, every example, every demo.
 
-### Step 3-1: Opening (2 questions)
+Target: **25–30 questions** total. Run autonomously without waiting for user input.
 
-Ask these two questions first to map the territory:
+---
 
-1. `이 영상의 핵심 내용을 전체적으로 요약해줘` — broad map of the video
-2. Based on the summary answer: pick the **single most surprising or counterintuitive claim** and ask specifically about it
+### Step 3-1: Structure Mapping (ALWAYS ask these 2 first)
 
-### Step 3-2: Answer Analysis (run after EVERY answer)
+**Q1 — Full outline:**
+```
+이 영상의 전체 목차를 타임스탬프와 함께 알려줘.
+주요 섹션, 소주제, 각 섹션에서 다루는 핵심 내용을 빠짐없이 정리해줘.
+```
 
-After receiving each answer, extract:
+**Q2 — Speaker & context:**
+```
+발표자는 누구이고, 이 발표의 배경(행사명, 개최 맥락, 청중)은 무엇인지 알려줘.
+발표자의 전문성과 이 발표를 하게 된 계기도 포함해줘.
+```
 
-| Element | What to look for |
-|---------|-----------------|
-| **Named claim** | A specific assertion that could be challenged or expanded |
-| **Unexplained mechanism** | Something stated as fact but without "how" |
-| **Specific term/concept** | A named methodology, framework, or proper noun |
-| **Implied consequence** | An outcome mentioned but not fully explored |
-| **Chip hints** | The returned chips often signal important untouched topics |
+---
 
-Rank these by how much depth they could yield. Pick the TOP ONE and go to Step 3-3.
+### Step 3-2: Section-by-Section Excavation
 
-### Step 3-3: Follow-up Question Formulation
+From the outline in Q1, identify every major section. For EACH section, ask ALL of the following sub-questions (adapt wording to use exact section names):
 
-Formulate the next question using EXACT terms and quotes from the previous answer. Choose one pattern:
+**Sub-question A — Verbatim detail:**
+```
+[섹션명] 부분에서 발표자가 정확히 어떤 말을 했는지 최대한 자세히 알려줘.
+구체적인 발언, 예시, 비유, 스토리를 모두 포함해서 설명해줘.
+```
 
-| Pattern | Template |
-|---------|----------|
-| **Mechanism** | `앞서 "[exact term]"을 언급했는데, 이게 실제로 어떻게 동작하는지 메커니즘을 구체적으로 설명해줘` |
-| **Evidence** | `"[specific claim]"의 구체적인 수치, 사례, 또는 실험 결과가 있어?` |
-| **Implication** | `[concept]이 실제 [개발자/기업/학생]에게 어떤 구체적인 변화를 요구하는지 설명해줘` |
-| **Counter** | `[claim]에 반하는 사례나 이 주장의 한계는 어떤 게 있어?` |
-| **Connection** | `앞서 말한 [topic A]와 [topic B]가 실제로 어떻게 연결되는지 설명해줘` |
-| **Drill-down** | `[specific sub-topic from answer]에 대해 훨씬 더 자세히 설명해줘` |
+**Sub-question B — Data & evidence:**
+```
+[섹션명]에서 언급된 구체적인 수치, 통계, 사례, 실험 결과가 있으면 전부 알려줘.
+```
 
-**NEVER ask a question already answered. NEVER ask a generic question like "더 설명해줘" without anchoring to specific content.**
+**Sub-question C — Demos & visuals (if applicable):**
+```
+[섹션명]에서 화면에 보여준 시연, 코드, 다이어그램, 또는 실시간 데모가 있었으면 설명해줘.
+```
 
-### Step 3-4: Loop Termination
+Skip Sub-question C if the section clearly has no demo/visual component.
 
-Stop the loop when:
-- **12+ questions asked** AND all major themes have at least one deep-dive follow-up, OR
-- **Hard limit: 15 questions**
-- Last 2 consecutive answers yielded no new concepts (diminishing returns)
+---
+
+### Step 3-3: Cross-Cutting Deep Dives
+
+After all sections are covered, ask these regardless of topic:
+
+**Terminology sweep:**
+```
+이 영상에서 발표자가 새롭게 정의하거나 독특하게 사용한 용어나 개념이 있어?
+각각 발표자의 정의를 그대로 설명해줘.
+```
+
+**Most controversial claim:**
+```
+이 영상에서 가장 논쟁적이거나 반직관적인 주장은 무엇이고,
+발표자는 그 근거로 무엇을 제시했어?
+```
+
+**Audience Q&A (if exists):**
+```
+발표 후 청중 질문이나 Q&A 세션이 있었어? 있었다면 어떤 질문과 답변이 오갔는지 알려줘.
+```
+
+**Completeness check:**
+```
+지금까지 내가 묻지 않은 중요한 내용이 이 영상에 남아 있어?
+있다면 무엇인지 알려줘.
+```
+
+---
+
+### Step 3-4: Chain Follow-ups (run after EVERY answer throughout)
+
+After each answer, scan for these and immediately ask if found:
+
+| Trigger | Follow-up pattern |
+|---------|-------------------|
+| Named tool/product/company | `"[name]"이 구체적으로 무엇인지, 어떻게 작동하는지 설명해줘` |
+| Number/stat without context | `"[stat]"이라는 수치의 출처와 의미를 더 자세히 설명해줘` |
+| "~하면 된다" without how | `"[claim]"을 실제로 어떻게 하는지 단계별로 설명해줘` |
+| Comparison A vs B | `[A]와 [B]의 차이를 더 구체적으로 설명해줘. 언제 어떤 걸 선택해야 해?` |
+| Failure/risk mentioned | `[failure case]가 실제로 발생한 사례나 그 원인을 더 자세히 설명해줘` |
+| Chips signal new topic | Use the chip text as the basis for a targeted question |
+
+**Rules:**
+- Use EXACT quotes and terms from the previous answer — never ask generically
+- Never re-ask something already answered
+- Chain follow-ups take priority over moving to the next section if an answer raises something significant
+
+---
+
+### Step 3-5: Termination
+
+Stop when:
+- All sections from the outline are excavated AND cross-cutting questions are done, OR
+- **Hard limit: 30 questions**
 
 On termination → call `close_session` → proceed to **Phase 5**.
 
 ---
 
-## Phase 4: Display & Loop
+## Phase 4: Display, Append & Loop
 
 After each `ask_video` call:
 
-1. Show the answer to the user in this compact format:
+**Step 4-1: Show answer to user**
 
-```markdown
+```
 **[Q{n}]** {question}
 
 {answer}
 ```
 
-2. Immediately return to **Phase 3, Step 3-2** to analyze and formulate the next question.
-3. Do NOT wait for user input between questions — keep the chain moving autonomously.
-4. When the termination condition in Step 3-4 is met, call `close_session` and proceed to Phase 5.
+**Step 4-2: Append to JSONL immediately**
+
+Run this Bash command right after displaying the answer (replace `{n}`, `{question}`, `{answer}`, `{chips_json}`, `{jsonl_file}` with actual values):
+
+```bash
+python3 - <<'PYEOF'
+import json
+
+entry = {
+    "q_num": {n},
+    "question": {question_as_json_string},
+    "answer": {answer_as_json_string},
+    "chips": {chips_as_json_array}
+}
+with open("{jsonl_file}", "a", encoding="utf-8") as f:
+    f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+print(f"Q{n} 저장 완료")
+PYEOF
+```
+
+- `{question_as_json_string}`: the question string wrapped in `json.dumps()` style (properly escaped)
+- `{answer_as_json_string}`: the answer string properly escaped
+- `{jsonl_file}`: the filename initialized in Phase 2
+
+**Step 4-3: Loop**
+
+Immediately return to Phase 3 (Step 3-2 or 3-4) to determine the next question. Do NOT wait for user input. Keep the chain running autonomously until the termination condition.
 
 ---
 
-## Phase 5: Generate Insight Document
+## Phase 5: Generate Complete Video Report
 
-After closing the session, compile all Q&A into a structured insight document.
+After closing the session, read the JSONL log and write a document comprehensive enough to **fully replace watching the video**.
 
-**Step 5-1: Determine file name**
+**Step 5-1: Read all Q&A from JSONL**
 
-Extract the video ID from the URL:
-
-```python
-import re
-video_id = re.search(r'[?&]v=([^&]+)', url).group(1)
-filename = f"YT_{video_id}_INSIGHTS.md"
+```bash
+python3 -c "
+import json
+with open('{jsonl_file}', encoding='utf-8') as f:
+    entries = [json.loads(line) for line in f if line.strip()]
+print(f'총 {len(entries)}개 Q&A 로드됨')
+for e in entries:
+    print(f\"Q{e['q_num']}: {e['question'][:60]}...\")
+"
 ```
 
-**Step 5-2: Write the document**
+Verify all entries are present. If any are missing, re-ask those questions via `ask_video` and append manually.
 
-Use the Write tool to create `{filename}` in the current working directory.
+**Step 5-2: Determine report filename**
+
+```bash
+python3 -c "
+import re, sys
+url = sys.argv[1]
+video_id = re.search(r'[?&]v=([^&]+)', url).group(1)
+print(f'YT_{video_id}_REPORT.md')
+" "<YouTube URL>"
+```
+
+**Step 5-3: Write the document**
+
+Use the Write tool to create `{report_filename}` in the current working directory. Use ALL entries from the JSONL — never truncate or summarize Q&A content.
 
 **문서 형식**:
 
-```markdown
-# YouTube AI 인사이트
+````markdown
+# {영상 제목} — 완전 해설
 
 > **영상**: {url}
-> **일시**: {YYYY-MM-DD}
-> **질문 수**: {n}개 (심층 체인 질문)
+> **발표자**: {speaker name & title}
+> **행사**: {event name & date if known}
+> **작성일**: {YYYY-MM-DD}
+> **분석 질문 수**: {n}개
 
 ---
 
-## Q1. {question_1}
+## 한눈에 보기 (Executive Summary)
 
-{answer_1}
-
----
-
-## Q2. {question_2}
-
-{answer_2}
-
-(모든 Q&A 쌍 포함 — 생략하지 말 것)
+{영상 전체를 3-5 단락으로 압축. 발표의 핵심 주장, 근거, 결론을 포함.
+이 섹션만 읽어도 발표의 80%를 파악할 수 있어야 함.}
 
 ---
 
-## 핵심 주제별 인사이트
+## 목차
 
-### {주제 1: 자동 추출}
-{주제 1에 해당하는 Q&A들을 종합한 심층 분석, 2-4 단락}
+{Q1에서 얻은 타임스탬프 기반 목차를 그대로 재현}
 
-### {주제 2}
+---
+
+## 발표자 & 배경
+
+{Q2 내용. 발표자 소개, 행사 맥락, 발표 동기}
+
+---
+
+## 섹션별 상세 해설
+
+### 1. {섹션명} ({timestamp 범위})
+
+{해당 섹션의 Sub-question A~C 답변을 통합하여 서술.
+발표자의 발언을 최대한 재현하되 읽기 쉽게 구조화.
+구체적 수치, 예시, 비유를 모두 포함.
+데모가 있었으면 "[시연]" 블록으로 표시.}
+
+> **[시연]** {데모 내용 설명}
+
+### 2. {섹션명} ({timestamp 범위})
+
 {...}
 
-(주요 주제 3-5개)
+(모든 섹션 빠짐없이 포함)
+
+---
+
+## 핵심 용어 사전
+
+| 용어 | 발표자의 정의 |
+|------|-------------|
+| {term 1} | {definition} |
+| {term 2} | {definition} |
+
+---
+
+## 가장 논쟁적인 주장
+
+> **주장**: {controversial claim 원문}
+
+**발표자의 근거:**
+{evidence provided}
+
+**비판적 고려:**
+{limitations or counterpoints surfaced during questioning}
+
+---
+
+## Q&A 세션 요약
+
+{청중 질문이 있었으면 Q&A 형식으로 재현. 없으면 이 섹션 생략.}
 
 ---
 
 ## 실전 적용 가이드
 
-- **당장 할 수 있는 것**: {즉시 실행 가능한 액션 3개}
-- **중기적으로 바꿔야 할 것**: {3-6개월 내 변화 2-3개}
-- **장기적으로 고려할 것**: {큰 방향성 1-2개}
+### 즉시 실행 (오늘부터)
+- {액션 1}
+- {액션 2}
+- {액션 3}
+
+### 중기 변화 (1-6개월)
+- {변화 1}
+- {변화 2}
+
+### 큰 방향성 (장기)
+- {방향 1}
 
 ---
 
-## 핵심 명언 & 개념
+## 핵심 명언
 
-> "{영상에서 나온 인상적인 발언 1}"
+> "{exact quote 1}" — {speaker}
 
-> "{인상적인 발언 2}"
+> "{exact quote 2}" — {speaker}
 
-- **[핵심 개념 1]**: {한 줄 정의}
-- **[핵심 개념 2]**: {한 줄 정의}
-```
+---
+
+## 남은 질문들
+
+{영상에서 다루지 않았거나 답하지 않은 중요한 질문들. 시청자가 추가로 탐구할 주제.}
+````
 
 **Rules:**
-- Include ALL Q&A pairs verbatim — do NOT summarize or truncate them
-- Omit chip suggestions (UI artifacts)
-- "핵심 주제별 인사이트": group related Q&As by theme and synthesize — this is the main analytical value
-- "실전 적용 가이드": concrete, actionable — no vague statements
-- "핵심 명언 & 개념": extract exact quotes and define key terms introduced in the video
-- If fewer than 3 questions were asked, omit everything except Q&A pairs and a brief 종합 인사이트 section
+- 섹션별 상세 해설: 발표자의 실제 발언을 최대한 재현 — 요약이 아니라 재현
+- 수치·사례·비유 전부 포함, 절대 생략하지 말 것
+- Chip 제안은 문서에 포함하지 않음 (UI artifact)
+- 질문이 3개 미만이면 이 포맷 대신 단순 Q&A 나열로 대체
 
 **Step 5-3: Notify user**
 
-Tell the user: `📄 인사이트 문서가 저장되었습니다: {filename}`
+Tell the user: `📄 영상 완전 해설 문서가 저장되었습니다: {filename}`

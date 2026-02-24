@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, GitLab MR, Sequential Thinking, Terraform, Amplitude, Slack, Atlassian, GitHub (한국어 기본)",
-    "version": "3.27.0",
+    "version": "3.28.0",
     "repository": "https://github.com/94wogus-quantit/wogus-plugin",
     "homepage": "https://github.com/94wogus-quantit/wogus-plugin#readme",
     "license": "Private"
@@ -83,6 +83,14 @@
       "source": "./plugins/ask-yt",
       "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/ask-yt",
       "tags": ["youtube", "ai", "ask", "cdp", "playwright", "gemini"]
+    },
+    {
+      "name": "notify",
+      "description": "Claude Code 작업 완료 및 interaction 필요 시 macOS 음성+팝업 알림 (TTS + osascript, macOS 전용)",
+      "category": "productivity",
+      "source": "./plugins/notify",
+      "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/notify",
+      "tags": ["notification", "tts", "voice", "macos", "alert", "hook"]
     }
   ]
 }

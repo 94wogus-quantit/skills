@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.27.0):**
+**Key Artifacts (v3.28.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -24,9 +24,9 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.27.0)
+wogus-plugin/  (v3.28.0)
 ├── .claude-plugin/
-│   └── marketplace.json       # 카탈로그 (9 plugins)
+│   └── marketplace.json       # 카탈로그 (10 plugins)
 │
 ├── plugins/                   # 모든 플러그인
 │   ├── wf/                    # 메인 워크플로우 플러그인
@@ -45,7 +45,8 @@ wogus-plugin/  (v3.27.0)
 │   ├── slack/
 │   ├── atlassian/
 │   ├── github/                # GitHub MCP (v3.14.0)
-│   └── ask-yt/                # YouTube Ask CDP 자동화 (v3.27.0 NEW)
+│   ├── ask-yt/                # YouTube Ask CDP 자동화 (v3.27.0)
+│   └── notify/                # macOS 알림 + TTS 훅 플러그인 (v3.28.0 NEW)
 │
 ├── ARCHITECTURE.md      # High-level codebase mental map (matklad pattern)
 ├── CLAUDE.md            # This file
@@ -189,9 +190,9 @@ Claude Code Marketplace로 배포. 9개 독립 플러그인 (wf, glmr, seq-think
 
 | 버전 | 변경 요약 |
 |------|----------|
+| v3.28.0 | notify 플러그인 신규 추가: macOS 음성+팝업 알림 (Stop + Notification 훅, 훅 전용 플러그인 첫 사례) |
 | v3.27.0 | ask-yt 플러그인 신규 추가: YouTube 내장 AI(Ask/질문하기) CDP 자동화 |
 | v3.26.0 | ralph-loop 통합 + auto-recovery: plan/execute 스킬 자동화 대폭 개선 |
-| v3.25.0 | record 스킬 ARCHITECTURE.md 지원 추가 (matklad 패턴) |
 
 상세 내용은 [docs/architecture/decisions/](docs/architecture/decisions/) 참조.
 이전 버전 ADR (v1.x ~ v3.17.0)도 동일 디렉토리에서 확인 가능.
@@ -328,10 +329,10 @@ mcp__plugin_slack_slack__conversations_replies(
 
 ## Notes
 
-- **Current version**: v3.27.0 (ask-yt 플러그인 신규 추가: YouTube 내장 AI CDP 자동화)
+- **Current version**: v3.28.0 (notify 플러그인 신규 추가: macOS 음성+팝업 알림)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
-- **glmr/terraform/amplitude/slack/atlassian/github/ask-yt**: 독립 플러그인
+- **glmr/terraform/amplitude/slack/atlassian/github/ask-yt/notify**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치
 - All skills and agents designed for Korean language output
 - Reference files loaded on-demand to manage context efficiently

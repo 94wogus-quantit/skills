@@ -1,0 +1,9 @@
+{
+  "name": "notify",
+  "version": "1.0.0",
+  "description": "Claude Code 작업 완료 및 interaction 필요 시 macOS 음성+팝업 알림 (Stop + Notification 훅)",
+  "author": {
+    "name": "94wogus",
+    "email": "94wogus@quantit.io"
+  }
+}

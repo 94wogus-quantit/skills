@@ -114,7 +114,8 @@ Register the following Phases in order using `TaskCreate`:
 
 - On Phase entry: `TaskUpdate(taskId, status: "in_progress")`
 - On Phase completion: `TaskUpdate(taskId, status: "completed")`
-- Only **one Phase** should be `in_progress` at any time
+- Phases 1, 2, 10, 11 run **sequentially** (one at a time)
+- **Phases 3-9 run in parallel** — launched simultaneously as Task tool calls in Phase 2.5
 
 ---
 
@@ -267,9 +268,82 @@ mcp__plugin_seq-think_st__sequentialthinking({
 
 ---
 
+### Phase 2.5: Launch Parallel Documentation Tasks
+
+> 📋 This is a coordination step — not a tracked Task. Launches Phases 3-9 simultaneously.
+
+**Objective**: After Phase 2 completes, spawn Phases 3-9 as parallel subagents in a **single message** with 7 Task tool calls.
+
+#### Prepare Shared Context
+
+Before launching, assemble a context summary from Phase 2 artifacts:
+
+```
+- artifact_paths: list of REPORT/PLAN file paths found
+- changes_summary: what was implemented/fixed (from artifacts)
+- version: new version string (if applicable)
+- jira_id: JIRA issue ID (if found, else empty)
+- project_root: absolute path to project root
+```
+
+#### Launch All 7 Tasks Simultaneously
+
+Call all 7 Task tool calls **in a single message** (no waiting between calls):
+
+```
+Task(subagent_type=general-purpose, name="phase3-readme"):
+  "Execute Phase 3 (README Update) of the wf:record skill.
+   Context: {context_summary}
+   Instructions: Read SKILL.md Phase 3 section. Mark Phase 3 task in_progress,
+   update README.md with new features/API/config, mark completed."
+
+Task(subagent_type=general-purpose, name="phase4-architecture"):
+  "Execute Phase 4 (ARCHITECTURE.md Update) of the wf:record skill.
+   Context: {context_summary}
+   Instructions: Read SKILL.md Phase 4 section. Mark Phase 4 task in_progress,
+   create or update ARCHITECTURE.md using matklad pattern, mark completed."
+
+Task(subagent_type=general-purpose, name="phase5-changelog"):
+  "Execute Phase 5 (CHANGELOG Update) of the wf:record skill.
+   Context: {context_summary}
+   Instructions: Read SKILL.md Phase 5 section. Mark Phase 5 task in_progress,
+   add new entry to CHANGELOG.md in Keep a Changelog format, mark completed."
+
+Task(subagent_type=general-purpose, name="phase6-claude"):
+  "Execute Phase 6 (CLAUDE Documentation Update) of the wf:record skill.
+   Context: {context_summary}
+   Instructions: Read SKILL.md Phase 6 section. Mark Phase 6 task in_progress,
+   update CLAUDE.md with architecture decisions and troubleshooting guides, mark completed."
+
+Task(subagent_type=general-purpose, name="phase7-serena"):
+  "Execute Phase 7 (Serena Memory Update) of the wf:record skill.
+   Context: {context_summary}
+   Instructions: Read SKILL.md Phase 7 section. Mark Phase 7 task in_progress,
+   write architecture_decisions/known_issues/code_patterns/dependencies/testing memories, mark completed."
+
+Task(subagent_type=general-purpose, name="phase8-jira"):
+  "Execute Phase 8 (JIRA Issue Update) of the wf:record skill.
+   Context: {context_summary}, jira_id: {jira_id}
+   Instructions: Read SKILL.md Phase 8 section. Skip if no jira_id.
+   Mark Phase 8 task in_progress, add JIRA comment, mark completed."
+
+Task(subagent_type=general-purpose, name="phase9-additional"):
+  "Execute Phase 9 (Additional Documentation) of the wf:record skill.
+   Context: {context_summary}
+   Instructions: Read SKILL.md Phase 9 section. Mark Phase 9 task in_progress,
+   create migration guide/API docs only if breaking changes exist, mark completed."
+```
+
+#### Wait and Proceed
+
+After all 7 Tasks return, proceed to **Phase 10: Verification**.
+
+---
+
 ### Phase 3: README Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+> ⚡ **Parallel**: Runs as a subagent launched from Phase 2.5.
 
 **Objective**: Add new features, API, settings, etc. to README.
 
@@ -369,6 +443,7 @@ Edit({
 ### Phase 4: ARCHITECTURE.md Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+> ⚡ **Parallel**: Runs as a subagent launched from Phase 2.5.
 
 **Objective**: Create or update the project's ARCHITECTURE.md — a high-level "mental map" of the codebase for developers.
 
@@ -505,6 +580,7 @@ Before completing this phase, verify:
 ### Phase 5: CHANGELOG Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+> ⚡ **Parallel**: Runs as a subagent launched from Phase 2.5.
 
 **Objective**: Add change history to CHANGELOG in Keep a Changelog format.
 
@@ -570,6 +646,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/ko/).
 ### Phase 6: CLAUDE Documentation Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+> ⚡ **Parallel**: Runs as a subagent launched from Phase 2.5.
 
 **Objective**: Add architecture decisions and troubleshooting guides to CLAUDE documentation.
 
@@ -623,6 +700,7 @@ mcp__plugin_serena_serena__find_file({
 ### Phase 7: Serena Memory Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+> ⚡ **Parallel**: Runs as a subagent launched from Phase 2.5.
 
 **Objective**: Save technical insights to Serena memory.
 
@@ -736,6 +814,7 @@ mcp__plugin_serena_serena__write_memory({
 ### Phase 8: JIRA Issue Update
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+> ⚡ **Parallel**: Runs as a subagent launched from Phase 2.5.
 
 **Objective**: Summarize implementation completion and add comments to JIRA issue.
 
@@ -907,6 +986,7 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 ### Phase 9: Additional Documentation
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+> ⚡ **Parallel**: Runs as a subagent launched from Phase 2.5.
 
 **Objective**: Create additional documentation as needed.
 
@@ -956,6 +1036,7 @@ mcp__plugin_atlassian_atlassian__jira_transition_issue({
 ### Phase 10: Verification and Quality Check
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+> ⏳ **Sequential**: Runs only after ALL Phase 3-9 parallel Tasks have completed.
 
 **Objective**: Verify documentation quality.
 

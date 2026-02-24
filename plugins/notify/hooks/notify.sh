@@ -90,11 +90,23 @@ import json, sys, re
 transcript_path = sys.argv[1]
 result = ''
 
+def first_sentence(text):
+    text = text.strip()
+    # 첫 문장 추출: . ! ? 。 로 끝나는 부분까지 (최소 10자, 최대 150자)
+    m = re.search(r'^(.{10,150}?[.!?。])\s', text)
+    if m:
+        return m.group(1)
+    # 줄바꿈으로 자르기
+    lines = [l.strip() for l in text.split('\n') if l.strip()]
+    if lines:
+        return lines[0][:150]
+    return text[:150]
+
 try:
     with open(transcript_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # JSONL 형식 시도 (role/content 구조)
+    # JSONL 형식 시도 (Claude Code transcript 형식: type='assistant', message.content)
     lines = content.strip().split('\n')
     for line in reversed(lines):
         line = line.strip()
@@ -102,17 +114,23 @@ try:
             continue
         try:
             d = json.loads(line)
-            role = d.get('role', '')
-            if role == 'assistant':
+            # Claude Code 형식: {type:'assistant', message:{role:'assistant', content:[...]}}
+            if d.get('type') == 'assistant':
+                msg = d.get('message', {})
+                c = msg.get('content', '')
+            # 구형 형식: {role:'assistant', content:[...]} (fallback)
+            elif d.get('role') == 'assistant':
                 c = d.get('content', '')
-                if isinstance(c, list):
-                    for block in c:
-                        if isinstance(block, dict) and block.get('type') == 'text':
-                            c = block.get('text', '')
-                            break
-                if isinstance(c, str) and len(c) > 10:
-                    result = c[:200]
-                    break
+            else:
+                continue
+            if isinstance(c, list):
+                for block in c:
+                    if isinstance(block, dict) and block.get('type') == 'text':
+                        c = block.get('text', '')
+                        break
+            if isinstance(c, str) and len(c) > 10:
+                result = first_sentence(c)
+                break
         except json.JSONDecodeError:
             continue
 
@@ -120,7 +138,7 @@ try:
     if not result:
         matches = re.findall(r'(?:Assistant|Claude)[:：]\s*(.+?)(?:\n\n|\Z)', content, re.DOTALL)
         if matches:
-            result = matches[-1].strip()[:200]
+            result = first_sentence(matches[-1].strip())
 
 except Exception:
     pass

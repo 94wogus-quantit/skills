@@ -7,7 +7,7 @@
 
 ## Bird's Eye View
 
-Claude Code를 확장하는 플러그인 컬렉션입니다. 핵심은 **워크플로우 스킬**(analyze → plan → execute → record)로, 이슈 분석부터 문서화까지 소프트웨어 개발의 전체 사이클을 체계적으로 자동화합니다. 워크플로우 외에도 GitLab, JIRA, Slack 등 외부 서비스 통합을 위한 MCP 플러그인을 제공합니다.
+Claude Code를 확장하는 플러그인 컬렉션입니다. 핵심은 **워크플로우 스킬**(analyze → plan → execute → record)로, 이슈 분석부터 문서화까지 소프트웨어 개발의 전체 사이클을 체계적으로 자동화합니다. 워크플로우 외에도 GitLab, JIRA 등 외부 서비스 통합을 위한 MCP 플러그인을 제공합니다.
 
 ## Code Map
 
@@ -34,7 +34,7 @@ GitLab MR 관리 플러그인. CI/CD MCP(12개 도구) + 2개 스킬(`mr-review`
 
 Sequential Thinking MCP. 체계적 단계별 사고를 위한 MCP 서버 래퍼.
 
-### `plugins/atlassian/`, `plugins/slack/`, `plugins/github/`, `plugins/amplitude/`, `plugins/terraform/`
+### `plugins/atlassian/`, `plugins/github/`, `plugins/amplitude/`, `plugins/terraform/`
 
 각각 외부 서비스 통합 MCP 플러그인. `plugin.json` + `.mcp.json`으로 구성되며 스킬 없이 MCP 도구만 제공.
 

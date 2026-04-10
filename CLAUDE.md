@@ -42,7 +42,6 @@ wogus-plugin/  (v3.28.0)
 │   ├── seq-think/             # Sequential Thinking MCP
 │   ├── terraform/
 │   ├── amplitude/
-│   ├── slack/
 │   ├── atlassian/
 │   ├── github/                # GitHub MCP (v3.14.0)
 │   ├── ask-yt/                # YouTube Ask CDP 자동화 (v3.27.0)
@@ -162,7 +161,7 @@ Skills work alongside custom commands in `~/.claude/commands/` for seamless work
 
 ## Marketplace Distribution
 
-Claude Code Marketplace로 배포. 9개 독립 플러그인 (wf, glmr, seq-think, terraform, amplitude, slack, atlassian, github, ask-yt).
+Claude Code Marketplace로 배포. 9개 독립 플러그인 (wf, glmr, seq-think, terraform, amplitude, atlassian, github, ask-yt, notify).
 설치 및 배포 방법은 [README.md](README.md) 참조.
 
 ## Development Best Practices
@@ -274,65 +273,12 @@ record → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 
 ---
 
-## Slack MCP Usage
-
-### Critical: content_type Setting
-
-**Always use `text/plain`** for Slack messages (never `text/markdown`):
-
-```python
-mcp__plugin_slack_slack__conversations_add_message(
-    channel_id="CHANNEL_ID",
-    payload="Message with <@USER_ID> mention",
-    content_type="text/plain"  # REQUIRED for mentions to work
-)
-```
-
-**Warning**: If `content_type` is omitted or set to `text/markdown`, `<@USER_ID>` format gets escaped and mentions won't work.
-
-### Slack Formatting
-
-| Element | Format | Example |
-|---------|--------|---------|
-| User mention | `<@USER_ID>` | `<@U08P1RR2996>` |
-| Team mention | `<!subteam^ID>` | `<!subteam^S04D8GC39F0>` |
-| Channel link | `<#CHANNEL_ID>` | `<#C0518DH4DHU>` |
-| URL with text | `<URL\|display>` | `<https://example.com\|링크>` |
-
-### Message Template Example
-
-```
-cc <!subteam^TEAM_ID>
-
-[Project] Task Title (JIRA-XXX)
-
-Description here
-
-Key Points:
-• Item 1
-• Item 2
-
-JIRA: <https://atlassian.net/browse/XXX|JIRA-XXX>
-PR: <https://github.com/org/repo/pull/123|PR#123>
-```
-
-### Check Thread Replies
-
-```python
-mcp__plugin_slack_slack__conversations_replies(
-    channel_id="CHANNEL_ID",
-    thread_ts="message_timestamp"
-)
-```
-
----
-
 ## Notes
 
 - **Current version**: v3.28.0 (notify 플러그인 신규 추가: macOS 음성+팝업 알림)
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
-- **glmr/terraform/amplitude/slack/atlassian/github/ask-yt/notify**: 독립 플러그인
+- **glmr/terraform/amplitude/atlassian/github/ask-yt/notify**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치
 - All skills and agents designed for Korean language output
 - Reference files loaded on-demand to manage context efficiently

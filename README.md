@@ -8,7 +8,7 @@ Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를
 
 - **🤖 Skills**: AI 기반 워크플로우 오케스트레이터 (분석, 계획, 실행, 문서화 등)
 - **🔧 Agents**: AC (Acceptance Criteria) 추적 자동화 (requirement-validator)
-- **🔗 MCP Servers**: 외부 도구/서비스 통합 (seq-think, terraform, amplitude, slack, atlassian, github)
+- **🔗 MCP Servers**: 외부 도구/서비스 통합 (seq-think, terraform, amplitude, atlassian, github)
 
 이 저장소는 **Skills + Agents + MCP Servers**를 제공합니다.
 
@@ -71,7 +71,6 @@ glab mr create --title "feat: JIRA-123 구현"
    # 또는 개별 MCP만
    /plugin install wogus-plugins:terraform
    /plugin install wogus-plugins:amplitude
-   /plugin install wogus-plugins:slack
    /plugin install wogus-plugins:atlassian
    /plugin install wogus-plugins:github
 
@@ -110,9 +109,6 @@ glab mr create --title "feat: JIRA-123 구현"
        // Amplitude - 사용자 행동 분석
        "AMPLITUDE_API_KEY": "your-amplitude-api-key-here",
 
-       // Slack - 메시지 검색/히스토리
-       "SLACK_BOT_TOKEN": "xoxb-your-bot-token-here",
-
        // GitHub - 저장소/이슈/PR 관리
        "GITHUB_TOKEN": "ghp_your-personal-access-token-here"
      }
@@ -132,7 +128,6 @@ glab mr create --title "feat: JIRA-123 구현"
      - 3개 환경변수로 간단 설정: `ATLASSIAN_URL`, `ATLASSIAN_USERNAME`, `ATLASSIAN_API_TOKEN`
    - **terraform**: HashiCorp Terraform IaC 자동화 (별도 설정 불필요, Docker 필요)
    - **amplitude**: [Amplitude](https://amplitude.com)에서 API 키 발급 필요
-   - **slack**: [Slack API](https://api.slack.com/apps)에서 Bot 토큰 발급 필요
    - **github**: [GitHub Settings](https://github.com/settings/tokens)에서 Personal Access Token 발급 필요
 
 5. **MCP 서버 비활성화** (선택사항):
@@ -532,9 +527,8 @@ wogus-plugin/
 │   ├── glmr/                  # GitLab MR 관리 (7 skills)
 │   ├── terraform/
 │   ├── amplitude/
-│   ├── slack/
 │   ├── atlassian/
-│   └── github/                # GitHub MCP
+│   ├── github/                # GitHub MCP
 │   ├── ask-yt/                # YouTube Ask CDP 자동화
 │   └── notify/                # macOS 알림 + TTS 훅 플러그인 (NEW)
 │

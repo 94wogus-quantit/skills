@@ -5,7 +5,7 @@
     "email": "94wogus@quantit.io"
   },
   "metadata": {
-    "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, GitLab MR, Sequential Thinking, Terraform, Amplitude, Slack, Atlassian, GitHub (한국어 기본)",
+    "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, GitLab MR, Sequential Thinking, Terraform, Amplitude, Atlassian, GitHub (한국어 기본)",
     "version": "3.28.0",
     "repository": "https://github.com/94wogus-quantit/wogus-plugin",
     "homepage": "https://github.com/94wogus-quantit/wogus-plugin#readme",
@@ -52,15 +52,7 @@
       "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/amplitude",
       "tags": ["amplitude", "analytics", "data"]
     },
-    {
-      "name": "slack",
-      "description": "Slack 메시지 검색, 히스토리, 스레드 조회 MCP 서버",
-      "category": "communication",
-      "source": "./plugins/slack",
-      "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/slack",
-      "tags": ["slack", "messaging", "communication"]
-    },
-    {
+{
       "name": "atlassian",
       "description": "Jira 이슈 관리 및 Confluence 문서 연동 MCP 서버 (Self-hosted 지원)",
       "category": "productivity",

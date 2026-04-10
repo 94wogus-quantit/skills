@@ -1,7 +1,7 @@
 {
   "atlassian": {
     "command": "uvx",
-    "args": ["mcp-atlassian"],
+    "args": ["mcp-jira-confluence"],
     "env": {
       "JIRA_URL": "${ATLASSIAN_URL:-}",
       "JIRA_USERNAME": "${ATLASSIAN_USERNAME:-}",

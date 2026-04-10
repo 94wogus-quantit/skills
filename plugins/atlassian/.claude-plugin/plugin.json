@@ -1,7 +1,7 @@
 {
   "name": "atlassian",
-  "description": "Jira 이슈 관리 및 Confluence 문서 연동 MCP 서버 (Self-hosted 지원)",
+  "description": "Jira 이슈 관리 및 Confluence 문서 연동 MCP 서버 (mcp-jira-confluence)",
   "author": {
-    "name": "Atlassian"
+    "name": "mcp-jira-confluence"
   }
 }

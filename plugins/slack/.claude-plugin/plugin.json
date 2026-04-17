@@ -1,0 +1,7 @@
+{
+  "name": "slack",
+  "description": "Slack 메시지 검색, 히스토리, 스레드 조회 MCP 서버",
+  "author": {
+    "name": "Slack"
+  }
+}

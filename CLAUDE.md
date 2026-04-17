@@ -38,14 +38,11 @@ wogus-plugin/  (v3.28.0)
 │   │   │   └── record/
 │   │   └── agents/
 │   │       └── requirement-validator.md
-│   ├── glmr/                  # GitLab MR 관리
 │   ├── seq-think/             # Sequential Thinking MCP
 │   ├── terraform/
-│   ├── amplitude/
 │   ├── atlassian/
 │   ├── github/                # GitHub MCP (v3.14.0)
-│   ├── ask-yt/                # YouTube Ask CDP 자동화 (v3.27.0)
-│   └── notify/                # macOS 알림 + TTS 훅 플러그인 (v3.28.0 NEW)
+│   └── slack/                 # Slack MCP
 │
 ├── ARCHITECTURE.md      # High-level codebase mental map (matklad pattern)
 ├── CLAUDE.md            # This file
@@ -161,7 +158,7 @@ Skills work alongside custom commands in `~/.claude/commands/` for seamless work
 
 ## Marketplace Distribution
 
-Claude Code Marketplace로 배포. 9개 독립 플러그인 (wf, glmr, seq-think, terraform, amplitude, atlassian, github, ask-yt, notify).
+Claude Code Marketplace로 배포. 6개 독립 플러그인 (wf, seq-think, terraform, atlassian, github, slack).
 설치 및 배포 방법은 [README.md](README.md) 참조.
 
 ## Development Best Practices
@@ -254,11 +251,6 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 - `get_current_branch`, `check_branch_protection`, `create_feature_branch`
 - `git_status`, `git_add`, `git_commit`, `git_diff`, `git_push`, `git_squash`
 
-**CI MCP (glmr 포함):**
-- `ci_status`, `ci_list`, `ci_jobs`, `ci_trace`
-- `ci_cancel_job`, `ci_cancel_pipeline`, `ci_trigger_job`, `ci_run`, `ci_retry_job`
-- `mr_get`, `mr_discussions`, `mr_resolve_discussion`
-
 ### Workflow Summary
 
 ```
@@ -275,10 +267,10 @@ record → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 
 ## Notes
 
-- **Current version**: v3.28.0 (notify 플러그인 신규 추가: macOS 음성+팝업 알림)
+- **Current version**: v3.28.0
 - **wf**: 4 skills + agent + git MCP (12개 도구)
 - **seq-think**: 별도 MCP 플러그인
-- **glmr/terraform/amplitude/atlassian/github/ask-yt/notify**: 독립 플러그인
+- **terraform/atlassian/github/slack**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치
 - All skills and agents designed for Korean language output
 - Reference files loaded on-demand to manage context efficiently

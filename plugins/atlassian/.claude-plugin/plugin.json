@@ -1,7 +1,7 @@
 {
   "name": "atlassian",
-  "description": "Jira 이슈 관리 및 Confluence 문서 연동 MCP 서버 (mcp-jira-confluence)",
+  "description": "Jira 이슈 관리 및 Confluence 문서 연동 MCP 서버 (sooperset/mcp-atlassian, 72 tools)",
   "author": {
-    "name": "mcp-jira-confluence"
+    "name": "sooperset"
   }
 }

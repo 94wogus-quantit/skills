@@ -1,0 +1,10 @@
+{
+  "slack": {
+    "command": "npx",
+    "args": ["-y", "slack-mcp-server@latest", "--transport", "stdio"],
+    "env": {
+      "SLACK_MCP_XOXB_TOKEN": "${SLACK_BOT_TOKEN:-}",
+      "SLACK_MCP_ADD_MESSAGE_TOOL": "true"
+    }
+  }
+}

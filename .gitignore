@@ -66,6 +66,9 @@ build/
 docs/_build/
 site/
 
+# Playwright MCP artifacts
+.playwright-mcp/
+
 # claude code artifacts
 *_REPORT*.md
 *_PLAN*.md

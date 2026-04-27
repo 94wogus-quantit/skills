@@ -76,9 +76,6 @@ glab mr create --title "feat: JIRA-123 구현"
 
    # YouTube Ask AI 자동화
    /plugin install wogus-plugins:ask-yt
-
-   # macOS 알림 + TTS (작업 완료 및 확인 요청 시 알림)
-   /plugin install wogus-plugins:notify
    ```
 
 3. 설치 확인:
@@ -406,37 +403,6 @@ YouTube 내장 AI "질문하기(Ask)" 기능을 CDP(Playwright) 기반으로 자
 
 > 상세 설정 가이드는 [plugins/ask-yt/README.md](plugins/ask-yt/README.md) 참조.
 
-## 🔔 notify: macOS 알림 + TTS
-
-Claude Code 작업 완료(`Stop`) 또는 사용자 확인 요청(`Notification`) 시 macOS 팝업 알림과 음성(TTS)을 자동 발송합니다.
-
-**주요 기능:**
-- **작업 완료 알림**: Claude 작업 종료 시 "Glass" 사운드 + 팝업 + 한국어 음성
-- **확인 요청 알림**: Claude 확인 요청 시 "Ping" 사운드 + 팝업 + 음성
-- **내용 담긴 음성**: 단순 "완료" 대신 실제 작업 내용을 4단계 fallback으로 추출
-- **Yuna 음성**: macOS 한국어 Premium Neural TTS (`say -v Yuna`)
-- **보안**: Python `subprocess.Popen(['osascript', ...])` 방식으로 shell injection 완전 차단
-
-**4단계 내용 추출 fallback:**
-1. Notification 이벤트 `message` 필드 (가장 신뢰도 높음)
-2. Stop 이벤트 `reason` 필드
-3. `transcript_path` 파일 파싱 (JSONL → 텍스트 패턴)
-4. `~/.claude/history.jsonl` 마지막 user prompt
-
-**설치:**
-```bash
-/plugin install wogus-plugins:notify
-```
-
-또는 `~/.claude/settings.json`에 추가:
-```json
-{
-  "notify@wogus-plugins": true
-}
-```
-
-> macOS 전용. `osascript`, `say` 명령어 사용. 상세 설정은 [plugins/notify/README.md](plugins/notify/README.md) 참조.
-
 ---
 
 ## 📋 권장 워크플로우
@@ -529,8 +495,7 @@ wogus-plugin/
 │   ├── amplitude/
 │   ├── atlassian/
 │   ├── github/                # GitHub MCP
-│   ├── ask-yt/                # YouTube Ask CDP 자동화
-│   └── notify/                # macOS 알림 + TTS 훅 플러그인 (NEW)
+│   └── ask-yt/                # YouTube Ask CDP 자동화
 │
 ├── changelogs/              # 버전별 변경 이력
 ├── CHANGELOG.md             # 버전 카탈로그

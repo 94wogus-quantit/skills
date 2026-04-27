@@ -46,13 +46,6 @@ YouTube 내장 AI "질문하기(Ask)" CDP 자동화 플러그인. `youtube_ask_s
 - `skills/ask-yt/SKILL.md` — Chrome CDP 설정 가이드(Phase 0) 포함. URL+질문 → AI 응답 자동화 플로우.
 - `.mcp.json` — `uvx --from mcp[cli] --with playwright mcp run` 패턴으로 실행. `--with playwright` 필수.
 
-### `plugins/notify/`
-
-macOS 알림 + TTS 훅 전용 플러그인. MCP·스킬·에이전트 없이 훅(`Stop`, `Notification`)만으로 구성된 최소 설계.
-
-- `hooks/notify.sh` — 핵심 스크립트. stdin JSON 파싱(Python3 단일 호출) → 4단계 fallback으로 알림 내용 추출 → osascript 팝업 + `say -v Yuna` TTS 비동기 발송. Python `subprocess.Popen(['osascript', '-e', ...])` 패턴으로 shell injection 완전 차단.
-- `hooks/hooks.json` — `Stop`(작업 완료) + `Notification`(확인 요청) 훅 설정. `timeout: 10`, `bash ${CLAUDE_PLUGIN_ROOT}/hooks/notify.sh` 실행.
-
 ### `changelogs/`
 
 버전별 상세 변경 이력. `CHANGELOG.md`는 인덱스 역할, 실제 내용은 이 디렉토리의 개별 파일에 위임.
@@ -64,8 +57,6 @@ macOS 알림 + TTS 훅 전용 플러그인. MCP·스킬·에이전트 없이 훅
 - **MCP 도구명 64자 제한**: `mcp__plugin_{NAME}_{SERVER}__{TOOL}` 패턴. Plugin name ≤10자, MCP server key ≤5자, Tool name ≤30자.
 - **지시문은 영어, 출력은 한국어**: SKILL.md의 워크플로우 지시문은 영어, 사용자 대면 출력/템플릿은 한국어.
 - **브랜치 보호**: 모든 스킬은 보호된 브랜치(main/master/staging) 감지 시 경고 또는 feature 브랜치 생성을 강제.
-- **훅 전용 플러그인 패턴**: MCP·스킬 없이 훅(`hooks.json` + `notify.sh`)만으로 구성 가능. `notify` 플러그인이 첫 사례. 훅 스크립트는 항상 `exit 0` (Claude 블로킹 방지).
-- **훅 스크립트 보안**: osascript 호출 시 heredoc 대신 Python `subprocess.Popen(['osascript', '-e', script])` 사용 (backtick/shell injection 방지). TTS 문자 절단은 `head -c` 대신 Python `[:N]` 사용 (UTF-8 안전).
 
 ## Cross-cutting Concerns
 

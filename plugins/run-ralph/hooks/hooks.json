@@ -1,0 +1,17 @@
+{
+  "description": "run-ralph Phase 6 report gate — Stop hook이 .ralph/.report-pending sentinel이 남아있으면 Stop을 block하고 보고서 작성을 요구",
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/run-ralph-report-gate.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

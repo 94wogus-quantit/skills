@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.28.0):**
+**Key Artifacts (v3.29.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -24,9 +24,9 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.28.0)
+wogus-plugin/  (v3.29.0)
 ├── .claude-plugin/
-│   └── marketplace.json       # 카탈로그 (10 plugins)
+│   └── marketplace.json       # 카탈로그 (7 plugins)
 │
 ├── plugins/                   # 모든 플러그인
 │   ├── wf/                    # 메인 워크플로우 플러그인
@@ -38,6 +38,11 @@ wogus-plugin/  (v3.28.0)
 │   │   │   └── record/
 │   │   └── agents/
 │   │       └── requirement-validator.md
+│   ├── run-ralph/             # Ralph Loop wrapper (choo-choo skill + agents + Stop hook)
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── skills/choo-choo/  # 사용자 트리거: /run-ralph:choo-choo
+│   │   ├── agents/            # ralph-reviewer, ralph-qa
+│   │   └── hooks/             # run-ralph-report-gate.sh + hooks.json
 │   ├── seq-think/             # Sequential Thinking MCP
 │   ├── terraform/
 │   ├── atlassian/
@@ -158,7 +163,7 @@ Skills work alongside custom commands in `~/.claude/commands/` for seamless work
 
 ## Marketplace Distribution
 
-Claude Code Marketplace로 배포. 6개 독립 플러그인 (wf, seq-think, terraform, atlassian, github, slack).
+Claude Code Marketplace로 배포. 7개 독립 플러그인 (wf, run-ralph, seq-think, terraform, atlassian, github, slack).
 설치 및 배포 방법은 [README.md](README.md) 참조.
 
 ## Development Best Practices
@@ -186,7 +191,7 @@ Claude Code Marketplace로 배포. 6개 독립 플러그인 (wf, seq-think, terr
 
 | 버전 | 변경 요약 |
 |------|----------|
-| v3.28.0 | notify 플러그인 신규 추가: macOS 음성+팝업 알림 (Stop + Notification 훅, 훅 전용 플러그인 첫 사례) |
+| v3.29.0 | run-ralph 플러그인 신규 추가: Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level AC + iteration 게이트로 안전 실행하는 choo-choo 스킬. 모든 sentinel/프롬프트 경로를 PROJECT_ROOT 절대경로로 anchor하여 Worker가 sub-dir로 cd해도 게이트가 깨지지 않음. Stop hook은 `${CLAUDE_PROJECT_DIR}` 기준으로 검사. |
 | v3.27.0 | ask-yt 플러그인 신규 추가: YouTube 내장 AI(Ask/질문하기) CDP 자동화 |
 | v3.26.0 | ralph-loop 통합 + auto-recovery: plan/execute 스킬 자동화 대폭 개선 |
 
@@ -267,8 +272,9 @@ record → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 
 ## Notes
 
-- **Current version**: v3.28.0
+- **Current version**: v3.29.0
 - **wf**: 4 skills + agent + git MCP (12개 도구)
+- **run-ralph**: choo-choo skill + ralph-reviewer/ralph-qa agents + Stop hook (의존: `ralph-loop@claude-plugins-official`)
 - **seq-think**: 별도 MCP 플러그인
 - **terraform/atlassian/github/slack**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치

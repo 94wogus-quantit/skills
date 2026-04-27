@@ -5,8 +5,8 @@
     "email": "94wogus@quantit.io"
   },
   "metadata": {
-    "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, Sequential Thinking, Terraform, Atlassian, GitHub, Slack (한국어 기본)",
-    "version": "3.28.0",
+    "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, Sequential Thinking, Terraform, Atlassian, GitHub, Slack, run-ralph (한국어 기본)",
+    "version": "3.29.0",
     "repository": "https://github.com/94wogus-quantit/wogus-plugin",
     "homepage": "https://github.com/94wogus-quantit/wogus-plugin#readme",
     "license": "Private"
@@ -59,6 +59,14 @@
       "source": "./plugins/slack",
       "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/slack",
       "tags": ["slack", "messaging", "search", "history", "mcp"]
+    },
+    {
+      "name": "run-ralph",
+      "description": "Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level acceptance criteria + iteration 게이트로 안전하게 돌리는 choo-choo 스킬. CWD-robust sentinel + Stop hook 보고 게이트 포함.",
+      "category": "development",
+      "source": "./plugins/run-ralph",
+      "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/run-ralph",
+      "tags": ["ralph", "ralph-loop", "iteration", "multi-agent", "review", "qa", "choo-choo"]
     }
   ]
 }

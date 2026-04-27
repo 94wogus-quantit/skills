@@ -1,0 +1,17 @@
+{
+  "description": "wf workflow review gate — PostToolUse(Write)에서 *_REPORT.md / *_PLAN.md / *_REVIEW.md 변경 감지 시 외부 wf:wf-review-* agent spawn 권유 systemMessage 주입. plan skill의 자기검토 루프를 외부 게이트로 대체하는 핵심 mechanism.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/wf-review-gate.sh",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

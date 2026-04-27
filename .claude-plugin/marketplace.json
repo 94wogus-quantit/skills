@@ -14,7 +14,7 @@
   "plugins": [
     {
       "name": "wf",
-      "description": "이슈 분석 → 계획 → 실행 → 문서화 워크플로우 (4 skills + agent + git MCP)",
+      "description": "이슈 분석 → 계획 → 실행 → QA → 문서화 워크플로우. 외부 review agents + Stop hook 게이트로 self-approval 차단 (5 skills + 4 agents + git MCP + PostToolUse hook). v3.30.0에서 wf2 통합.",
       "category": "development",
       "source": "./plugins/wf",
       "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/wf",

@@ -11,8 +11,8 @@ A single Worker that authors changes AND judges its own completion will emit the
 | Role | Agent | Responsibility | Artifact |
 |------|-------|----------------|----------|
 | **Worker** | (Main Ralph Loop session) | Advance one unmet Success Criterion per iteration. Edit code/docs. | git diff, file changes |
-| **Reviewer** | `ralph-reviewer` | Judge Level 2 (Structural) — patterns, abstractions, layer boundaries. | `.ralph/review-{iter}.md`, VERDICT: LGTM/REVISE |
-| **QA** | `ralph-qa` | Run Level 1 (Concrete) checks + judge Level 3 (Holistic) when applicable. | `.ralph/qa-{iter}.md`, VERDICT: PASS/FAIL |
+| **Reviewer** | `ralph-reviewer` | Judge Level 2 (Structural) — patterns, abstractions, layer boundaries. | `.ralph/<slug>/review-{iter}.md`, VERDICT: LGTM/REVISE |
+| **QA** | `ralph-qa` | Run Level 1 (Concrete) checks + judge Level 3 (Holistic) when applicable. | `.ralph/<slug>/qa-{iter}.md`, VERDICT: PASS/FAIL |
 
 **Reviewer and QA can never be skipped.** This separation is the entire mechanism that prevents self-approval.
 
@@ -75,6 +75,25 @@ Pick the matching template, then add custom roles only when a clear trigger appl
 | Reviewer | `ralph-reviewer` | + test isolation, fixture reuse, mocking adequacy |
 | QA | `ralph-qa` | + execute every new test, observe coverage delta |
 
+### Design / Meta (ADR, integration design, workflow redesign, architecture decisions)
+
+| Role | Agent | Extra responsibility |
+|------|-------|---------------------|
+| Worker | (main) | Draft / refine the design artifact (ADR, integration spec, dispatcher design, etc.). The "diff" is changes to the design document, not source code. |
+| Reviewer | `ralph-reviewer` | + structural integrity of the design: required sections present, alternatives explicitly weighed, decisions trace back to constraints, terminology consistent with existing glossary |
+| QA | `ralph-qa` | + L1: file/section existence, no `TODO`/`TBD` markers, no broken cross-refs. + L3: target reader can grasp the decision and its rationale (persona-driven). |
+| (optional) Domain-Expert | ad-hoc | When the design must preserve contracts of multiple existing systems (e.g., merging two skills) — verifies each system's invariants are honored |
+| (optional) Reader-Persona | ad-hoc | When the design has a specific downstream reader (future maintainer, new hire, user of the merged artifact) |
+
+### Integration / Migration (merging modules/skills, staged migration plans)
+
+| Role | Agent | Extra responsibility |
+|------|-------|---------------------|
+| Worker | (main) | Advance one slice of the integration per iteration (one module migrated, one section of merge plan finalized). |
+| Reviewer | `ralph-reviewer` | + neither original system's invariants are silently dropped, no half-migrated state in the diff |
+| QA | `ralph-qa` | + L1: smoke checks for both old and new paths still pass during transition. + L3 (if user-facing): consistent UX across the two systems. |
+| (optional) Domain-Expert | ad-hoc | When two domains' rules collide (e.g., two skills with overlapping but slightly different semantics) |
+
 ## Custom role definition
 
 When the default team is insufficient, define an ad-hoc role inline in the prompt using this pattern:
@@ -86,7 +105,7 @@ When the default team is insufficient, define an ad-hoc role inline in the promp
 **Trigger condition**: {when to invoke — every iteration / on file pattern change / on Reviewer request}
 **Mandate**: {what verdict it owns — what does it PASS/FAIL or LGTM/REVISE}
 **Tools needed**: {Read, Bash, ...}
-**Output**: `.ralph/{role-name}-{iter}.md` + one-line summary verdict
+**Output**: `.ralph/<slug>/{role-name}-{iter}.md` + one-line summary verdict (path is provided absolute via `output_path` in the spawn prompt)
 ```
 
 ### Custom role examples
@@ -119,6 +138,16 @@ When the default team is insufficient, define an ad-hoc role inline in the promp
 **Output**: 위험 항목 표 + VERDICT: SAFE / RISK-FOUND
 ```
 
+#### Domain-Expert (Design / Integration)
+
+```markdown
+**Mandate**: 통합·재설계 대상이 되는 기존 시스템 각각의 invariant이 새 설계에서도 보존되는지 검증.
+- 통합 전 각 시스템의 핵심 계약(public API, 데이터 형식, 사용자 트리거 표현 등) 목록화
+- 새 설계 문서가 그 계약을 어떻게 흡수/매핑/대체하는지 1:1 추적
+- 누락된 계약 = REVISE 사유
+**Output**: 시스템별 invariant 보존 표 + VERDICT: PRESERVED / GAPS-FOUND
+```
+
 ## Composition workflow (run-ralph Phase 2)
 
 1. Detect task type from clarify answers + initial repo grep.
@@ -127,6 +156,7 @@ When the default team is insufficient, define an ad-hoc role inline in the promp
    - Infra + cost-sensitive resource → Cost-Auditor
    - Docs with named reader → Reader-Persona
    - IAM / SG / public endpoint change → Security-Reviewer
+   - Design/integration with multiple existing systems' contracts to honor → Domain-Expert
    - Anything user-specified that isn't covered
 4. Show the proposed team to the user and ask for approval / edits.
 5. Embed the confirmed team into the Iteration Workflow section of the Phase 4 prompt.

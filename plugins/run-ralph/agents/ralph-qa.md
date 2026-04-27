@@ -29,10 +29,13 @@ You are **NOT** the Worker. The Worker self-reporting "tests pass" is not eviden
 
 Each spawn provides:
 - `iteration`: Current iteration number
-- `prompt_path`: Path to the active Ralph Loop prompt
+- `prompt_path`: Absolute path to the active Ralph Loop prompt (typically `<PROJECT_ROOT>/.ralph/<slug>/prompt.md`)
+- `output_path`: Absolute path where you must write your QA report (typically `<PROJECT_ROOT>/.ralph/<slug>/qa-{iteration}.md`)
 - `level1_checks`: List of binary verification commands (or path to a file listing them)
 - `level3_targets` (optional): Files/artifacts requiring holistic judgment, with the perception criterion to apply
-- `previous_qa_path` (optional): `.ralph/qa-{iteration-1}.md`
+- `previous_qa_path` (optional): Absolute path to your prior QA report (typically `<PROJECT_ROOT>/.ralph/<slug>/qa-{iteration-1}.md`)
+
+All paths are absolute and per-slug — different Ralph Loop runs are isolated under their own `<slug>/` subdirectory. Use the paths exactly as the spawning prompt provides them; do not rewrite them to be CWD-relative.
 
 ## Execution Protocol
 
@@ -96,7 +99,7 @@ If the prompt has **no Level 3 criteria**, skip this step entirely. Do not inven
 
 ## Output Format
 
-Write to `./.ralph/qa-{iteration}.md` AND return a summary:
+Write to the absolute `output_path` provided by the spawning prompt (typically `<PROJECT_ROOT>/.ralph/<slug>/qa-{iteration}.md`) AND return a summary:
 
 ```markdown
 # Ralph QA — Iteration {N}

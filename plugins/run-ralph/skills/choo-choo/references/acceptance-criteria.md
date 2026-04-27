@@ -15,8 +15,8 @@ Ralph Loop's completion gate. A single dimension of criteria produces partial-su
 | Level | Required when | Reasoning |
 |-------|---------------|-----------|
 | **L1** | **Always — at least one criterion** | Without binary checks there is no automated completion gate at all. |
-| **L2** | **Conditionally — files changed ≥2 OR new abstraction/module/API introduced** | A one-line single-file edit has no structural surface; forcing L2 spawns fake criteria. |
-| **L3** | **Conditionally — the artifact has a human reader (docs, UI copy, error messages, public API names, code intended for review)** | When the work is purely machine-verifiable, perception criteria become rubber-stamps. |
+| **L2** | **Conditionally — files changed ≥2 OR new abstraction/module/API introduced OR the artifact is a design/ADR/integration doc** | A one-line single-file code edit has no structural surface; design/meta artifacts almost always do (sections, decisions, alternatives). |
+| **L3** | **Conditionally — the artifact has a human reader (docs, ADRs, UI copy, error messages, public API names, code intended for review)** | When the work is purely machine-verifiable, perception criteria become rubber-stamps. |
 
 ### Auto-decision tree
 
@@ -24,16 +24,21 @@ Ralph Loop's completion gate. A single dimension of criteria produces partial-su
 L1: ALWAYS REQUIRED
 
 L2:
-  files_changed == 1 AND no_new_abstraction
+  files_changed == 1 AND no_new_abstraction AND no_design_artifact
     → SKIP
   else
     → REQUIRED
 
+  ("design_artifact" = ADR, integration spec, dispatcher design, workflow redesign,
+   architectural decision document. These have inherent structural surface — sections,
+   alternatives weighed, decisions linked to constraints — even when only one file is touched.)
+
 L3:
   any artifact in the change has a human reader?
-    docs (.md, README, CHANGELOG, wiki)         → YES → REQUIRED
+    docs (.md, README, CHANGELOG, wiki, ADR)    → YES → REQUIRED
     UI copy, error messages, API response text  → YES → REQUIRED
     public API signatures / naming              → YES → REQUIRED (other devs read these)
+    design / integration documents              → YES → REQUIRED (future maintainer reads them)
     pure internal implementation detail         → NO  → SKIP
 ```
 
@@ -72,6 +77,16 @@ test ! -f src/legacy/old_auth.py
 
 # DB state (after migration)
 docker exec api psql -c "\d auth_session" | grep -q "session_token"
+
+# Design / ADR / integration doc state
+test -f docs/adr/0042-skill-integration.md
+rg "^## " docs/adr/0042-skill-integration.md | wc -l   # exactly 6 (required ADR sections)
+rg "TODO|TBD|FIXME|\?\?\?" docs/adr/0042-skill-integration.md   # 0 hits
+rg "^## Decision" docs/adr/0042-skill-integration.md | wc -l   # exactly 1
+# All cross-references resolve
+for ref in $(rg -o "\[.*\]\((\./[^)]+)\)" -r '$1' docs/adr/0042-skill-integration.md); do
+  test -f "docs/adr/$ref"   # each linked file exists
+done
 ```
 
 ### ❌ Bad examples
@@ -100,12 +115,20 @@ docker exec api psql -c "\d auth_session" | grep -q "session_token"
 ### ✅ Good examples
 
 ```text
+# Code structural
 - 모든 protected route가 `Depends(get_current_user)` 패턴 사용 (믹스 없음)
 - AuthMiddleware는 SRP 준수: 토큰 검증만 수행, 권한 체크는 별도 dependency
 - 신규 도입한 `BaseHandler` 추상화가 모든 신규 핸들러에 적용됨 (일부만 적용된 부분 없음)
 - `domain/` 레이어에 외부 의존성 import 0건 (architecture rule 준수)
 - 제거된 legacy auth 함수가 import / 호출 / 주석 어디에도 흔적 없음
 - 새 도메인 모델 `AuthSession`이 application/, infrastructure/에서 일관된 매핑 패턴으로 사용됨
+
+# Design / ADR structural (same level, different artifact)
+- ADR이 "Context / Decision / Alternatives Considered / Consequences" 4개 섹션을 모두 포함하고 순서가 맞음
+- "Decision" 섹션의 각 결정 항목이 "Context" 섹션의 제약/문제와 1:1로 추적 가능 (orphan decision 0건)
+- "Alternatives Considered"에 최소 2개 대안이 명시되고 각각의 reject 사유가 적혀 있음
+- 통합 대상이던 두 시스템(skill A, skill B)의 핵심 계약이 새 설계 문서에 모두 매핑됨 (drop된 계약 0건; 의도적 drop이라면 명시적으로 표기)
+- 용어가 기존 glossary와 일치 (예: "skill" vs "command" 혼용 없음)
 ```
 
 ### ❌ Bad examples
@@ -152,6 +175,10 @@ This level is the most dangerous — vague criteria become rubber-stamps. Every 
 - Persona: 1년 후 이 PR을 다시 보는 작성자
   Outcome: 함수명/주석만으로 "왜 이렇게 했는가"의 핵심 의도를 떠올릴 수 있음
   Verification: 함수 시그니처와 주석만 발췌해 읽었을 때 의도가 self-evident
+
+- Persona: 6개월 후 이 ADR을 처음 보는 신규 메인테이너
+  Outcome: ADR을 5분 읽고 "왜 두 스킬을 합쳤는지", "안 합쳐진 대안은 왜 기각됐는지", "이 결정을 바꾸려면 어떤 제약이 무너져야 하는지"를 자연어로 설명 가능
+  Verification: QA가 해당 페르소나로 ADR을 처음부터 끝까지 읽고 위 3개 질문에 self-report
 ```
 
 ### ❌ Bad examples
@@ -180,13 +207,13 @@ This level is the most dangerous — vague criteria become rubber-stamps. Every 
 ```
 [Iteration N start]
    ↓
-Worker: advance one unmet criterion (edit code)
+Worker: advance one unmet criterion (edit code or design artifact)
    ↓
 Spawn Reviewer (sub-agent, fresh context)
-   → reads diff, evaluates L2 → .ralph/review-N.md → LGTM or REVISE
+   → reads diff, evaluates L2 → .ralph/<slug>/review-N.md → LGTM or REVISE
    ↓
 Spawn QA (sub-agent, fresh context)
-   → runs L1 commands + judges L3 personas → .ralph/qa-N.md → PASS or FAIL
+   → runs L1 commands + judges L3 personas → .ralph/<slug>/qa-N.md → PASS or FAIL
    ↓
 Reviewer == LGTM AND QA == PASS?
    YES → all criteria met across all active levels? → if YES emit <promise>, else next iteration

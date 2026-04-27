@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.29.0):**
+**Key Artifacts (v3.30.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -24,7 +24,7 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.29.0)
+wogus-plugin/  (v3.30.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (7 plugins)
 │
@@ -191,9 +191,9 @@ Claude Code Marketplace로 배포. 7개 독립 플러그인 (wf, run-ralph, seq-
 
 | 버전 | 변경 요약 |
 |------|----------|
+| v3.30.0 | run-ralph(choo-choo) 일반화: 코드 변경 외에 ADR/설계/통합/문서 작업도 1급 task type으로 (Phase 1~3 + references 전반에 framing 보강, Example 4 신규 worked 사례). 매 run의 산출물을 `.ralph/<slug>/`로 격리 (이전 평면 컨벤션은 run 사이에 review-N.md가 덮였음). sentinel은 top-level 유지로 hook 미변경. plugin.json 1.0.0 → 1.1.0. |
 | v3.29.0 | run-ralph 플러그인 신규 추가: Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level AC + iteration 게이트로 안전 실행하는 choo-choo 스킬. 모든 sentinel/프롬프트 경로를 PROJECT_ROOT 절대경로로 anchor하여 Worker가 sub-dir로 cd해도 게이트가 깨지지 않음. Stop hook은 `${CLAUDE_PROJECT_DIR}` 기준으로 검사. |
 | v3.27.0 | ask-yt 플러그인 신규 추가: YouTube 내장 AI(Ask/질문하기) CDP 자동화 |
-| v3.26.0 | ralph-loop 통합 + auto-recovery: plan/execute 스킬 자동화 대폭 개선 |
 
 상세 내용은 [docs/architecture/decisions/](docs/architecture/decisions/) 참조.
 이전 버전 ADR (v1.x ~ v3.17.0)도 동일 디렉토리에서 확인 가능.
@@ -272,9 +272,9 @@ record → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 
 ## Notes
 
-- **Current version**: v3.29.0
+- **Current version**: v3.30.0
 - **wf**: 4 skills + agent + git MCP (12개 도구)
-- **run-ralph**: choo-choo skill + ralph-reviewer/ralph-qa agents + Stop hook (의존: `ralph-loop@claude-plugins-official`)
+- **run-ralph (1.1.0)**: choo-choo skill + ralph-reviewer/ralph-qa agents + Stop hook (의존: `ralph-loop@claude-plugins-official`). 코드 변경뿐 아니라 ADR/설계/통합/문서 작업도 1급으로 다룸. 매 run의 산출물은 `.ralph/<slug>/` 하위에 격리(이전 평면 컨벤션은 v3.30에서 deprecated). Sentinel은 `.ralph/.report-pending` top-level 유지.
 - **seq-think**: 별도 MCP 플러그인
 - **terraform/atlassian/github/slack**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치

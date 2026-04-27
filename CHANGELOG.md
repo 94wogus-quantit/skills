@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.30](changelogs/v3.30.md) | 2026-04-27 | run-ralph(choo-choo) 스킬 일반화: 코드 변경 외 메타/설계/통합/문서 작업도 1급으로. 매 run마다 .ralph/&lt;slug&gt;/로 산출물 격리 |
 | [v3.27](changelogs/v3.27.md) | 2026-02-19 | ask-yt 플러그인 신규 추가: YouTube 내장 AI(Ask/질문하기) CDP 자동화 |
 | [v3.26](changelogs/v3.26.md) | 2026-02-13 | ralph-loop 통합 + auto-recovery: plan/execute 스킬 자동화 대폭 개선 |
 | [v3.25](changelogs/v3.25.md) | 2026-02-12 | record 스킬 ARCHITECTURE.md 지원 추가 (matklad 패턴) |

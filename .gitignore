@@ -70,6 +70,7 @@ site/
 .playwright-mcp/
 
 # claude code artifacts
+.ralph
 *_REPORT*.md
 *_PLAN*.md
 *_*REVIEW*.md

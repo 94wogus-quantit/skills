@@ -27,10 +27,13 @@ You are **NOT** the Worker. You did not write this code. Your independence is th
 
 Each spawn provides:
 - `iteration`: Current iteration number (e.g., 3)
-- `prompt_path`: Path to the active Ralph Loop prompt file
+- `prompt_path`: Absolute path to the active Ralph Loop prompt file (typically `<PROJECT_ROOT>/.ralph/<slug>/prompt.md`)
+- `output_path`: Absolute path where you must write your review (typically `<PROJECT_ROOT>/.ralph/<slug>/review-{iteration}.md`)
 - `criteria_path`: Path to the acceptance criteria file (or inline in prompt)
 - `diff_command`: Command to inspect Worker's changes (e.g., `git diff HEAD~1 HEAD` or `git diff` for uncommitted)
-- `previous_review_path` (optional): `.ralph/review-{iteration-1}.md` — your prior review, if any
+- `previous_review_path` (optional): Absolute path to your prior review, if any (typically `<PROJECT_ROOT>/.ralph/<slug>/review-{iteration-1}.md`)
+
+All paths are absolute and per-slug — different Ralph Loop runs are isolated under their own `<slug>/` subdirectory so logs from one run never overwrite another. Use the paths exactly as the spawning prompt provides them; do not rewrite them to be CWD-relative.
 
 ## Execution Protocol
 
@@ -75,7 +78,7 @@ Compare to previous review:
 
 ## Output Format
 
-Write to `./.ralph/review-{iteration}.md` AND return a summary:
+Write to the absolute `output_path` provided by the spawning prompt (typically `<PROJECT_ROOT>/.ralph/<slug>/review-{iteration}.md`) AND return a summary:
 
 ```markdown
 # Ralph Reviewer — Iteration {N}

@@ -2,7 +2,7 @@
 
 The composed prompt is what Ralph re-injects every iteration, so the structure must be self-contained: criteria, team workflow, and constraints all live inside the prompt.
 
-> **Path discipline.** All `.ralph/*` paths in this template assume substitution with the absolute project root captured in Phase 5 (`PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"`). Never leave CWD-relative `.ralph/...` paths in the saved prompt — the Worker may `cd` mid-loop and Reviewer/QA spawns receive whatever path is in the prompt verbatim.
+> **Path discipline.** All `.ralph/*` paths in this template assume substitution with the absolute project root captured in Phase 5 (`PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"`) and the per-run directory `RUN_DIR="$PROJECT_ROOT/.ralph/<slug>"`. Never leave CWD-relative `.ralph/...` paths in the saved prompt — the Worker may `cd` mid-loop and Reviewer/QA spawns receive whatever path is in the prompt verbatim. The session-level sentinel is the one exception: it stays at `$PROJECT_ROOT/.ralph/.report-pending` (top level), not inside `RUN_DIR`.
 
 ## Template structure
 
@@ -52,16 +52,16 @@ The composed prompt is what Ralph re-injects every iteration, so the structure m
 ## Iteration Workflow (Mandatory)
 각 iteration 끝에 다음을 순서대로 수행:
 
-1. Worker가 `{PROMPT_PATH}` (절대경로)를 읽고 위 Steps를 진행, git diff에 변경 반영
+1. Worker가 `{PROMPT_PATH}` (절대경로 = `{RUN_DIR}/prompt.md`)를 읽고 위 Steps를 진행, git diff에 변경 반영
 2. Spawn Reviewer:
-   `Agent(subagent_type: "ralph-reviewer", prompt: "iteration={N}, prompt_path='{PROMPT_PATH}', diff_command='git diff', previous_review_path='{PROJECT_ROOT}/.ralph/review-{N-1}.md'")`
-   → 결과를 `{PROJECT_ROOT}/.ralph/review-{N}.md`로 저장. VERDICT 라인 확인.
+   `Agent(subagent_type: "ralph-reviewer", prompt: "iteration={N}, prompt_path='{PROMPT_PATH}', output_path='{RUN_DIR}/review-{N}.md', diff_command='git diff', previous_review_path='{RUN_DIR}/review-{N-1}.md'")`
+   → 결과를 `{RUN_DIR}/review-{N}.md`로 저장. VERDICT 라인 확인.
 3. Spawn QA:
-   `Agent(subagent_type: "ralph-qa", prompt: "iteration={N}, prompt_path='{PROMPT_PATH}', level1_checks=<L1 명령어 목록>, level3_targets=<L3 페르소나/대상>, previous_qa_path='{PROJECT_ROOT}/.ralph/qa-{N-1}.md'")`
-   → 결과를 `{PROJECT_ROOT}/.ralph/qa-{N}.md`로 저장. VERDICT 라인 확인.
+   `Agent(subagent_type: "ralph-qa", prompt: "iteration={N}, prompt_path='{PROMPT_PATH}', output_path='{RUN_DIR}/qa-{N}.md', level1_checks=<L1 명령어 목록>, level3_targets=<L3 페르소나/대상>, previous_qa_path='{RUN_DIR}/qa-{N-1}.md'")`
+   → 결과를 `{RUN_DIR}/qa-{N}.md`로 저장. VERDICT 라인 확인.
 4. 판정 게이트:
    - Reviewer == LGTM AND QA == PASS → 모든 Acceptance Criteria 충족 여부 확인
-     - 모두 충족 → Phase 6 보고서 작성 → `rm "{PROJECT_ROOT}/.ralph/.report-pending"` → output `<promise>{COMPLETION_PROMISE}</promise>` (같은 메시지 내 순서 준수)
+     - 모두 충족 → Phase 6 보고서 작성 → `rm "{PROJECT_ROOT}/.ralph/.report-pending"` (sentinel은 top-level) → output `<promise>{COMPLETION_PROMISE}</promise>` (같은 메시지 내 순서 준수)
      - 일부 미충족 → 다음 iteration에서 미충족 항목 진행
    - 그 외 (REVISE / FAIL) → 사유 읽고 다음 iteration에서 수정. promise emit 금지.
 5. 최신 review/qa 파일이 없거나 outdated면 promise emit 금지 (강제력).
@@ -70,7 +70,7 @@ The composed prompt is what Ralph re-injects every iteration, so the structure m
 모든 Acceptance Criteria 충족 + 최신 Reviewer LGTM + 최신 QA PASS → Phase 6 보고서 → sentinel 제거 → output <promise>{COMPLETION_PROMISE}</promise>
 ```
 
-> Phase 5의 `PROJECT_ROOT` 캡처 결과로 `{PROMPT_PATH}` / `{PROJECT_ROOT}` 두 placeholder 모두 절대경로로 치환 후 파일에 기록한다. 저장된 프롬프트에 literal `{PROJECT_ROOT}` 또는 `{PROMPT_PATH}`가 남아있으면 안 된다.
+> Phase 5의 `PROJECT_ROOT` 캡처 결과로 `{PROJECT_ROOT}`, `{RUN_DIR}` (= `{PROJECT_ROOT}/.ralph/<slug>`), `{PROMPT_PATH}` (= `{RUN_DIR}/prompt.md`) 세 placeholder 모두 절대경로로 치환 후 파일에 기록한다. 저장된 프롬프트에 literal placeholder가 남아있으면 안 된다.
 
 ## Prompt quality checklist
 
@@ -106,10 +106,11 @@ A valid Ralph Loop prompt must satisfy ALL of:
 - Promise emission is gated on the latest Reviewer + QA verdicts.
 - Custom roles, if any, declare trigger / mandate / output explicitly.
 
-### Path integrity (CWD-robust)
-- All `.ralph/*` paths in the prompt are absolute (substituted from `PROJECT_ROOT`).
-- Sentinel touch/rm commands use the absolute path.
-- Pointer prompt to `/ralph-loop` references the absolute prompt-file path.
+### Path integrity (CWD-robust + per-run isolation)
+- All `.ralph/<slug>/*` paths in the prompt are absolute (substituted from `PROJECT_ROOT` + `RUN_DIR`).
+- Sentinel touch/rm commands use the absolute path `$PROJECT_ROOT/.ralph/.report-pending` (top level — NOT inside the slug directory).
+- Pointer prompt to `/ralph-loop` references the absolute prompt-file path `$PROJECT_ROOT/.ralph/<slug>/prompt.md`.
+- No file directly under `.ralph/` from this run except the sentinel — every other artifact lives under `.ralph/<slug>/`.
 
 ## Anti-patterns
 
@@ -119,6 +120,8 @@ A valid Ralph Loop prompt must satisfy ALL of:
 ❌ "리팩토링해줘"
 ❌ "성능 개선해줘"
 ❌ "코드 정리해줘"
+❌ "두 스킬 통합 설계해줘"             (어떤 두 스킬? 결과물 형태? 통합 성공 기준?)
+❌ "아키텍처 결정해줘"                   (무엇에 대한 결정? 선택지가 무엇무엇?)
 ```
 
 ### Too broad
@@ -126,12 +129,14 @@ A valid Ralph Loop prompt must satisfy ALL of:
 ```text
 ❌ "전체 API를 TypeScript로 마이그레이션해줘"
 ❌ "모든 테스트 커버리지 90%로 올려줘"
+❌ "전체 워크플로우 재설계해줘"          (한 번의 Ralph Loop으로 끝낼 수 없는 범위)
 ```
 
 ### No success criteria
 
 ```text
 ❌ "auth 로직 수정해줘"   (무엇이 수정된 상태인지 정의 없음)
+❌ "통합 ADR 써줘"        (ADR이 어떤 섹션을 가져야 하고, 누가 읽고 무엇을 알 수 있어야 하는지 정의 없음)
 ```
 
 ### Self-approving prompt (반드시 회피)
@@ -156,9 +161,19 @@ A valid Ralph Loop prompt must satisfy ALL of:
 ### CWD-relative path (loop-breaking)
 
 ```text
-❌ ".ralph/review-{N}.md"          (Worker가 sub-dir로 cd하면 다른 위치에 저장됨)
-❌ "touch .ralph/.report-pending"  (sentinel이 잘못된 dir에 생기면 Stop hook 무력화)
-✅ "/Users/.../project/.ralph/review-{N}.md"  (Phase 5에서 캡처한 절대경로)
+❌ ".ralph/<slug>/review-{N}.md"               (Worker가 sub-dir로 cd하면 다른 위치에 저장됨)
+❌ "touch .ralph/.report-pending"              (sentinel이 잘못된 dir에 생기면 Stop hook 무력화)
+✅ "/Users/.../project/.ralph/<slug>/review-{N}.md"  (Phase 5에서 캡처한 절대경로 + per-slug 디렉토리)
+✅ "/Users/.../project/.ralph/.report-pending" (sentinel은 top-level 절대경로)
+```
+
+### Flat path (run mixing — pre-1.1.0 anti-pattern)
+
+```text
+❌ "$PROJECT_ROOT/.ralph/review-{N}.md"        (다른 run의 review-1.md를 덮어씀; 과거 로그 손실)
+❌ "$PROJECT_ROOT/.ralph/<slug>-prompt.md"     (옛날 flat 컨벤션 — 이제 디렉토리로)
+✅ "$PROJECT_ROOT/.ralph/<slug>/review-{N}.md" (per-slug 서브디렉토리로 격리)
+✅ "$PROJECT_ROOT/.ralph/<slug>/prompt.md"
 ```
 
 ## Clarification questions by task type
@@ -192,3 +207,16 @@ A valid Ralph Loop prompt must satisfy ALL of:
 - 다 읽고 무엇을 할 수 있어야 하는가?
 - 어디에 위치하는가? (`README.md`, `docs/`, wiki 등)
 - 기존 문서와의 관계는? (대체, 보완, 중복 제거)
+
+### Design / Meta (ADR, integration design, workflow redesign, architecture decisions)
+- 결정해야 할 선택지가 정확히 무엇무엇인가? (최소 2개 명시)
+- 결정의 결과물은 무엇인가? (ADR 1개 / 통합 스펙 / 디스패처 설계 / 마이그레이션 플랜)
+- 결과물을 읽을 사람은 누구인가? (자기 자신만 / 팀 메인테이너 / 신규 합류자 / 외부 사용자)
+- 이번 iteration은 설계까지인가, 코드 반영까지인가? (스코프 분리)
+- 통합/재설계 대상이 되는 기존 시스템(스킬, 모듈, 워크플로우)의 핵심 계약을 명시할 수 있는가?
+
+### Integration / Migration
+- 합치는 두(혹은 N개) 대상의 이름은?
+- 결과 형태는: 새 단일 산출물 / 둘 중 하나로 흡수 / 둘 다 두고 dispatcher / 단계적 마이그레이션 중 무엇?
+- 각 대상의 기존 사용자/호출자가 있는가? 호환성 유지가 필요한가, breaking 허용인가?
+- 한 iteration에서 다룰 슬라이스 단위는? (모듈 1개, ADR 섹션 1개, 마이그레이션 페이즈 1개 등)

@@ -17,6 +17,9 @@
 #   ${CLAUDE_PROJECT_DIR}/.ralph/.report-pending
 #     - created by run-ralph:choo-choo Phase 5 (before invoking /ralph-loop)
 #     - removed by Phase 6 (after the report is written in the final iteration)
+#     - lives at the TOP of .ralph/ (NOT inside the per-run subdirectory
+#       .ralph/<slug>/) — this is a session-level marker, not a per-run one,
+#       so the hook checks one fixed path regardless of which slug is running.
 #
 # Decision logic
 #   1. ${CLAUDE_PROJECT_DIR}/.claude/ralph-loop.local.md exists
@@ -50,6 +53,6 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 
 jq -n --arg pd "$PROJECT_DIR" '{
   "decision": "block",
-  "reason": ("Ralph 종료가 감지됐지만 run-ralph Phase 6 report가 아직 없습니다. 이 turn에서 (1) " + $pd + "/.ralph/review-{N}.md / " + $pd + "/.ralph/qa-{N}.md / git diff 기반으로 `## Ralph Loop 실행 결과` 보고서를 작성하고, (2) `rm \"" + $pd + "/.ralph/.report-pending\"` 실행한 뒤, (3) 다시 정지 시도하세요. Phase 6 형식은 run-ralph 플러그인의 choo-choo 스킬 SKILL.md 참고."),
+  "reason": ("Ralph 종료가 감지됐지만 run-ralph Phase 6 report가 아직 없습니다. 이 turn에서 (1) " + $pd + "/.ralph/<slug>/review-{N}.md / " + $pd + "/.ralph/<slug>/qa-{N}.md / git diff 기반으로 `## Ralph Loop 실행 결과` 보고서를 작성하고 (slug는 이번 run의 디렉토리명 — `ls " + $pd + "/.ralph/` 로 확인 가능), (2) `rm \"" + $pd + "/.ralph/.report-pending\"` 실행한 뒤 (sentinel은 top-level), (3) 다시 정지 시도하세요. Phase 6 형식은 run-ralph 플러그인의 choo-choo 스킬 SKILL.md 참고."),
   "systemMessage": "run-ralph report gate: Phase 6 보고서 + sentinel 삭제 필요"
 }'

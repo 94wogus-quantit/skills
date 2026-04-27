@@ -1,12 +1,31 @@
 ---
 name: choo-choo
-description: This skill should be used when the user asks to "run ralph", "랄프 실행", "랄프 돌려", "ralph loop 실행", "ralph로 해줘", "랄프로 돌려", "run-ralph", "choo choo", "랄프 출발", or wants to execute a task using Ralph Loop. Transforms the user's request into a Ralph Loop prompt with a multi-agent team (mandatory Reviewer + QA), 3-level acceptance criteria, and an iteration workflow that gates completion-promise emission on independent verdicts. Anchors all sentinel/prompt files to the project root so a Worker that `cd`s into a sub-directory mid-loop does not break the gate. Then invokes /ralph-loop.
+description: This skill should be used when the user asks to "run ralph", "랄프 실행", "랄프 돌려", "ralph loop 실행", "ralph로 해줘", "랄프로 돌려", "run-ralph", "choo choo", "랄프 출발", or wants to execute ANY iterative work — code changes, design documents, skill/workflow integrations, architectural decisions, documentation, or refactoring — through a multi-agent team. Choo-choo is a general iterative framework, not a code-only tool: anything expressible as "work + acceptance criteria + per-iteration verification" fits. Transforms the request into a Ralph Loop prompt with a multi-agent team (mandatory Reviewer + QA), 3-level acceptance criteria, and an iteration workflow that gates completion-promise emission on independent verdicts. Anchors all sentinel/prompt files to the project root so a Worker that `cd`s into a sub-directory mid-loop does not break the gate. Then invokes /ralph-loop.
 user-invocable: true
 ---
 
 # Choo-Choo (Run Ralph)
 
 Transforms a natural-language request into a structured Ralph Loop prompt that runs with a multi-agent team. Reviewer and QA are mandatory on every task — without independent verdicts the Worker self-approves and emits the completion promise prematurely.
+
+## Scope — what choo-choo is for (read this first)
+
+Choo-choo is a **general iterative framework**, not a code-changes-only tool. The Ralph Loop value is "Worker can't self-approve + stepwise verifiable progress" — that mechanism applies to any work where iterations can be defined.
+
+**In scope (treat all of these as first-class):**
+
+| Category | Example requests | What an "iteration" looks like |
+|----------|------------------|-------------------------------|
+| **Code changes** | refactor, bug fix, feature add, infra (terraform/k8s), test writing | edit code → diff → tests/verifications |
+| **Meta / Design** | ADR 작성, 두 스킬 통합 설계, 워크플로우 재설계, 아키텍처 결정 문서 | draft/refine a design artifact → reviewer judges structure → QA judges reader perception |
+| **Integration / Migration** | 두 모듈/플러그인을 하나로 합치기, 기존 → 새 시스템으로의 단계적 마이그레이션 설계 | each iteration advances one section/module of the integration |
+| **Documentation** | README, runbook, onboarding 문서, ADR 모음 | write/revise → reviewer checks structure → QA reads as the target persona |
+
+**Out of scope (rare exceptions):**
+- One-shot trivial tasks the user could do themselves in one message — ask once at Phase 1 whether choo-choo is overkill; if user says proceed, proceed.
+- Live debugging of choo-choo itself (running the skill on the skill while it's running creates a meta-loop).
+
+**Do not refuse a request as "not a code change" or "not a Ralph Loop task."** If you can name an iteration unit and acceptance criteria, you can run it through choo-choo — translate the request, don't reject it. The previous narrowing-to-code-only behavior was a framing bug, not a design intent.
 
 ## Authoring conventions (applies to every prompt this skill generates)
 
@@ -26,9 +45,15 @@ Every sentinel, prompt file, and `.ralph/*.md` artifact MUST be referenced as an
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 ```
 
-Use `"$PROJECT_ROOT/.ralph/<slug>-prompt.md"`, `"$PROJECT_ROOT/.ralph/.report-pending"`, `"$PROJECT_ROOT/.ralph/review-{N}.md"`, `"$PROJECT_ROOT/.ralph/qa-{N}.md"` everywhere — including inside the composed prompt body, so Reviewer/QA spawns receive absolute paths too.
+Use `"$PROJECT_ROOT/.ralph/<slug>/prompt.md"`, `"$PROJECT_ROOT/.ralph/<slug>/review-{N}.md"`, `"$PROJECT_ROOT/.ralph/<slug>/qa-{N}.md"`, `"$PROJECT_ROOT/.ralph/<slug>/<custom-role>-{N}.md"` everywhere — including inside the composed prompt body, so Reviewer/QA spawns receive absolute paths too.
 
-The Stop hook (`hooks/run-ralph-report-gate.sh`) uses `${CLAUDE_PROJECT_DIR}` for the same reason — both ends agree on the project root regardless of CWD drift.
+The single exception is the **session-level sentinel** at `"$PROJECT_ROOT/.ralph/.report-pending"`, which stays at the top level of `.ralph/`. The Stop hook checks one fixed path; promoting the sentinel into a slug subdirectory would force the hook to scan all subdirs every Stop event. A Claude session only runs one choo-choo at a time, so a single top-level sentinel is sufficient.
+
+### Why per-slug subdirectories (not flat files)
+
+Earlier versions wrote `prompt`, `review-{N}`, `qa-{N}` directly under `.ralph/`. When users ran multiple Ralph Loop tasks in the same repo over time, the iteration logs from different runs collided — `review-1.md` from yesterday's auth refactor was overwritten by today's docs rewrite, and after a few runs it became impossible to tell which file belonged to which task. Per-slug subdirectories (`<slug>/prompt.md`, `<slug>/review-1.md`, …) keep every run's artifacts isolated and inspectable indefinitely.
+
+The Stop hook (`hooks/run-ralph-report-gate.sh`) uses `${CLAUDE_PROJECT_DIR}` for the same CWD-robustness reason — both ends agree on the project root regardless of CWD drift.
 
 ---
 
@@ -49,10 +74,12 @@ Ask via AskUserQuestion only when input is insufficient. Skip if already specifi
 
 | Element | Insufficient example | Question example |
 |---------|---------------------|------------------|
-| **Scope** | "리팩토링해줘" | "어떤 파일/모듈 범위인가요?" |
+| **Scope (code)** | "리팩토링해줘" | "어떤 파일/모듈 범위인가요?" |
 | **Problem definition** | "auth 고쳐줘" | "어떤 증상/에러가 발생하나요?" |
 | **Success criteria** | "성능 개선해줘" | "어떤 지표가 개선되면 완료인가요?" |
 | **Expected result** | "테스트 추가해줘" | "어떤 종류의 테스트? 어떤 모듈 대상?" |
+| **Scope (design/meta)** | "두 스킬 통합해줘" | "어떤 두 스킬? 통합 결과물은 새 스킬 / 기존 하나로 흡수 / 디스패처 중 무엇? 완료 기준은?" |
+| **Design artifact target** | "아키텍처 결정해줘" | "결정해야 할 선택지가 무엇무엇인가요? 결과를 ADR 문서로 남기나요, 코드 반영까지 가나요?" |
 
 Principles:
 - Maximum 1–3 questions at a time.
@@ -84,12 +111,15 @@ The Reviewer/QA gating is the entire mechanism that prevents the Worker from sel
 | Infra | Worker, Reviewer, QA | Cost-Auditor, Security-Reviewer |
 | Documentation | Worker, Reviewer, QA | Reader-Persona |
 | Test Writing | Worker, Reviewer, QA | — |
+| **Design / Meta** (ADR, integration design, workflow redesign) | Worker, Reviewer, QA | Domain-Expert, Reader-Persona |
+| **Integration / Migration** (merging modules/skills, staged migration plans) | Worker, Reviewer, QA | Domain-Expert (when multiple domain rules collide) |
 
 ### Custom role triggers
 
 - Infra + cost-sensitive resource (RDS, ElastiCache, NAT) → **Cost-Auditor**
 - Infra + IAM / SG / public endpoint change → **Security-Reviewer**
 - Docs with named target reader → **Reader-Persona**
+- Design/meta work where deep domain rules drive correctness (e.g., multiple existing skills' contracts must be preserved) → **Domain-Expert**
 - Anything user-specified that isn't covered
 
 ### Workflow
@@ -120,14 +150,18 @@ Define criteria across 3 levels. Conditional enforcement prevents fake criteria.
 L1: ALWAYS — at least one criterion required
 
 L2:
-  files_changed == 1 AND no_new_abstraction
+  files_changed == 1 AND no_new_abstraction AND no_design_artifact
     → SKIP
   else
     → REQUIRED
 
+  (Design/meta work almost always introduces a "structural surface" — sections, decisions,
+   alternatives, dependency relationships — even when only 1 file changes. That counts as
+   design_artifact and keeps L2 active.)
+
 L3:
   any artifact in the change has a human reader?
-    docs / README / wiki                          → REQUIRED
+    docs / README / wiki / ADR / design docs      → REQUIRED
     UI copy, error messages, API response text    → REQUIRED
     public API signatures / naming                → REQUIRED
     pure internal implementation detail only      → SKIP
@@ -157,25 +191,42 @@ Generate the prompt using the template in `references/prompt-template.md`. Requi
 7. **Iteration Workflow** — mandatory Reviewer/QA spawn + verdict gate (the section that prevents self-approval)
 8. **Completion** — single gated promise emission
 
-### Storage convention (MANDATORY — absolute paths only)
+### Storage convention (MANDATORY — absolute paths + per-slug subdirectory)
 
-The composed prompt is saved to **`<PROJECT_ROOT>/.ralph/<slug>-prompt.md`** (absolute path, not CWD-relative). Reasons:
+Every file produced by a single Ralph Loop run is stored under a dedicated subdirectory:
+
+```
+<PROJECT_ROOT>/.ralph/<slug>/
+├── prompt.md                  # the composed prompt (Worker re-reads this each iteration)
+├── review-{N}.md              # Reviewer agent output, one per iteration
+├── qa-{N}.md                  # QA agent output, one per iteration
+└── <custom-role>-{N}.md       # any custom-role outputs (cost-{N}.md, domain-{N}.md, …)
+```
+
+The session-level sentinel `<PROJECT_ROOT>/.ralph/.report-pending` stays at the top level — it represents "this Claude session owes a Phase 6 report", not "this run".
+
+**Why a file (not inline `$ARGUMENTS`) for the prompt:**
 
 - `/ralph-loop`'s setup script receives the prompt via `$ARGUMENTS`, which goes through shell word-splitting. Multi-line prompts or prompts with backticks / quotes / `$` / `!` break parsing and fail the command entirely.
 - A file pointer is single-line, shell-safe, and makes the full prompt re-readable every iteration.
 - An **absolute path** (anchored to the captured `PROJECT_ROOT`) survives any `cd` the Worker performs during the loop. CWD-relative paths break as soon as Ralph dives into a sub-directory.
-- `.ralph/` is already gitignored and used for `review-{N}.md` / `qa-{N}.md`, so `<slug>-prompt.md` fits the same convention.
+
+**Why a per-slug subdirectory (not flat files at `.ralph/`):**
+
+- Multiple Ralph Loop runs over the lifetime of a repo would otherwise overwrite each other's `review-1.md`, `qa-1.md`, etc. After a few runs nobody can tell which file belongs to which task.
+- Subdirectory isolation keeps every run's logs inspectable indefinitely (useful for "wait, what did the auth refactor's iteration 4 reviewer actually say?").
+- `.ralph/` is gitignored, so subdir count growth is harmless.
 
 **Slug rules:**
-- Derive from task: kebab-case, ≤ 40 chars, no spaces/special chars.
-- Must end with `-prompt.md`.
-- Examples: `alembic-chain-repair-prompt.md`, `auth-middleware-rewrite-prompt.md`, `ARK-1337-prompt.md`.
+- Derive from task: kebab-case, ≤ 40 chars, no spaces/special chars, no trailing `-prompt` (the slug is now a directory name, not a filename).
+- Examples: `alembic-chain-repair`, `auth-middleware-rewrite`, `ARK-1337`, `skill-A-B-merge-adr`.
 - If the task has a JIRA ID (PROJ-XXX), prefer that as the slug.
 - If unsure, ask the user or pick a 2–4 word summary of the objective.
+- The directory `.ralph/<slug>/` is created in Phase 5 step 1 (`mkdir -p`) before any file is written.
 
-Phase 5 captures `PROJECT_ROOT`, writes the file at the absolute path, then invokes `/ralph-loop` with only the pointer + options. The chosen absolute path is embedded into the Iteration Workflow block so Reviewer/QA read the same file regardless of their spawn CWD.
+Phase 5 captures `PROJECT_ROOT`, creates `.ralph/<slug>/`, writes `prompt.md` inside it, then invokes `/ralph-loop` with only the pointer + options. The chosen absolute path is embedded into the Iteration Workflow block so Reviewer/QA read the same file regardless of their spawn CWD.
 
-### Iteration Workflow block (always include verbatim — substitute `{PROMPT_PATH}` with the absolute path)
+### Iteration Workflow block (always include verbatim — substitute `{PROMPT_PATH}`, `{RUN_DIR}`, `{PROJECT_ROOT}` with the concrete absolute paths)
 
 ```markdown
 ## Iteration Workflow (Mandatory)
@@ -183,24 +234,24 @@ Phase 5 captures `PROJECT_ROOT`, writes the file at the absolute path, then invo
 
 1. Worker가 `{PROMPT_PATH}` (절대경로)를 읽고 위 Steps를 진행, git diff에 변경 반영
 2. Spawn Reviewer:
-   Agent(subagent_type: "ralph-reviewer", prompt: "iteration={N}, prompt_path='{PROMPT_PATH}', diff_command='git diff', previous_review_path='{PROJECT_ROOT}/.ralph/review-{N-1}.md'")
-   → 결과를 {PROJECT_ROOT}/.ralph/review-{N}.md로 저장
+   Agent(subagent_type: "ralph-reviewer", prompt: "iteration={N}, prompt_path='{PROMPT_PATH}', output_path='{RUN_DIR}/review-{N}.md', diff_command='git diff', previous_review_path='{RUN_DIR}/review-{N-1}.md'")
+   → 결과를 {RUN_DIR}/review-{N}.md로 저장
 3. Spawn QA:
-   Agent(subagent_type: "ralph-qa", prompt: "iteration={N}, prompt_path='{PROMPT_PATH}', level1_checks=<L1 명령어 목록>, level3_targets=<L3 페르소나/대상>, previous_qa_path='{PROJECT_ROOT}/.ralph/qa-{N-1}.md'")
-   → 결과를 {PROJECT_ROOT}/.ralph/qa-{N}.md로 저장
-4. {커스텀 agent 호출 — 있을 경우}
+   Agent(subagent_type: "ralph-qa", prompt: "iteration={N}, prompt_path='{PROMPT_PATH}', output_path='{RUN_DIR}/qa-{N}.md', level1_checks=<L1 명령어 목록>, level3_targets=<L3 페르소나/대상>, previous_qa_path='{RUN_DIR}/qa-{N-1}.md'")
+   → 결과를 {RUN_DIR}/qa-{N}.md로 저장
+4. {커스텀 agent 호출 — 있을 경우, output_path='{RUN_DIR}/<custom-role>-{N}.md'}
 5. 판정 게이트:
    - Reviewer == LGTM AND QA == PASS {AND 커스텀 verdict 모두 통과} AND 모든 Acceptance Criteria 충족
      → 이 iteration의 **같은 메시지 안에** 순서대로:
        a. Phase 6 보고서(`## Ralph Loop 실행 결과` 블록) 작성
-       b. `rm "{PROJECT_ROOT}/.ralph/.report-pending"` 실행 (report-gate hook sentinel 제거)
+       b. `rm "{PROJECT_ROOT}/.ralph/.report-pending"` 실행 (report-gate hook sentinel 제거 — sentinel은 top-level 유지)
        c. `<promise>{COMPLETION_PROMISE}</promise>` emit
      셋 중 하나라도 빠지면 run-ralph 플러그인의 Stop hook이 Stop을 block하고 재주입함.
    - 그 외 → 다음 iteration에서 수정. promise emit 절대 금지.
 6. 최신 review/qa 파일이 없거나 outdated면 promise emit 금지 (강제력).
 ```
 
-Both `{PROMPT_PATH}` and `{PROJECT_ROOT}` are substituted with the concrete absolute paths captured in Phase 5 before writing the file. No literal placeholders should remain in the saved prompt.
+`{PROMPT_PATH}` (예: `<PROJECT_ROOT>/.ralph/<slug>/prompt.md`), `{RUN_DIR}` (예: `<PROJECT_ROOT>/.ralph/<slug>`), `{PROJECT_ROOT}` 세 placeholder 모두 Phase 5에서 캡처한 구체 절대경로로 치환 후 파일에 기록한다. 저장된 프롬프트에 literal placeholder가 남아있으면 안 된다.
 
 ### Repo-specific constraints (template)
 
@@ -211,6 +262,7 @@ Reflect repo characteristics in the Constraints section. Each repo's full archit
 - **Forbidden actions** (e.g. direct `terraform apply`, editing tfstate, modifying agent system prompts in `workspace/CLAUDE.md`).
 - **Convention-specific bans** the codebase already enforces (e.g. "no `useMemo`/`useCallback` because React Compiler is on", "no direct `process.env`, use `@infra/config/env`").
 - **Scope-of-ownership boundaries** in monorepos (e.g. service-specific chart owners — stop if work crosses owned domain).
+- **Design/meta-work constraints** (when the artifact is a design document, ADR, or integration plan): required ADR template sections, terminology that must align with an existing glossary, mandatory references to prior decisions, "do not write code in this iteration — design only".
 
 Lift only the rules whose violation would cost the Worker an iteration to undo. Static documentation belongs in `architecture.md`, not in this prompt.
 
@@ -230,7 +282,13 @@ Lift only the rules whose violation would cost the Worker an iteration to undo. 
 Show the generated prompt + summary to user (absolute prompt path included):
 
 ```
-📋 생성된 Ralph Loop 프롬프트 (저장 예정 경로: <PROJECT_ROOT>/.ralph/<slug>-prompt.md):
+📋 생성된 Ralph Loop 프롬프트
+- 이번 run의 작업 디렉토리: <PROJECT_ROOT>/.ralph/<slug>/
+- 저장될 파일들:
+  - prompt.md           (이 프롬프트)
+  - review-{N}.md       (각 iteration의 Reviewer 출력)
+  - qa-{N}.md           (각 iteration의 QA 출력)
+  - <custom-role>-{N}.md (있을 경우)
 
 ---
 [프롬프트 전문]
@@ -256,26 +314,27 @@ Show the generated prompt + summary to user (absolute prompt path included):
 
 ### Invocation
 
-After user approval, run these **four steps in order** (note step 0 is new — it makes the loop CWD-robust):
+After user approval, run these **four steps in order** (step 0 captures the project root so all subsequent paths are absolute and CWD-robust):
 
-0. **Capture project root** so every subsequent path is absolute and survives any `cd` during the loop:
+0. **Capture project root and define the run directory** so every subsequent path is absolute and survives any `cd` during the loop:
 
    ```
    Bash: PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"; echo "$PROJECT_ROOT"
    ```
 
-   Read the printed path. Substitute it into all `{PROJECT_ROOT}` placeholders in the composed prompt (Iteration Workflow block, sentinel paths, review/qa paths, completion step). After this substitution, no literal `{PROJECT_ROOT}` should remain inside the prompt body.
+   Read the printed path. Compute `RUN_DIR="$PROJECT_ROOT/.ralph/<slug>"` (slug derived per Phase 4 rules). Substitute `{PROJECT_ROOT}`, `{RUN_DIR}`, and `{PROMPT_PATH}="$RUN_DIR/prompt.md"` into the composed prompt (Iteration Workflow block, completion step, every review/qa/custom path). After substitution, no literal placeholders should remain inside the prompt body.
 
-1. **Write the prompt file at the absolute path** (full multi-line content, shell-safe because it never touches a shell):
-
-   ```
-   Write(file_path: "<PROJECT_ROOT>/.ralph/<slug>-prompt.md", content: "<full composed prompt>")
-   ```
-
-2. **Touch the report-gate sentinel at the absolute path** so the Stop hook knows this session owes a Phase 6 report:
+1. **Create the run directory and write the prompt file at the absolute path** (full multi-line content, shell-safe because Write never touches a shell):
 
    ```
-   Bash: mkdir -p "$PROJECT_ROOT/.ralph" && touch "$PROJECT_ROOT/.ralph/.report-pending"
+   Bash: mkdir -p "$PROJECT_ROOT/.ralph/<slug>"
+   Write(file_path: "<PROJECT_ROOT>/.ralph/<slug>/prompt.md", content: "<full composed prompt>")
+   ```
+
+2. **Touch the session-level report-gate sentinel at the top of `.ralph/`** so the Stop hook knows this session owes a Phase 6 report. The sentinel stays at `.ralph/.report-pending` (NOT inside the slug subdirectory) — the hook checks one fixed path:
+
+   ```
+   Bash: touch "$PROJECT_ROOT/.ralph/.report-pending"
    ```
 
 3. **`cd` to PROJECT_ROOT, then invoke `/ralph-loop` with a short pointer prompt** (single-line, no backticks / `$` / newlines). The pointer text itself is Korean per the authoring conventions:
@@ -284,14 +343,14 @@ After user approval, run these **four steps in order** (note step 0 is new — i
    Bash: cd "$PROJECT_ROOT"
    Skill(
      skill: "ralph-loop:ralph-loop",
-     args: "<PROJECT_ROOT>/.ralph/<slug>-prompt.md 파일을 읽고 그 안의 Ralph Loop 작업을 수행하세요. Iteration Workflow를 그대로 따르고, 모든 게이트가 통과했을 때만 completion promise를 emit 하세요. --max-iterations {N} --completion-promise '{PROMISE}'"
+     args: "<PROJECT_ROOT>/.ralph/<slug>/prompt.md 파일을 읽고 그 안의 Ralph Loop 작업을 수행하세요. Iteration Workflow를 그대로 따르고, 모든 게이트가 통과했을 때만 completion promise를 emit 하세요. --max-iterations {N} --completion-promise '{PROMISE}'"
    )
    ```
 
 **Why this split:** `/ralph-loop`'s setup script passes `$ARGUMENTS` through shell word-splitting. Embedding the full multi-line prompt inline causes `Shell command failed for pattern` errors. Writing the prompt to a file first and passing only a pointer sidesteps this entirely — the pointer is the string re-fed each iteration, and the Worker reads the real content from the file. The sentinel is a separate concern — it exists so the run-ralph plugin's Stop hook can distinguish "run-ralph session owes a report" from "regular session, nothing to enforce." `cd "$PROJECT_ROOT"` immediately before `/ralph-loop` normalizes the launch CWD so `/ralph-loop`'s own state file (`.claude/ralph-loop.local.md`) lands at the project root where our hook expects it.
 
 **Pointer prompt rules:**
-- Must name the **absolute** file path (the same `<PROJECT_ROOT>/.ralph/<slug>-prompt.md` written in step 1).
+- Must name the **absolute** file path (the same `<PROJECT_ROOT>/.ralph/<slug>/prompt.md` written in step 1).
 - No special shell characters: no backticks, no `$`, no `!`, no newlines, no unescaped quotes.
 - Keep it to one sentence — it's what Ralph re-injects on every iteration, so shorter = cleaner.
 
@@ -315,8 +374,8 @@ If any of these is skipped, the run-ralph plugin's Stop hook will block Stop and
 Before writing the report, gather the ground truth — don't rely on what Ralph "said" it did:
 
 1. **Outcome** — Did the loop emit the completion promise, or hit `--max-iterations`? Check the last iteration's output.
-2. **Iteration count** — Read the highest `N` in `$PROJECT_ROOT/.ralph/review-{N}.md` / `$PROJECT_ROOT/.ralph/qa-{N}.md`.
-3. **Final verdicts** — Read the last `$PROJECT_ROOT/.ralph/review-{N}.md` and `$PROJECT_ROOT/.ralph/qa-{N}.md`. If QA FAILed or Reviewer said REVISE on the last iteration, the loop exited without passing — say so explicitly.
+2. **Iteration count** — Read the highest `N` in `$PROJECT_ROOT/.ralph/<slug>/review-{N}.md` / `$PROJECT_ROOT/.ralph/<slug>/qa-{N}.md`.
+3. **Final verdicts** — Read the last `$PROJECT_ROOT/.ralph/<slug>/review-{N}.md` and `$PROJECT_ROOT/.ralph/<slug>/qa-{N}.md`. If QA FAILed or Reviewer said REVISE on the last iteration, the loop exited without passing — say so explicitly.
 4. **Actual changes** — `git status` + `git diff --stat` (and `git log` if new commits were made). Do not list files from memory.
 5. **Acceptance criteria status** — For each active L1/L2/L3 criterion, map it to what the final QA/Reviewer actually checked. Mark any that were skipped / deferred / fudged.
 
@@ -343,10 +402,12 @@ Before writing the report, gather the ground truth — don't rely on what Ralph 
 - {사용자가 직접 확인해야 할 부분 — 예: 수동 테스트 필요, 배포 전 리뷰 필요}
 
 ### 산출물 위치
+- 이번 run의 작업 디렉토리: `<PROJECT_ROOT>/.ralph/<slug>/`
 - 변경: `git diff` / 커밋 {있으면 해시}
-- Reviewer 로그: `<PROJECT_ROOT>/.ralph/review-{N}.md`
-- QA 로그: `<PROJECT_ROOT>/.ralph/qa-{N}.md`
-- 원본 프롬프트: `<PROJECT_ROOT>/.ralph/<slug>-prompt.md`
+- Reviewer 로그: `<PROJECT_ROOT>/.ralph/<slug>/review-{N}.md` (N=1..최종)
+- QA 로그: `<PROJECT_ROOT>/.ralph/<slug>/qa-{N}.md`
+- 커스텀 역할 로그: `<PROJECT_ROOT>/.ralph/<slug>/<role>-{N}.md` (있을 경우)
+- 원본 프롬프트: `<PROJECT_ROOT>/.ralph/<slug>/prompt.md`
 ```
 
 ### Rules
@@ -366,6 +427,7 @@ The Phase 6 instruction above is the primary path. The plugin's Stop hook is the
   - `${CLAUDE_PROJECT_DIR}/.claude/ralph-loop.local.md` **exists** → `/ralph-loop` is still iterating. Hook exits 0; ralph-loop plugin's own Stop hook handles continuation.
   - `${CLAUDE_PROJECT_DIR}/.ralph/.report-pending` **absent** → not a run-ralph session (or Phase 6 already cleaned up). Hook exits 0.
   - **otherwise** → ralph ended AND report sentinel still present → hook blocks Stop and injects a Korean prompt telling the Worker to write the Phase 6 report and `rm "$PROJECT_ROOT/.ralph/.report-pending"`.
+- **Why the sentinel lives at `.ralph/.report-pending` (not inside `.ralph/<slug>/`)**: a single Claude session only runs one choo-choo at a time, so a session-level sentinel is sufficient. Keeping it at a fixed top-level path means the Stop hook checks one file (cheap, no glob), regardless of which slug is currently running. Per-run artifacts (prompt, review, qa) are isolated under `.ralph/<slug>/` for inspection longevity; the sentinel is orthogonal to that.
 - **Sentinel lifecycle** (don't touch it from anywhere else):
   - Created by Phase 5 step 2 (`touch "$PROJECT_ROOT/.ralph/.report-pending"`).
   - Removed by Phase 6 step 2 (`rm "$PROJECT_ROOT/.ralph/.report-pending"`) within the final iteration message.
@@ -380,7 +442,7 @@ The Phase 6 instruction above is the primary path. The plugin's Stop hook is the
 - **`references/prompt-template.md`** — Full template structure, quality checklist, anti-patterns, clarification questions per task type
 - **`references/team-composition.md`** — Team templates by task type, custom role triggers, ad-hoc role definition syntax
 - **`references/acceptance-criteria.md`** — 3-level definitions, conditional activation rules, exhaustive ✅/❌ examples per level
-- **`references/example-transformation.md`** — Worked examples: vague request → composed prompt for refactor / infra / trivial-fix cases
+- **`references/example-transformation.md`** — Worked examples: vague request → composed prompt for refactor / infra / trivial-fix / **design-ADR (meta work, no code change)** cases
 
 ## Reusable agents (bundled with this plugin)
 

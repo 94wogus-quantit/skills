@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.32.0):**
+**Key Artifacts (v3.33.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -24,9 +24,9 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.32.0)
+wogus-plugin/  (v3.33.0)
 ├── .claude-plugin/
-│   └── marketplace.json       # 카탈로그 (8 plugins)
+│   └── marketplace.json       # 카탈로그 (9 plugins)
 │
 ├── plugins/                   # 모든 플러그인
 │   ├── wf/                    # 메인 워크플로우 플러그인 (v3.30.0)
@@ -56,9 +56,16 @@ wogus-plugin/  (v3.32.0)
 │   ├── atlassian/
 │   ├── github/                # GitHub MCP (v3.14.0)
 │   ├── slack/                 # Slack MCP
-│   └── arkraft-wiki/          # NEW v3.32: wikify thin wrapper (run-ralph:choo-choo 위임)
+│   ├── arkraft-wiki/          # v3.32: wikify thin wrapper (run-ralph:choo-choo 위임)
+│   │   ├── .claude-plugin/plugin.json
+│   │   └── skills/wikify/     # SKILL + 4 references + settings template
+│   └── blogpost/              # NEW v3.33: multi-agent 블로그 작성 + 이미지 큐레이션 + S3 sync
 │       ├── .claude-plugin/plugin.json
-│       └── skills/wikify/     # SKILL + 4 references + settings template
+│       ├── agents/            # 6 agents (researcher / research-reviewer / image-curator / writer / writing-reviewer / html-renderer)
+│       ├── commands/          # create.md, update.md
+│       ├── scripts/           # render.py + sync_s3.sh + test_fixture/
+│       ├── templates/         # blog.html.j2 (Jinja layout, floating TOC + figure styling)
+│       └── README.md
 │
 ├── ARCHITECTURE.md      # High-level codebase mental map (matklad pattern)
 ├── CLAUDE.md            # This file
@@ -183,7 +190,7 @@ Skills work alongside custom commands in `~/.claude/commands/` for seamless work
 
 ## Marketplace Distribution
 
-Claude Code Marketplace로 배포. 8개 독립 플러그인 (wf, run-ralph, seq-think, terraform, atlassian, github, slack, arkraft-wiki).
+Claude Code Marketplace로 배포. 9개 독립 플러그인 (wf, run-ralph, seq-think, terraform, atlassian, github, slack, arkraft-wiki, blogpost).
 설치 및 배포 방법은 [README.md](README.md) 참조.
 
 ## Development Best Practices
@@ -211,6 +218,7 @@ Claude Code Marketplace로 배포. 8개 독립 플러그인 (wf, run-ralph, seq-
 
 | 버전 | 변경 요약 |
 |------|----------|
+| v3.33.0 | **`blogpost` plugin 신규** (v1.0.0): multi-agent 블로그 작성 + CC 라이선스 이미지 큐레이션 + S3 sync. `/blogpost:create`는 6-agent 파이프라인(researcher → research-reviewer → image-curator → writer → writing-reviewer → html-renderer)으로 자료 조사·이미지 다운로드·초안·HTML 렌더까지 자동화하고 aws CLI로 폴더째 업로드. `/blogpost:update`는 round-trip 편집 (sync down → 사용자 편집 → 재렌더 → sync up). 버킷/프리픽스는 `~/.claude/blogpost.local.md` frontmatter (`bucket` + `prefix`)로 지정. html-renderer 에이전트가 figure/figcaption + callout + section semantics 부여 후 Jinja layout으로 wrap (markdown→HTML 1:1 변환 금지). 이미지 라이선스 hard rule: Unsplash > Pexels > Wikimedia Commons CC만, 출처 metadata.json 기록 필수. plugins 8 → **9**. |
 | v3.32.0 | **`arkraft-wiki` plugin 신규** (v1.0.0): arkraft-wiki repo에 지식 문서 생성하는 wikify thin wrapper. plugin은 wiki content를 직접 작성하지 않고 wiki section 구조 / lifecycle / harness 검사 항목 / repo scan 목록을 references로 묶어 `Skill(run-ralph:choo-choo, ...)` 위임. wiki repo의 10 hooks + 6 skills는 source of truth (dual-source 방지). `wiki_root`는 `.claude/arkraft-wiki.local.md` settings frontmatter로 사용자별 지정. plugins 7 → 8. |
 | v3.31.0 | run-ralph **record harness** 강화 + Phase 1.5 dispatch cache invalidation. (1) `.ralph/.record-pending` sentinel + `run-ralph-record-gate.sh` Stop hook 신설 — origin 대비 commits에 코드 변경 있는데 CHANGELOG.md / changelogs/v*.md 변경 0이면 Stop block. git diff 자체 검사로 doc-only / experiment-only 작업은 false-positive 0. (2) `run-ralph` plugin.json 1.1.0 → **1.2.0** bump으로 marketplace cache 강제 갱신 (v3.30에서 Phase 1.5 wf auto-dispatch가 SKILL.md에 들어갔으나 plugin version 동결로 사용자 cache가 옛 1.1.0 그대로 사용 중이던 문제 해소). (3) `choo-choo/SKILL.md` Phase 5 step 2에서 두 sentinel 동시 touch, Phase 6 4-step 흐름으로 확장 (record decision step 신설). |
 | v3.30.0 | (1) run-ralph(choo-choo) 일반화: 코드 변경 외 ADR/설계/통합/문서 작업도 1급 task type으로. 매 run의 산출물을 `.ralph/<slug>/`로 격리. (2) **wf + arkraft wf2 통합**: Pack A 백본(git MCP / requirement-validator / record)에 Pack B 게이트(외부 wf-review-{analyze,plan,record} agents + wf-review-gate.sh PostToolUse hook + wf:qa skill) 흡수. plan/SKILL.md의 자기검토 루프(`Step A→D`, `REPEAT until zero issues`) 449줄 제거 → 외부 게이트 71줄로 교체. execute/SKILL.md Phase 7.5 신설: `Skill(wf:qa)` spawn으로 acceptance gate. choo-choo Phase 1.5 auto-dispatch: trivial → ralph 직행 / full → wf 5단계 → ralph. wf plugin.json (no version) → 3.30.0. |
@@ -296,10 +304,11 @@ record  → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 
 ## Notes
 
-- **Current version**: v3.32.0
+- **Current version**: v3.33.0
 - **wf** (3.30.0): 5 skills (analyze / plan / execute / qa / record) + 4 agents (requirement-validator + wf-review-{analyze,plan,record}) + git MCP (12 도구) + PostToolUse hook (wf-review-gate.sh). plan은 외부 게이트 의존 (자기검토 루프 제거됨), execute Phase 7.5에서 wf:qa 자동 spawn.
 - **run-ralph (1.2.0)**: choo-choo skill + ralph-reviewer/ralph-qa agents + **2 Stop hooks** (report-gate + record-gate). 의존: `ralph-loop@claude-plugins-official`. ADR/설계/통합/문서 작업 1급 지원, 매 run 산출물 `.ralph/<slug>/` 격리, Sentinel은 `.ralph/.report-pending` + `.ralph/.record-pending` 둘 다 top-level. record-gate는 origin 대비 commits에 코드 변경 + CHANGELOG 미수정이면 Stop block (git diff 자체 검사로 doc-only 작업 false-positive 0).
-- **arkraft-wiki (1.0.0, v3.32 신규)**: wikify thin wrapper. settings (`.claude/arkraft-wiki.local.md`)에서 wiki_root 읽고 wiki section 구조 / lifecycle / harness 검사 항목 / repo scan 목록을 references로 묶어 `Skill(run-ralph:choo-choo, args: ...)` 위임. plugin은 wiki content를 직접 작성 안 함 — wiki repo의 10 PreToolUse/Stop hooks가 source of truth.
+- **arkraft-wiki (1.0.0, v3.32)**: wikify thin wrapper. settings (`.claude/arkraft-wiki.local.md`)에서 wiki_root 읽고 wiki section 구조 / lifecycle / harness 검사 항목 / repo scan 목록을 references로 묶어 `Skill(run-ralph:choo-choo, args: ...)` 위임. plugin은 wiki content를 직접 작성 안 함 — wiki repo의 10 PreToolUse/Stop hooks가 source of truth.
+- **blogpost (1.0.0, v3.33 신규)**: multi-agent 블로그 작성 + 이미지 큐레이션 + S3 sync. 6 agents (researcher / research-reviewer / image-curator / writer / writing-reviewer / html-renderer) + 2 commands (create / update) + render.py + Jinja2 layout + sync_s3.sh. 설정: `~/.claude/blogpost.local.md` frontmatter `bucket` + `prefix`. 의존: aws CLI / curl / python3+jinja2. 이미지 라이선스 hard rule (Unsplash/Pexels/Wikimedia CC만), html-renderer가 markdown 1:1 변환 금지하고 figure/callout semantics 부여. v1.0.0 update는 round-trip 수동 편집 fallback.
 - **seq-think**: 별도 MCP 플러그인
 - **terraform/atlassian/github/slack**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치

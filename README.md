@@ -2,6 +2,8 @@
 
 Claude Code의 확장 기능(Plugins)을 모아둔 저장소입니다. Skills를 중심으로 체계적인 개발 워크플로우를 지원합니다.
 
+> **Current version: v3.33.0** — `blogpost` plugin 신규 추가 (multi-agent 블로그 작성 + CC 이미지 큐레이션 + S3 sync). 자세한 내용은 [CHANGELOG.md](CHANGELOG.md) 참조.
+
 ## 🔌 Plugin이란?
 
 **Plugin**은 Claude Code를 확장하는 모든 기능의 총칭입니다:
@@ -76,6 +78,12 @@ glab mr create --title "feat: JIRA-123 구현"
 
    # YouTube Ask AI 자동화
    /plugin install wogus-plugins:ask-yt
+
+   # arkraft-wiki 지식 문서 관리
+   /plugin install wogus-plugins:arkraft-wiki
+
+   # 블로그 작성 + 이미지 큐레이션 + S3 sync (v3.33 신규)
+   /plugin install wogus-plugins:blogpost
    ```
 
 3. 설치 확인:
@@ -477,7 +485,7 @@ Git URL로 직접 설치합니다:
 ```
 wogus-plugin/
 ├── .claude-plugin/
-│   └── marketplace.json       # 카탈로그 (10 plugins)
+│   └── marketplace.json       # 카탈로그 (9 plugins)
 │
 ├── plugins/                   # 모든 플러그인
 │   ├── wf/                    # 메인 워크플로우 플러그인
@@ -495,7 +503,10 @@ wogus-plugin/
 │   ├── amplitude/
 │   ├── atlassian/
 │   ├── github/                # GitHub MCP
-│   └── ask-yt/                # YouTube Ask CDP 자동화
+│   ├── ask-yt/                # YouTube Ask CDP 자동화
+│   ├── run-ralph/             # Ralph Loop wrapper (choo-choo)
+│   ├── arkraft-wiki/          # 지식 문서 wikify thin wrapper
+│   └── blogpost/              # NEW v3.33 — multi-agent 블로그 작성 + 이미지 큐레이션 + S3 sync
 │
 ├── changelogs/              # 버전별 변경 이력
 ├── CHANGELOG.md             # 버전 카탈로그

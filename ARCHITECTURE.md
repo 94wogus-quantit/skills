@@ -13,7 +13,7 @@ Claude Code를 확장하는 플러그인 컬렉션입니다. 핵심은 **워크�
 
 ### `.claude-plugin/marketplace.json`
 
-마켓플레이스 카탈로그. 10개 독립 플러그인의 메타데이터(이름, 설명, 소스 경로, 태그)를 정의합니다. 사용자가 `/marketplace` 명령으로 설치할 플러그인 목록을 결정합니다.
+마켓플레이스 카탈로그. 9개 독립 플러그인의 메타데이터(이름, 설명, 소스 경로, 태그)를 정의합니다. 사용자가 `/marketplace` 명령으로 설치할 플러그인 목록을 결정합니다.
 
 ### `plugins/wf/`
 
@@ -45,6 +45,17 @@ YouTube 내장 AI "질문하기(Ask)" CDP 자동화 플러그인. `youtube_ask_s
 - `youtube_ask_server.py` — FastMCP 서버. 3개 도구: `open_ask_panel` (패널 열기), `ask_video` (질문), `close_session` (종료). 글로벌 `_pw`/`_page` 상태로 멀티턴 대화 지원.
 - `skills/ask-yt/SKILL.md` — Chrome CDP 설정 가이드(Phase 0) 포함. URL+질문 → AI 응답 자동화 플로우.
 - `.mcp.json` — `uvx --from mcp[cli] --with playwright mcp run` 패턴으로 실행. `--with playwright` 필수.
+
+### `plugins/blogpost/`
+
+Multi-agent 블로그 작성 + CC 라이선스 이미지 큐레이션 + S3 sync 플러그인. 6개 에이전트 + 2개 커맨드 + Jinja2 layout.
+
+- `commands/create.md` — 8-phase 오케스트레이션. settings 검증 → 폴더 skeleton → research/writing 두 개의 verdict-gated loop → image curation → html-render → aws s3 sync.
+- `commands/update.md` — round-trip 편집. s3 sync down → 사용자 편집 → 재렌더 → s3 sync up.
+- `agents/blogpost-{researcher,research-reviewer,image-curator,writer,writing-reviewer,html-renderer}.md` — 책임 분리 6-agent 파이프라인. reviewer는 verdict만, 직접 수정 안 함. Worker self-approval 차단.
+- `scripts/render.py` — Jinja2 layout wrapping driver. html-renderer 에이전트가 산출한 `_render/body.html` + `_render/toc.json`을 `templates/blog.html.j2`로 wrap. markdown→HTML 변환은 명시적으로 안 함 (의미 부여는 에이전트 책임).
+- `scripts/sync_s3.sh` — `up`/`down` 두 모드, `~/.claude/blogpost.local.md` frontmatter에서 bucket+prefix 파싱. 업로드 시 `_source/`, `_render/`, `review-history/` 제외.
+- `templates/blog.html.j2` — 좌 floating sticky TOC + 본문 + figure/figcaption + callout 3색. 외부 CSS/JS 의존 없음.
 
 ### `changelogs/`
 

@@ -1,0 +1,6 @@
+[
+  {"id": "post-title", "level": 1, "label": "샘플 블로그 글"},
+  {"id": "sec-intro", "level": 2, "label": "도입"},
+  {"id": "sec-core", "level": 2, "label": "핵심 내용"},
+  {"id": "references", "level": 2, "label": "참고 자료"}
+]

@@ -5,8 +5,8 @@
     "email": "94wogus@quantit.io"
   },
   "metadata": {
-    "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, Sequential Thinking, Terraform, Atlassian, GitHub, Slack, run-ralph (한국어 기본)",
-    "version": "3.32.0",
+    "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, Sequential Thinking, Terraform, Atlassian, GitHub, Slack, run-ralph, arkraft-wiki, blogpost (한국어 기본)",
+    "version": "3.33.0",
     "repository": "https://github.com/94wogus-quantit/wogus-plugin",
     "homepage": "https://github.com/94wogus-quantit/wogus-plugin#readme",
     "license": "Private"
@@ -75,6 +75,14 @@
       "source": "./plugins/arkraft-wiki",
       "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/arkraft-wiki",
       "tags": ["wiki", "wikify", "documentation", "knowledge-management", "arkraft", "thin-wrapper", "choo-choo"]
+    },
+    {
+      "name": "blogpost",
+      "description": "Multi-agent 블로그 작성 + CC 라이선스 이미지 큐레이션 + S3 sync 플러그인. /blogpost:create는 6-agent 파이프라인(researcher → research-reviewer → image-curator → writer → writing-reviewer → html-renderer)으로 자료 조사·이미지 다운로드·초안·HTML 렌더링까지 자동화하고 aws CLI로 폴더째 S3 업로드. /blogpost:update는 round-trip 편집. 버킷/프리픽스는 ~/.claude/blogpost.local.md frontmatter로 지정.",
+      "category": "productivity",
+      "source": "./plugins/blogpost",
+      "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/blogpost",
+      "tags": ["blog", "blogpost", "writing", "multi-agent", "image-curation", "s3", "jinja", "html"]
     }
   ]
 }

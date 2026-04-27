@@ -1,0 +1,18 @@
+{
+  "topic": "blogpost 플러그인 렌더 픽스처",
+  "tags": ["sample", "fixture"],
+  "created_at": "2026-04-27",
+  "folder": "test_fixture",
+  "images": [
+    {
+      "filename": "image/foo.png",
+      "section": "cover",
+      "alt": "sample image",
+      "source_url": "https://example.com/foo",
+      "download_url": "https://example.com/foo.png",
+      "license": "CC0",
+      "attribution": "Public Domain — Example",
+      "fetched_at": "2026-04-27T00:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>blogpost 플러그인 렌더 픽스처</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #1f2328;
+      --muted: #6b7280;
+      --accent: #2563eb;
+      --border: #e5e7eb;
+      --callout-note: #eef2ff;
+      --callout-warn: #fff7ed;
+      --callout-tip:  #ecfdf5;
+      --max-body: 720px;
+      --sidebar-w: 240px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Pretendard",
+        "Noto Sans KR", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--fg);
+      background: var(--bg);
+      line-height: 1.7;
+      font-size: 16px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+      gap: 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+    aside.toc {
+      position: sticky;
+      top: 24px;
+      align-self: start;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      padding-right: 16px;
+      font-size: 14px;
+    }
+    aside.toc h2 {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 12px;
+    }
+    aside.toc ol {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    aside.toc li { margin: 4px 0; }
+    aside.toc li.level-2 { margin-left: 0; }
+    aside.toc li.level-3 { margin-left: 12px; font-size: 13px; color: var(--muted); }
+    aside.toc a {
+      color: var(--fg);
+      text-decoration: none;
+      display: inline-block;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    aside.toc a:hover { background: var(--callout-note); color: var(--accent); }
+    main { min-width: 0; }
+    article.blog-body {
+      max-width: var(--max-body);
+    }
+    article.blog-body h1 {
+      font-size: 32px;
+      line-height: 1.25;
+      margin: 0 0 8px;
+    }
+    article.blog-body .post-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0 0 32px;
+    }
+    article.blog-body h2 {
+      font-size: 22px;
+      margin: 48px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    article.blog-body h3 { font-size: 17px; margin: 24px 0 8px; }
+    article.blog-body p { margin: 12px 0; }
+    article.blog-body a { color: var(--accent); }
+    article.blog-body figure {
+      margin: 24px 0;
+    }
+    article.blog-body figure img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      display: block;
+    }
+    article.blog-body figure.cover img { border-radius: 12px; }
+    article.blog-body figcaption {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    article.blog-body figcaption .attribution { font-size: 12px; }
+    article.blog-body aside.callout {
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      margin: 20px 0;
+      border-radius: 6px;
+      background: var(--callout-note);
+    }
+    article.blog-body aside.callout-warn { background: var(--callout-warn); border-left-color: #ea580c; }
+    article.blog-body aside.callout-tip  { background: var(--callout-tip);  border-left-color: #059669; }
+    article.blog-body aside.callout .callout-title {
+      font-weight: 600;
+      margin: 0 0 4px;
+      font-size: 14px;
+    }
+    article.blog-body pre {
+      background: #0b1020;
+      color: #e5e7eb;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+    }
+    article.blog-body code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    article.blog-body :not(pre) > code {
+      background: var(--callout-note);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.92em;
+    }
+    article.blog-body section#references ul { padding-left: 18px; }
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; gap: 24px; padding: 16px; }
+      aside.toc { position: static; max-height: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="toc" aria-label="목차">
+      <h2>목차</h2>
+      <ol>
+        <li class="level-1"><a href="#post-title">샘플 블로그 글</a></li>
+        <li class="level-2"><a href="#sec-intro">도입</a></li>
+        <li class="level-2"><a href="#sec-core">핵심 내용</a></li>
+        <li class="level-2"><a href="#references">참고 자료</a></li>
+      </ol>
+    </aside>
+    <main>
+      <article class="blog-body">
+  <h1 id="post-title">샘플 블로그 글</h1>
+  <p class="post-meta">sample · fixture · 2026-04-27</p>
+
+  <figure class="cover">
+    <img src="image/foo.png" alt="sample image" />
+    <figcaption>
+      <span class="caption">렌더 픽스처용 1x1 투명 PNG</span>
+      <span class="attribution">출처: <a href="https://example.com/foo" rel="noopener">CC0 — Public Domain — Example</a></span>
+    </figcaption>
+  </figure>
+
+  <section id="sec-intro">
+    <h2>도입</h2>
+    <p>여기는 도입 문단입니다. 한국어 본문이 잘 렌더링되는지 확인합니다.</p>
+  </section>
+
+  <section id="sec-core">
+    <h2>핵심 내용</h2>
+    <ul>
+      <li>항목 1</li>
+      <li>항목 2</li>
+    </ul>
+
+    <aside class="callout callout-note" role="note">
+      <p class="callout-title">참고</p>
+      <p>이 callout은 html-renderer 변환 규칙에 따라 <code>&lt;aside class="callout callout-note"&gt;</code>로 변환됩니다.</p>
+    </aside>
+  </section>
+
+  <section id="references">
+    <h2>참고 자료</h2>
+    <ul>
+      <li><a href="https://example.com" rel="noopener">예시 링크</a></li>
+    </ul>
+  </section>
+</article>
+
+    </main>
+  </div>
+</body>
+</html>

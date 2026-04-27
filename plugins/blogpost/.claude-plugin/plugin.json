@@ -1,0 +1,9 @@
+{
+  "name": "blogpost",
+  "version": "1.0.0",
+  "description": "Multi-agent blog authoring with image curation and S3 sync. /blogpost:create runs a 6-agent pipeline (researcher → research-reviewer → image-curator → writer → writing-reviewer → html-renderer) over a topic, downloading CC-licensed images from the web and emitting a Jinja-templated blog HTML with floating TOC + figures, then syncs the entire folder to S3 via aws CLI. /blogpost:update pulls an existing blog folder back from S3 for round-trip edits. Bucket and prefix come from ~/.claude/blogpost.local.md.",
+  "author": {
+    "name": "94wogus",
+    "email": "94wogus@quantit.io"
+  }
+}

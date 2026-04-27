@@ -276,13 +276,15 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 ### Workflow Summary
 
 ```
-analyze → *_REPORT.md
+analyze → *_REPORT.md (external review gate → LGTM)
     ↓
-plan → *_PLAN.md (iterative review until ZERO issues)
+plan    → *_PLAN.md   (external review gate → LGTM)
     ↓
 execute → Code implementation + tests
     ↓
-record → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
+qa      → [ISSUE_ID]_QA.md (independent acceptance, PASS required)
+    ↓
+record  → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 ```
 
 ---

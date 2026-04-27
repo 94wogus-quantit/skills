@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.30.0):**
+**Key Artifacts (v3.31.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -24,7 +24,7 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.30.0)
+wogus-plugin/  (v3.31.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (7 plugins)
 │
@@ -50,7 +50,7 @@ wogus-plugin/  (v3.30.0)
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── skills/choo-choo/  # 사용자 트리거: /run-ralph:choo-choo
 │   │   ├── agents/            # ralph-reviewer, ralph-qa
-│   │   └── hooks/             # run-ralph-report-gate.sh + hooks.json
+│   │   └── hooks/             # report-gate.sh + record-gate.sh + hooks.json (v1.2)
 │   ├── seq-think/             # Sequential Thinking MCP
 │   ├── terraform/
 │   ├── atlassian/
@@ -208,6 +208,7 @@ Claude Code Marketplace로 배포. 7개 독립 플러그인 (wf, run-ralph, seq-
 
 | 버전 | 변경 요약 |
 |------|----------|
+| v3.31.0 | run-ralph **record harness** 강화 + Phase 1.5 dispatch cache invalidation. (1) `.ralph/.record-pending` sentinel + `run-ralph-record-gate.sh` Stop hook 신설 — origin 대비 commits에 코드 변경 있는데 CHANGELOG.md / changelogs/v*.md 변경 0이면 Stop block. git diff 자체 검사로 doc-only / experiment-only 작업은 false-positive 0. (2) `run-ralph` plugin.json 1.1.0 → **1.2.0** bump으로 marketplace cache 강제 갱신 (v3.30에서 Phase 1.5 wf auto-dispatch가 SKILL.md에 들어갔으나 plugin version 동결로 사용자 cache가 옛 1.1.0 그대로 사용 중이던 문제 해소). (3) `choo-choo/SKILL.md` Phase 5 step 2에서 두 sentinel 동시 touch, Phase 6 4-step 흐름으로 확장 (record decision step 신설). |
 | v3.30.0 | (1) run-ralph(choo-choo) 일반화: 코드 변경 외 ADR/설계/통합/문서 작업도 1급 task type으로. 매 run의 산출물을 `.ralph/<slug>/`로 격리. (2) **wf + arkraft wf2 통합**: Pack A 백본(git MCP / requirement-validator / record)에 Pack B 게이트(외부 wf-review-{analyze,plan,record} agents + wf-review-gate.sh PostToolUse hook + wf:qa skill) 흡수. plan/SKILL.md의 자기검토 루프(`Step A→D`, `REPEAT until zero issues`) 449줄 제거 → 외부 게이트 71줄로 교체. execute/SKILL.md Phase 7.5 신설: `Skill(wf:qa)` spawn으로 acceptance gate. choo-choo Phase 1.5 auto-dispatch: trivial → ralph 직행 / full → wf 5단계 → ralph. wf plugin.json (no version) → 3.30.0. |
 | v3.29.0 | run-ralph 플러그인 신규 추가: Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level AC + iteration 게이트로 안전 실행하는 choo-choo 스킬. 모든 sentinel/프롬프트 경로를 PROJECT_ROOT 절대경로로 anchor하여 Worker가 sub-dir로 cd해도 게이트가 깨지지 않음. Stop hook은 `${CLAUDE_PROJECT_DIR}` 기준으로 검사. |
 | v3.27.0 | ask-yt 플러그인 신규 추가: YouTube 내장 AI(Ask/질문하기) CDP 자동화 |
@@ -291,9 +292,9 @@ record  → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 
 ## Notes
 
-- **Current version**: v3.30.0
+- **Current version**: v3.31.0
 - **wf** (3.30.0): 5 skills (analyze / plan / execute / qa / record) + 4 agents (requirement-validator + wf-review-{analyze,plan,record}) + git MCP (12 도구) + PostToolUse hook (wf-review-gate.sh). plan은 외부 게이트 의존 (자기검토 루프 제거됨), execute Phase 7.5에서 wf:qa 자동 spawn.
-- **run-ralph (1.1.0)**: choo-choo skill + ralph-reviewer/ralph-qa agents + Stop hook (의존: `ralph-loop@claude-plugins-official`). 코드 변경뿐 아니라 ADR/설계/통합/문서 작업도 1급으로 다룸. 매 run의 산출물은 `.ralph/<slug>/` 하위에 격리(이전 평면 컨벤션은 v3.30에서 deprecated). Sentinel은 `.ralph/.report-pending` top-level 유지.
+- **run-ralph (1.2.0)**: choo-choo skill + ralph-reviewer/ralph-qa agents + **2 Stop hooks** (report-gate + record-gate). 의존: `ralph-loop@claude-plugins-official`. ADR/설계/통합/문서 작업 1급 지원, 매 run 산출물 `.ralph/<slug>/` 격리, Sentinel은 `.ralph/.report-pending` + `.ralph/.record-pending` 둘 다 top-level. record-gate는 origin 대비 commits에 코드 변경 + CHANGELOG 미수정이면 Stop block (git diff 자체 검사로 doc-only 작업 false-positive 0).
 - **seq-think**: 별도 MCP 플러그인
 - **terraform/atlassian/github/slack**: 독립 플러그인
 - 외부 MCP (serena, context7, sentry)는 별도 플러그인으로 설치

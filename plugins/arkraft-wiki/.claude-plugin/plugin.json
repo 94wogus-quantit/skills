@@ -1,0 +1,9 @@
+{
+  "name": "arkraft-wiki",
+  "version": "1.0.0",
+  "description": "arkraft-wiki repo에 지식 문서를 생성/업데이트하는 wikify skill. Thin wrapper로 동작 — wiki section 구조/lifecycle/repo list/wiki repo의 PreToolUse harness 검사 항목을 컨텍스트로 묶어 run-ralph:choo-choo에 위임. wiki repo의 hooks가 실제 enforce 담당. wiki_root 경로는 .claude/arkraft-wiki.local.md settings로 사용자별 지정.",
+  "author": {
+    "name": "94wogus",
+    "email": "94wogus@quantit.io"
+  }
+}

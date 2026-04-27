@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "체계적인 개발 워크플로우를 위한 Claude Code 플러그인 모음 - 워크플로우 번들, Sequential Thinking, Terraform, Atlassian, GitHub, Slack, run-ralph (한국어 기본)",
-    "version": "3.31.0",
+    "version": "3.32.0",
     "repository": "https://github.com/94wogus-quantit/wogus-plugin",
     "homepage": "https://github.com/94wogus-quantit/wogus-plugin#readme",
     "license": "Private"
@@ -67,6 +67,14 @@
       "source": "./plugins/run-ralph",
       "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/run-ralph",
       "tags": ["ralph", "ralph-loop", "iteration", "multi-agent", "review", "qa", "choo-choo", "design", "adr", "integration"]
+    },
+    {
+      "name": "arkraft-wiki",
+      "description": "arkraft-wiki repo에 지식 문서를 생성/업데이트하는 wikify skill. Thin wrapper — wiki 섹션 구조/lifecycle/harness 검사 항목/repo scan 목록을 컨텍스트로 묶어 run-ralph:choo-choo에 위임. wiki repo의 PreToolUse/Stop hooks가 실제 enforce 담당. wiki_root는 .claude/arkraft-wiki.local.md settings로 사용자별 지정.",
+      "category": "documentation",
+      "source": "./plugins/arkraft-wiki",
+      "homepage": "https://github.com/94wogus-quantit/wogus-plugin/tree/main/plugins/arkraft-wiki",
+      "tags": ["wiki", "wikify", "documentation", "knowledge-management", "arkraft", "thin-wrapper", "choo-choo"]
     }
   ]
 }

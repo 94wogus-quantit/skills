@@ -15,6 +15,7 @@
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|----------|
+| [v3.32](changelogs/v3.32.md) | 2026-04-27 | **`arkraft-wiki` plugin 신규** (v1.0.0): wikify thin wrapper. wiki section 구조 / lifecycle / harness 검사 항목을 컨텍스트로 묶어 `run-ralph:choo-choo`에 위임. wiki repo의 10 hooks + 6 skills는 source of truth로 둠 (dual-source 방지). `wiki_root`는 `.claude/arkraft-wiki.local.md` settings로 사용자별 지정. |
 | [v3.31](changelogs/v3.31.md) | 2026-04-27 | run-ralph **record harness** 강화: `.ralph/.record-pending` sentinel + `run-ralph-record-gate.sh` Stop hook으로 "코드 변경 후 CHANGELOG 누락" 차단 (git diff 자체 검사로 false-positive 차단). plugin.json 1.1.0 → **1.2.0** (cache invalidation으로 v3.30 Phase 1.5 dispatch 활성화) |
 | [v3.30](changelogs/v3.30.md) | 2026-04-27 | (1) run-ralph(choo-choo) 일반화 + per-run `.ralph/<slug>/` 격리. (2) **wf + wf2 통합**: 외부 review agents + Stop hook 게이트로 self-approval 차단, qa skill 신설, choo-choo Phase 1.5 auto-dispatch (5 skills + 4 agents + git MCP + PostToolUse hook) |
 | [v3.27](changelogs/v3.27.md) | 2026-02-19 | ask-yt 플러그인 신규 추가: YouTube 내장 AI(Ask/질문하기) CDP 자동화 |

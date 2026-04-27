@@ -60,6 +60,7 @@ The Stop hook (`hooks/run-ralph-report-gate.sh`) uses `${CLAUDE_PROJECT_DIR}` fo
 ## Phase overview
 
 1. **Clarify** — Resolve ambiguity through 1–3 targeted questions.
+1.5. **Auto-dispatch classification** — Score the task on trivial vs full-pipeline signals. trivial → ralph direct. full → run `wf:analyze → plan → execute → qa → record` first, then return to Phase 2 with the wf artifacts as context.
 2. **Team Composition** — Pick the default team for the task type, add custom roles when triggered.
 3. **Acceptance Criteria** — Define 3 levels (Concrete / Structural / Holistic) with conditional enforcement.
 4. **Compose** — Generate the prompt with team workflow embedded.
@@ -87,6 +88,112 @@ Principles:
 - Explore the repo briefly before asking — reflect what you found in the question.
 
 Detailed task-type guides: see `references/prompt-template.md` ("Clarification questions by task type").
+
+---
+
+## Phase 1.5: Auto-dispatch classification
+
+After Phase 1, before Phase 2, classify the task to decide whether to run the new `wf` plugin's full pipeline (`wf:analyze → plan → execute → qa → record`) before composing the Ralph Loop prompt, or skip wf entirely and go straight into Phase 2.
+
+**Why this exists**: simple, contained tasks (typo fix, single-line tweak) don't need a 5-skill external review pipeline — the overhead would dwarf the work. But anything with cross-file impact, schema/API changes, or formal issue tracking benefits from going through wf first because wf produces analyzed REPORT, externally-reviewed PLAN, executed code, independently-QA'd verification, and documented record — all of which then feed into Ralph's Phase 4 prompt as concrete acceptance criteria.
+
+### Classification heuristic (single section — do not scatter the logic)
+
+Compute two scores from the user's request + a brief initial repo grep.
+
+```
+# trivial threshold = 3: 5개 신호 중 과반(50% 초과) 충족 시 trivial 분류 — 명확한 다수결
+# full 신호 가중치 ×2: 구조적 변경(schema/API/cross-file)은 단순 패턴 신호보다 정책 영향이 크므로 가중
+# full threshold = 4: 가중치 +2 신호 2개만으로도 도달 — 단 하나의 강한 구조적 신호도 full 강제 가능
+# diff < 50 lines: 단일 함수/변수 수정 수준 (한 화면 내 검토 가능) — 경험적 기준
+
+trivial 신호 (각 +1; 누적 ≥ 3 → trivial):
+  - 단일 파일 수정 의도 (사용자 발언에 1 file path만 있고 cross-file 언급 없음)
+  - diff 예상 < 50 lines (typo, color value, 임계값 1개 등)
+  - JIRA-ID 미언급 (PROJ-NNN 형태 없음)
+  - 새 추상화 (class / function / file) 도입 안 함
+  - 외부 인터페이스 / 스키마 영향 없음 (purely internal detail)
+
+full-pipeline 신호 (각 +2; 누적 ≥ 4 → full):
+  - cross-file refactor 또는 ≥3 file 변경 의도
+  - JIRA-ID 명시 (PROJ-NNN 형태)
+  - 사용자 발언에 "기능 추가 / feat / 새로 / refactor / migrate / 통합 / merge" 류 키워드
+  - schema / API / migration / DB / 인프라 변경 신호
+  - 새 파일 생성 또는 의존성 추가
+  - 메타 / 설계 / 문서 작업 (ADR, integration design 등 — Design/Meta 카테고리)
+```
+
+### Decision logic
+
+```
+if trivial_score >= 3 AND full_score < 4:
+    mode = "TRIVIAL"        # → skip wf, go straight to Phase 2
+elif full_score >= 4:
+    mode = "FULL"           # → run wf:analyze → plan → execute → qa → record, then Phase 2
+else:
+    # ambiguous (둘 다 약하거나 둘 다 강함)
+    mode = ASK_USER         # one-shot AskUserQuestion override
+    # default-on-uncertainty = "FULL" (안전 쪽 — 시간 약간 더 들지만 품질 보장)
+```
+
+### TRIVIAL flow
+
+No wf skills are invoked. Proceed to Phase 2 with no wf artifacts. The Ralph Loop's own Reviewer + QA + Acceptance Criteria are sufficient for trivial work.
+
+### FULL flow
+
+Run the wf pipeline before composing the Ralph prompt. Each wf skill is invoked as a Skill (not as a sub-agent — wf skills are user-invocable):
+
+```
+1. Skill(wf:analyze)   → produces [ISSUE_ID]_REPORT.md
+                          (wf-review-gate.sh hook auto-spawns wf:wf-review-analyze; iterate until LGTM)
+
+2. Skill(wf:plan)      → produces [FEATURE]_PLAN.md
+                          (hook auto-spawns wf:wf-review-plan; iterate until LGTM)
+
+3. Skill(wf:execute)   → produces code changes + AC Achievement Report
+                          (Phase 7.5 internally spawns wf:qa; resumes only when wf:qa returns PASS)
+
+4. Skill(wf:record)    → produces README / CHANGELOG / ARCHITECTURE updates
+                          (hook auto-spawns wf:wf-review-record on CHANGELOG.md write)
+```
+
+After `wf:record` exits cleanly, return to Phase 2 with the following artifacts available as Phase 4 prompt context:
+
+- `[ISSUE_ID]_REPORT.md` — root cause + reproduction (informs Constraints + Steps)
+- `[FEATURE]_PLAN.md` — task breakdown + success criteria (informs Acceptance Criteria L1)
+- `[ISSUE_ID]_QA.md` — independently-verified PASS verdict (becomes a Phase 4 reference, not a re-test)
+- The actual git diff from execute (informs scope of L2 Reviewer review)
+
+The Ralph Loop's own Phase 2-5 still runs after this — it's not redundant. wf produces the *first-pass* implementation; Ralph's iteration is for whatever residual cycles are needed (additional acceptance criteria, persona checks, follow-up tweaks).
+
+### Ambiguous → AskUserQuestion
+
+When neither score dominates, ask once:
+
+```
+"이 작업이 새 wf 풀 파이프라인을 거쳐야 할지 모호합니다. 어떻게 진행할까요?
+  - FULL: wf 5단계 (analyze → plan → execute → qa → record) 후 ralph
+  - TRIVIAL: ralph 직행
+  - 자세히: 점수 계산 결과를 보여줘"
+```
+
+If the user picks "자세히", show the trivial_score / full_score breakdown with which signals fired, then ask again.
+
+### Edge case: graceful degradation
+
+If `wf` plugin is not installed (Skill resolution fails for `wf:analyze`), output:
+
+```
+⚠️ wf plugin not available — falling back to TRIVIAL flow. Install the wf plugin
+   for automatic full-pipeline dispatch on complex tasks.
+```
+
+…and proceed to Phase 2 directly. Do not block the Ralph Loop on missing wf.
+
+### Anti-pattern: scattered dispatch logic
+
+Do **not** sprinkle if-then dispatch checks throughout other phases. The classification + decision must live entirely in this single section so future Workers can find and tune it in one place.
 
 ---
 

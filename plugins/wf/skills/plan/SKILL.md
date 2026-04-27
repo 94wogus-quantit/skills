@@ -4,21 +4,20 @@ description: Create high-quality implementation plans through iterative refineme
 user-invocable: true
 ---
 
-# Plan - Iterative Plan Refinement
+# Plan - Externally-Gated Plan Refinement
 
-## ⛔ MANDATORY: Feedback Loop Until Perfect
+## ⛔ MANDATORY: External Review Gate (no self-review)
 
-> **NEVER stop after just one feedback cycle.**
+> **The Worker that writes the plan must NOT review the plan.**
 >
-> After reviewing the plan, if there are any changes needed:
+> Pre-v3.30 versions of this skill ran a self-review loop inside the same session that wrote the plan. That pattern is structurally biased — the author of a plan is incentivized to declare it done. v3.30 replaces self-review with an external gate:
 >
-> 1. Apply feedback
-> 2. Review again
-> 3. Still have changes? → Go back to step 1
-> 4. **Only exit when there are ZERO remaining issues**
+> 1. Worker writes `[FEATURE]_PLAN.md` (Phase 2 output).
+> 2. The wf plugin's `wf-review-gate.sh` hook (`PostToolUse(Write)`) detects the write and injects a `systemMessage` requesting the Worker to spawn the `wf:wf-review-plan` agent.
+> 3. Worker spawns the agent. The agent reads the plan in a fresh context, applies `references/review_checklist.md`, and writes `[FEATURE]_PLAN_REVIEW.md` with `VERDICT: LGTM` or `VERDICT: REVISE`.
+> 4. Worker reads the verdict file. **REVISE → apply feedback, Write the plan again (re-triggers the gate). LGTM → proceed to Phase 4.**
 >
-> It is NORMAL to iterate **at least 2-3 times**.
-> If the first review gives "Approve", the review was too lenient.
+> The hook + external agent pair is the load-bearing mechanism that prevents premature "Approve". The Worker never produces its own LGTM.
 
 ---
 
@@ -42,16 +41,16 @@ ALL outputs, plans, review comments, and communications MUST be in **KOREAN** un
 
 ## Overview
 
-Create production-ready implementation plans through systematic refinement cycles. This skill combines plan creation, critical review, and feedback application in an automated loop, continuously improving the plan until it achieves high quality standards.
+Create production-ready implementation plans, gated by an independent external reviewer (`wf:wf-review-plan` agent) that runs after each plan write. The Worker writes the plan; the agent judges it; the Worker applies feedback if needed and writes again. The skill exits only when the latest external `[FEATURE]_PLAN_REVIEW.md` carries `VERDICT: LGTM`.
 
-**Process**: Plan → Review → Apply Feedback → Review Again → Apply Feedback → Review Again → ... → Final Approved Plan
+**Process**: Plan → (Worker Writes) → External Review Gate → REVISE → Apply Feedback → Write again → External Review Gate → ... → LGTM → Finalize
 
 **Output**:
 
-- `[FEATURE]_PLAN.md` - Thoroughly reviewed, production-ready implementation plan
-- Intermediate review artifacts automatically cleaned up
+- `[FEATURE]_PLAN.md` — production-ready implementation plan, externally approved
+- `[FEATURE]_PLAN_REVIEW.md` — most recent external verdict (kept as audit artifact)
 
-**Key Feature**: Iterates automatically until **zero issues remain** in the review process. NOT just once, but repeatedly until perfect.
+**Key Feature**: Worker never self-approves. The exit gate is an external agent's verdict file, not the Worker's own judgment.
 
 ## When to Use This Skill
 
@@ -94,7 +93,7 @@ Output:
 ```
 
 **⛔ SKIP Phase 0, Phase 1, Phase 2 entirely.**
-**→ Jump directly to Phase 3: Ralph Loop Single Iteration.**
+**→ Jump directly to Phase 3: External Review Gate.**
 
 ---
 
@@ -110,7 +109,7 @@ Register the following Phases in order using `TaskCreate`:
 | ------- | --------------------- | -------------------------- |
 | Phase 1 | Branch Validation     | Validating branch          |
 | Phase 2 | Initial Plan Creation | Creating initial plan      |
-| Phase 3 | Iterative Review Loop | Reviewing plan iteratively |
+| Phase 3 | External Review Gate  | Awaiting external review   |
 | Phase 4 | Finalization          | Finalizing plan            |
 
 **Task Tracking Rules**:
@@ -308,488 +307,111 @@ Use `mcp__plugin_seq-think_st__sequentialthinking` to optimize execution speed:
 
 > **⚠️ Evidence Trail**: Include the accumulated Context Log as the "Context & Reasoning" section in the PLAN document (after "Constraints", before "Task Breakdown").
 
-### Phase 3: ITERATIVE REVIEW LOOP
+### Phase 3: External Review Gate
 
 > 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
 
-⚠️ **CRITICAL**: This is a LOOP, not a single pass-through phase!
-
-This phase implements an explicit WHILE-style loop that repeats until ZERO issues remain.
+> **Replaces the pre-v3.30 self-review loop.** The Worker that wrote `[FEATURE]_PLAN.md` does **not** review it — `wf:wf-review-plan` does, in a separate context, via the plugin's `wf-review-gate.sh` PostToolUse(Write) hook.
 
 ---
 
-#### ⭐ Preferred Method: ralph-loop Integration
+#### How the gate works
 
-**Step 0: Determine Review Mode**
-
-**IF RALPH LOOP ITERATION MODE** (detected at Startup):
-→ Proceed directly to **[Ralph Loop: Single Iteration]** below.
-
-**IF NORMAL MODE (first run)**:
-
-Attempt to start ralph-loop with a completion promise:
+When `[FEATURE]_PLAN.md` is written via the Write tool, `wf-review-gate.sh` (registered in `plugins/wf/hooks/hooks.json`) intercepts the PostToolUse event and emits a `systemMessage` of the form:
 
 ```
-Tool: Skill
+[wf-review-gate] [FEATURE]_PLAN.md 작성 감지. wf:wf-review-plan 에이전트를 소환하여 리뷰해주세요.
+Agent(subagent_type: "wf:wf-review-plan", description: "Plan 리뷰", prompt: "...")
+```
+
+The Worker follows that message verbatim. The agent reads the PLAN in a fresh context (no anchoring on the Worker's reasoning), applies the checklist defined in `plugins/wf/agents/wf-review-plan.md`, and writes `[FEATURE]_PLAN_REVIEW.md` (or `[FEATURE]_PLAN_REVIEW_v[N].md` if iterating) ending with `VERDICT: LGTM` or `VERDICT: REVISE`.
+
+When the review file is written, the same hook fires again on Pattern 4 (`*_REVIEW.md`). It reads the VERDICT line and emits one of:
+
+- **REVISE** → Worker is told to apply the feedback and Write `[FEATURE]_PLAN.md` again, which re-triggers the review cycle.
+- **LGTM** → Worker proceeds to Phase 4 (Finalization).
+
+There is no internal `WHILE total_issues > 0` loop in this skill. The Worker's only job each cycle is: write/edit the plan, follow the hook's spawn prompt, read the verdict, and either revise or proceed.
+
+---
+
+#### Step 0: Initial PLAN.md write
+
+After Phase 2 produced the plan content in memory, save it:
+
+```
+Tool: Write
 Args:
-  skill: "ralph-loop:ralph-loop"
-  args: "[FEATURE]_PLAN.md --completion-promise PLAN_APPROVED"
+  file_path: "[FEATURE]_PLAN.md"
+  content: "<full plan body from Phase 2 — including Evidence Trail / Context Log>"
 ```
 
-- **If Skill call succeeds**: ralph-loop is now active → Proceed to **[Ralph Loop: Single Iteration]**
-- **If Skill call fails / not available**:
-  - Output: `ℹ️ ralph-loop not available, using built-in review loop`
-  - Proceed to **[Fallback Method]** below
+This Write triggers Pattern 2 of `wf-review-gate.sh` and produces a `systemMessage` requesting `wf:wf-review-plan` spawn. **Follow that systemMessage.**
 
----
-
-#### 🔁 Ralph Loop: Single Iteration
-
-This is ONE iteration of the review cycle. ralph-loop handles restarting between iterations automatically via its Stop hook.
-
-**Steps:**
-
-1. Run **Steps A → B → C** (review, count issues, decision gate) from the Fallback Method below.
-
-2. **Decision Gate Result:**
-
-   **IF approved** (ZERO issues, Assessment = "Strong", Recommendation = "Approve"):
-   - Run Phase 4 (Finalization) steps.
-   - Output the **exact** completion promise text:
-     ```
-     PLAN_APPROVED
-     ```
-   - *(ralph-loop detects this string and stops the loop automatically)*
-
-   **IF not approved** (issues remain):
-   - Run **Step D** (Apply Feedback) once.
-   - Save updated `[FEATURE]_PLAN.md`.
-   - Output:
-     ```
-     🔄 Iteration [N] complete - [X] issues remain
-        → ralph-loop will restart for Iteration [N+1]
-     ```
-   - **STOP.** Do NOT loop internally. ralph-loop's Stop hook handles the next iteration.
-
----
-
-#### 🔄 Fallback Method: Built-in Review Loop
-
-**Use this method when ralph-loop is not available or fails.**
-
-### Loop Entry Condition
-
-- Initial plan exists: `[FEATURE]_PLAN.md`
-- Iteration counter: N = 1
-
-### Loop Body (REPEAT these steps until exit condition met):
-
-#### Step A: Review (Iteration #N)
-
-1. **Read Previous Review (if N > 1)**
-   - **Try** to load `[FEATURE]_PLAN_REVIEW_v[N-1].md` using Read tool
-   - **If file not found** (may have been deleted):
-     - Output warning: "⚠️ Previous review file not found (v[N-1]). Treating as first iteration."
-     - Proceed as if N=1 (all issues will be tagged as [NEW])
-     - Skip to Step 2
-   - **If file found**:
-     - Note what issues were identified last iteration
-     - ⚠️ **CRITICAL**: This context helps verify fixes, NOT to limit current review scope
-     - Purpose: Track progress and ensure previous Required Changes were addressed
-
-2. **Read Current Plan**
-   - Load `[FEATURE]_PLAN.md` using Read tool
-   - Review all sections comprehensively
-
-3. **Perform FULL FRESH Critical Review** ⚠️ MANDATORY
-   - Use `mcp__plugin_seq-think_st__sequentialthinking` to analyze
-   - Apply **ENTIRE** `references/review_checklist.md` systematically
-
-   **⛔ CRITICAL INSTRUCTION**:
-   - **DO NOT assume** sections are OK just because previous review didn't flag them
-   - **APPLY FULL CHECKLIST FROM SCRATCH** every time - not just previous issue categories
-   - **LOOK FOR NEW PROBLEMS** - each iteration should discover different types of issues
-
-   **Review Focus Areas:**
-   - **GitHub Repository Validation** (if applicable)
-     - Code style alignment
-     - Architecture compatibility
-     - Dependency conflicts
-     - Test coverage impact
-
-   - **Completeness Analysis**
-     - Missing components or steps
-     - Overlooked edge cases
-     - Error handling
-     - Rollback procedures
-     - Data migration needs
-     - Backward compatibility
-
-   - **Task Independence Review** (CRITICAL)
-     - See `references/task_independence_guide.md`
-     - Verify each task can be implemented independently
-     - Check dependencies are explicit and clear
-     - Ensure isolated test scope
-     - Confirm success measurable without other tasks
-
-   - **Testing Strategy Verification** (CRITICAL)
-     - See `references/testing_strategy_guide.md`
-     - Verify Testing Strategy section exists for each task
-     - Check test type appropriate
-     - Ensure test cases specific and concrete
-     - Confirm acceptance criteria measurable
-     - Verify test commands provided
-     - Check coverage of happy path AND edge cases
-
-   - **Feasibility Assessment**
-     - Technical viability
-     - Resource requirements
-     - Time estimates
-     - Required skills
-
-   - **Risk Analysis**
-     - Critical risks identified
-     - Likelihood and impact assessed
-     - Mitigation strategies present
-
-   - **Quality & Best Practices**
-     - Code quality standards
-     - Security considerations
-     - Performance implications
-     - Maintainability
-
-4. **Categorize Findings**
-
-   For each issue found, mark its origin:
-   - **[CARRYOVER]** - Also found in previous review (not fixed or insufficiently fixed)
-   - **[NEW]** - Newly discovered in this iteration
-
-   **How to determine**:
-   - If N=1 (first iteration): All issues are [NEW]
-   - If N>1: Compare with previous review file
-     - Issue mentioned in previous review → [CARRYOVER]
-     - Issue NOT mentioned in previous review → [NEW]
-
-   **Purpose of tracking**:
-   - **Progress verification**: Are fixes working? (CARRYOVER count should decrease)
-   - **Continuous improvement**: Are we finding new problems? (NEW count should be >0 in early iterations)
-   - **Audit trail**: What improved each iteration?
-
-   **Example**:
-
-   ```markdown
-   ### Required Changes (Must Fix) 🔴
-
-   #### Testing Strategy Issues (CRITICAL)
-
-   1. [CARRYOVER] **Task A**: Test cases still too generic - need specific Given/When/Then
-   2. [NEW] **Task C**: Missing edge case testing for null inputs
-   3. [NEW] **Task D**: No test commands provided
-   ```
-
-5. **Save Review with Version Number**
-   - Save as: `[FEATURE]_PLAN_REVIEW_v[N].md` (keep version number!)
-   - **Include both CARRYOVER and NEW issues in findings**
-   - Maintain the structure below
-
-   **Required format for findings**:
-   - Each issue must have [CARRYOVER] or [NEW] prefix
-   - Group by category (Testing Strategy, Task Independence, etc.)
-   - Clear task reference (Task ID or name)
-
-   Example structure:
-
-   ```markdown
-   # Plan Review: [Plan Name] (Iteration [N])
-
-   ## Executive Summary
-
-   - **Overall Assessment**: Strong / Good / Needs Improvement / Major Concerns
-   - **Recommendation**: Approve / Needs Iteration
-
-   ## Critical Findings
-
-   ### Required Changes (Must Fix) 🔴
-
-   #### Testing Strategy Issues
-
-   1. [CARRYOVER] **Task A**: Test cases still too generic - need specific Given/When/Then
-   2. [NEW] **Task C**: Missing edge case testing for null inputs
-
-   ### Suggested Improvements (Should Fix) 🟡
-
-   1. [CARRYOVER] **Task B**: Consider adding integration tests
-   2. [NEW] **Task D**: Enhance error messages
-
-   ### Optional Enhancements (Nice to Have) 🟢
-
-   1. [Enhancement]
-
-   ### Questions for Clarification ❓
-
-   1. [Ambiguous aspect]
-   ```
-
-6. **Output Iteration Status** (see template in Loop Exit Condition section)
-
-#### Step B: Count Issues
-
-Parse `[FEATURE]_PLAN_REVIEW_v[N].md` and count:
+If the gate is unavailable for any reason (plugin disabled, hook misconfigured), spawn the agent manually:
 
 ```
-required_changes_count = count of 🔴 Required Changes
-suggested_improvements_count = count of 🟡 Suggested Improvements
-total_issues = required_changes_count + suggested_improvements_count
+Tool: Agent
+Args:
+  subagent_type: "wf:wf-review-plan"
+  description: "Plan 리뷰"
+  prompt: |
+    phase: plan
+    artifact_path: [FEATURE]_PLAN.md
+    report_path: [ISSUE_ID]_REPORT.md   # if exists, for cross-reference
+
+    위 파일을 Plan 리뷰 체크리스트에 따라 평가해주세요.
+    VERDICT: LGTM 또는 REVISE로 반환하고, 결과를 같은 디렉토리에
+    [FEATURE]_PLAN_REVIEW.md로 저장해주세요.
 ```
 
-Extract from review:
+#### Step 1: Read the verdict file
 
-- Overall Assessment value
-- Recommendation value
+After the agent finishes, Read `[FEATURE]_PLAN_REVIEW.md`. Locate the final `VERDICT:` line.
 
-#### Step C: Decision Gate (STRICT)
+#### Step 2: Verdict gate
 
-**Step C-1: Basic Checks**
+| Verdict | Action |
+|---------|--------|
+| `LGTM` | Phase 4 (Finalization)로 진행. 이 skill은 자체적으로 LGTM을 발행하지 않으며, 외부 agent의 verdict만 인정한다. |
+| `REVISE` | review 본문의 "수정 요청" 섹션을 읽고 PLAN의 해당 섹션을 Edit한다. 모든 요청 처리 후 PLAN.md를 다시 Write한다 → Pattern 2 hook 재발화 → 새 review-* 생성 → Step 1로 복귀. |
 
-```
-IF (total_issues == 0 AND
-    Overall Assessment == "Strong" AND
-    Recommendation == "Approve"):
-    → Continue to Step C-2
-ELSE:
-    → Go to Step D (Apply Feedback)
-```
+#### Step 3: AC Coverage Check (when JIRA / issue ID linked)
 
-**Step C-2: AC Coverage Check (When JIRA issue linked)**
+Independent of the LGTM/REVISE cycle above, when an issue ID is present in the PLAN's metadata, after the first LGTM run the requirement-validator agent for AC coverage:
 
 ```
-IF (JIRA issue linked):
-    1. 🤖 Call requirement-validator agent using Task tool:
+Tool: Task
+Args:
+  subagent_type: "wf:requirement-validator"
+  description: "AC pre-validation"
+  prompt: |
+    Mode 2: Pre-validation
 
-       Tool: Task
-       Args:
-         subagent_type: "wf:requirement-validator"
-         description: "AC pre-validation"
-         prompt: |
-           Mode 2: Pre-validation
+    계획이 모든 AC를 커버하는지 검증합니다.
 
-           계획이 모든 AC를 커버하는지 검증합니다.
+    Input:
+    - PLAN 파일: [FEATURE]_PLAN.md
+    - Issue key: {ISSUE_KEY}
 
-           Input:
-           - PLAN 파일: [FEATURE]_PLAN.md
-           - JIRA issue key: {JIRA_KEY}
-
-           Output:
-           - AC Coverage 퍼센트
-           - 누락된 AC 목록
-
-    2. Check AC Completeness:
-       IF (AC Completeness < 100%):
-           → Add Required Change to review file:
-             "AC#X missing - Task addition needed"
-           → Recommendation: "Needs Iteration"
-           → Go to Step D (Apply Feedback)
-       ELSE:
-           → AC Completeness: 100% ✅
-           → EXIT LOOP → Go to Phase 4
-
-ELSE:
-    → No JIRA issue, skip AC Check
-    → EXIT LOOP → Go to Phase 4
+    Output:
+    - AC Coverage 퍼센트
+    - 누락된 AC 목록
 ```
 
-**⛔ STRICT Approval Criteria (ALL must be true):**
+If AC Coverage < 100%, inject the missing AC into the PLAN, Write again to re-trigger the gate, and loop back to Step 1. If AC Coverage = 100%, proceed to Phase 4.
 
-- Overall Assessment: "Strong"
-- Recommendation: "Approve"
-- Required Changes: ZERO
-- Suggested Improvements: ZERO or trivial
-- **AC Completeness: 100%** (when JIRA issue linked)
+#### Why this is structurally safer than the old self-review loop
 
-**If ANY issues remain → Continue to Step D!**
+- **Independence**: the agent runs with no memory of why the Worker chose particular tasks, so it judges the plan on its own merits.
+- **Bounded latency**: the Worker no longer iterates internally on the same context for hours. Each cycle is one Write + one agent spawn + one verdict read + one Edit pass.
+- **Auditable**: every cycle leaves a `[FEATURE]_PLAN_REVIEW*.md` artifact behind, so the verdict trail is inspectable post-hoc.
+- **No fake "Approve" pressure**: the Worker cannot self-declare LGTM. The skill's exit gate is literally the agent's verdict file.
 
-#### Step D: Apply Feedback
+#### Legacy notes
 
-1. **Parse Review Feedback**
+The old Phase 3 contained an internal Step A → Step B → Step C → Step D loop that repeated until "ZERO issues" — and a parallel "ralph-loop integration" branch that delegated the loop to the ralph-loop plugin. Both are removed in v3.30. If you find pre-v3.30 prompts referencing those steps, treat them as obsolete; the external gate above is the only supported review path.
 
-   Extract and categorize from `[FEATURE]_PLAN_REVIEW_v[N].md`:
-   - Required Changes (Must Fix) - Priority 1
-   - Testing Strategy Issues - Priority 1
-   - Task Independence Issues - Priority 1
-   - Suggested Improvements - Priority 2
-   - Optional Enhancements - Priority 3
-
-2. **Address Required Changes**
-
-   For each required change:
-   - Locate section in plan using Read tool
-   - Apply recommended change using Edit tool
-   - Verify change addresses feedback
-   - Ensure consistency with rest of plan
-
-3. **Fix Testing Strategies**
-
-   For tasks missing or having inadequate testing:
-   - Refer to `references/testing_strategy_guide.md` for examples
-   - Add: Test type, specific test cases, measurable acceptance criteria, runnable test commands
-   - Ensure coverage of happy path AND edge cases
-
-4. **Resolve Task Independence Issues**
-
-   Refer to `references/task_independence_guide.md` for guidance on:
-   - Splitting tightly coupled tasks
-   - Defining clear interfaces
-   - Extracting shared functionality
-   - Making tasks independently testable
-
-5. **Apply Suggested Improvements**
-
-   Evaluate and apply improvements that add value while maintaining plan consistency.
-
-6. **Verification After Changes**
-
-   Use `mcp__plugin_seq-think_st__sequentialthinking` to verify:
-   - [ ] All required changes applied
-   - [ ] All testing strategies complete
-   - [ ] All task independence issues resolved
-   - [ ] Plan structure maintained
-   - [ ] Dependencies still correct
-
-7. **Update and Track Iteration**
-   - Save updated `[FEATURE]_PLAN.md`
-   - **KEEP review file `[FEATURE]_PLAN_REVIEW_v[N].md`** (do NOT delete yet!)
-   - Increment iteration counter: N = N + 1
-   - Output iteration transition message (see template below)
-
-8. **MANDATORY: Loop Back to Step A**
-   - **Do NOT skip this step!**
-   - **Do NOT ask user for approval** - automatic iteration is the core principle
-   - Go back to Step A with new iteration number (N+1)
-   - Perform another review to verify applied changes
-   - Continue loop until review finds ZERO issues
-
-   **⚠️ CRITICAL**: This is an **automatic** loop. Do NOT:
-   - Ask "Should I continue to next iteration?"
-   - Wait for user confirmation
-   - Stop mid-iteration
-
-   **ONLY exit when**: Step C Decision Gate determines "total_issues == 0"
-
-**Iteration Transition Message Template:**
-
-```
-🔄 Iteration Transition
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Completed: Iteration [N]
-  - Applied: [X] Required Changes
-  - Applied: [Y] Suggested Improvements
-  - Review file saved: [FEATURE]_PLAN_REVIEW_v[N].md
-
-Next: Iteration [N+1]
-  → Proceeding to Step A (Review updated plan)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-### Iteration Status Template (MUST output after each Step B)
-
-```
-📊 Iteration Status Report
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Iteration Number: [N]
-Review File: [FEATURE]_PLAN_REVIEW_v[N].md
-
-Issues Found:
-  🔴 Required Changes: [X]
-  🟡 Suggested Improvements: [Y]
-  📊 Total Issues: [X + Y]
-
-Overall Assessment: [Strong / Good / Needs Improvement / Major Concerns]
-Recommendation: [Approve / Needs Iteration]
-
-Decision:
-  [❌ NOT READY - Proceeding to Step D, then Iteration [N+1]]
-  [OR]
-  [✅ READY - ZERO issues found, exiting loop to Phase 3]
-
-Next Action:
-  [→ Step D: Apply feedback, then loop back to Step A for Iteration [N+1]]
-  [OR]
-  [→ Exit to Phase 3 (Finalization)]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
-### Loop Exit Condition (ALL must be true)
-
-- ✅ total_issues == 0
-- ✅ Overall Assessment == "Strong" (NOT "Good")
-- ✅ Recommendation == "Approve" (NOT "Needs Iteration")
-- ✅ required_changes_count == 0
-- ✅ suggested_improvements_count == 0 OR only trivial ones
-
-⛔ **FORBIDDEN**: Exiting loop if ANY issue remains!
-
-### Loop Visualization
-
-```
-WHILE (total_issues > 0 OR Overall Assessment != "Strong") DO:
-
-  ┌─────────────────────────────────────────────────────────┐
-  │  Step A: Review Plan (Iteration #N)                     │
-  │  - Read current plan                                    │
-  │  - Perform critical review                              │
-  │  - Save as [FEATURE]_PLAN_REVIEW_v[N].md                │
-  │  - Output iteration status                              │
-  └────────────────────┬────────────────────────────────────┘
-                       ▼
-  ┌─────────────────────────────────────────────────────────┐
-  │  Step B: Count Issues                                   │
-  │  - required_changes_count = count of 🔴                 │
-  │  - suggested_improvements_count = count of 🟡           │
-  │  - total_issues = sum                                   │
-  │  - Extract Overall Assessment                           │
-  │  - Extract Recommendation                               │
-  └────────────────────┬────────────────────────────────────┘
-                       ▼
-  ┌─────────────────────────────────────────────────────────┐
-  │  Step C: Check Exit Condition                           │
-  │                                                          │
-  │  IF (total_issues == 0 AND                              │
-  │      Overall Assessment == "Strong" AND                 │
-  │      Recommendation == "Approve"):                      │
-  │                                                          │
-  │      ✅ EXIT LOOP → Go to Phase 3                       │
-  │                                                          │
-  │  ELSE:                                                  │
-  │      ❌ CONTINUE → Go to Step D                         │
-  └────────────────────┬────────────────────────────────────┘
-                       ▼
-  ┌─────────────────────────────────────────────────────────┐
-  │  Step D: Apply Feedback                                 │
-  │  - Parse review feedback                                │
-  │  - Address required changes                             │
-  │  - Fix testing strategies                               │
-  │  - Resolve task independence issues                     │
-  │  - Apply suggested improvements                         │
-  │  - Verify all changes                                   │
-  │  - Save updated plan                                    │
-  │  - KEEP review file (do NOT delete)                     │
-  │  - Increment N: N = N + 1                               │
-  │  - Output iteration transition message                  │
-  │  - **MANDATORY: LOOP BACK TO STEP A**                   │
-  └────────────────────┬────────────────────────────────────┘
-                       │
-                       └──────► LOOP BACK TO STEP A (Iteration N+1)
-
-END WHILE
-
-✅ Exit to Phase 3: Finalization
-```
-
-**⚠️ Red Flags to Watch:**
-
-- If iteration 1 shows "Approve" → Review was too lenient, be more critical!
-- If iteration > 5 → Plan may need fundamental restructuring
-- If same issues reappear → Changes not addressing root cause
 
 ### Phase 4: Finalization
 
@@ -915,15 +537,13 @@ Run: `execute [FEATURE]_PLAN.md`
 - Verify changes after applying
 - Maintain plan consistency
 
-**Iteration (⚠️ CRITICAL):**
+**External Review Gate (⚠️ CRITICAL):**
 
-- **NEVER stop after just 1 iteration** - this is almost always wrong
-- Minimum 2-3 iterations is NORMAL and expected
-- Complex plans may need 4-5+ iterations
-- Each iteration should show improvement
-- Only stop when review shows **ZERO remaining issues**
-- Delete review file after each feedback application
-- Quality over speed - rushing leads to bad plans
+- **Never self-approve.** The Worker does not produce LGTM. Only `wf:wf-review-plan`'s `[FEATURE]_PLAN_REVIEW.md` does.
+- **Do not paraphrase the verdict.** Read the literal `VERDICT:` line from the review file. `LGTM` proceeds to Phase 4; anything else (REVISE, ambiguous) means apply feedback and Write the plan again.
+- **One Write per cycle.** Each plan Write triggers the gate exactly once. Don't pre-emptively iterate locally before writing — let the agent see the actual saved file each cycle.
+- **Keep the review artifact.** `[FEATURE]_PLAN_REVIEW.md` is the audit trail. Don't delete it after applying feedback; it documents *why* the plan changed.
+- **Quality over speed** — when REVISE feedback is dense, address every required change before re-writing. A pre-emptive Write to "see if it passes" wastes a review cycle.
 
 **When to Ask User:**
 
@@ -966,7 +586,7 @@ questions:
 
 2. plan [uses REPORT]
    └─> [FEATURE]_PLAN.md (approved)
-   └─> Auto-iterates until high quality
+   └─> External review gate (wf:wf-review-plan) until LGTM
 
 3. execute [PLAN]
    └─> Implementation
@@ -977,24 +597,24 @@ questions:
 
 **Key Benefit**: Automatically ensures plan quality before execution.
 
-## Common Iteration Patterns
+## Common External-Review Cycles
 
-**Why Multiple Iterations Are Necessary:**
+**Why multiple Write→Review cycles are normal:**
 
-- First draft ALWAYS has issues - that's normal
-- Each review catches different problems
-- Fixing one issue often reveals others
-- Quality compounds with each iteration
+- First draft almost always gets REVISE — that's the gate working as intended
+- The external agent reads the plan in a fresh context each cycle, so it surfaces issues the Worker didn't anticipate
+- Fixing one REVISE item often exposes adjacent ones in the next cycle
+- Quality compounds across cycles, so don't try to short-circuit by writing the perfect first draft
 
-**Typical Pattern:**
-| Iteration | Common Issues Found | Action |
-|-----------|---------------------|--------|
-| 1 | Missing testing strategies, vague acceptance criteria | Apply feedback → Review again |
-| 2 | Task coupling, missing edge cases, incomplete error handling | Apply feedback → Review again |
-| 3 | Minor polish, edge cases, documentation gaps | Apply feedback → Review again |
-| 4+ | Complex edge cases (if any remain) | Continue until ZERO issues |
+**Typical pattern (REVISE feedback shape per cycle):**
+| Cycle | Common REVISE feedback shape | Worker action |
+|-------|------------------------------|---------------|
+| 1 | Missing testing strategies, vague acceptance criteria | Read review file → Edit plan → Write again |
+| 2 | Task coupling, missing edge cases, incomplete error handling | Read review file → Edit plan → Write again |
+| 3 | Minor polish, edge cases, documentation gaps | Read review file → Edit plan → Write again |
+| 4+ | Residual edge cases | Continue until LGTM verdict |
 
-**⚠️ Red Flag**: If iteration 1 shows "Approve" → Review was too lenient, be more critical!
+**⚠️ Red Flag**: If the external agent returns LGTM on cycle 1, double-check that the agent actually applied `references/review_checklist.md` end-to-end — a too-lenient agent run is the new failure mode that replaces "self-approving Worker".
 
 ## Resources
 

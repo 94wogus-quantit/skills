@@ -76,6 +76,7 @@ Register the following Phases in order using `TaskCreate`:
 | Phase 5C | Database Migration Validation (conditional) | Validating database migration |
 | Phase 6 | Automated Test Generation (conditional) | Generating automated tests |
 | Phase 7 | AC Achievement Report | Generating AC report |
+| Phase 7.5 | Independent QA Gate (wf:qa spawn) | Awaiting wf:qa verdict |
 | Phase 8 | Testing and Verification | Testing and verifying |
 
 **Task Tracking Rules**:
@@ -836,6 +837,59 @@ IF (no JIRA issue):
     "ℹ️ Skipping AC verification - no JIRA issue linked."
     → Skip Phase 6, proceed to Phase 7
 ```
+
+---
+
+### Phase 7.5: Independent QA Gate (wf:qa skill spawn)
+
+> 📋 **Task Tracking**: Mark this Phase's Task as `in_progress` on entry, `completed` on completion.
+
+> **Why this phase exists**: Phase 6 (auto test recovery) and Phase 7 (AC Achievement Report) are both run by the same session that wrote the code. That session is structurally biased to declare its own work done. Phase 7.5 hands acceptance verification off to **`wf:qa`** — an independent skill that re-executes the original REPORT's reproduction scenarios and the PLAN's success criteria from scratch in the actual environment (test runs, API calls, UI checks via agent-browser, DB state). `wf:qa` must return PASS before this skill hands off to `record`.
+
+This phase is the load-bearing complement to plan's external review gate (Phase 3 of `wf:plan`). Together they enforce: **the executor is never the verifier.**
+
+#### Step A: qa skill spawn
+
+Invoke `wf:qa` as a Skill (not as a sub-agent — qa is user-invocable and runs as a skill):
+
+```
+Tool: Skill
+Args:
+  skill: "wf:qa"
+  args: |
+    issue_id: {ISSUE_ID}            # JIRA / GitHub / repo-specific issue id
+    report_path: {REPORT_PATH}      # [ISSUE_ID]_REPORT.md from analyze
+    plan_path: {PLAN_PATH}          # [FEATURE]_PLAN.md from plan (post-LGTM)
+    branch: {CURRENT_BRANCH}        # e.g. feat/auth-middleware-merge
+```
+
+If `wf:qa` is not installed (skill resolution fails), output:
+
+```
+⚠️ wf:qa skill is not available — install the wf plugin's qa skill before
+   this phase can run. Falling back to manual verification request.
+```
+
+…and ask the user via AskUserQuestion whether to proceed without independent QA (NOT recommended — explain the risk) or stop here.
+
+#### Step B: Read the QA verdict
+
+`wf:qa` writes its result to `[ISSUE_ID]_QA.md` (same convention as REPORT/PLAN). Read that file. Locate the final `VERDICT:` line.
+
+#### Step C: Verdict gate
+
+| Verdict | Action |
+|---------|--------|
+| `PASS` | Proceed to Phase 8 (Testing and Verification — quick smoke + final commit prep). |
+| `FAIL` | Read `[ISSUE_ID]_QA.md` "FAIL 시 수정 요청" section. Apply the patch-level suggestions back in Phase 4 (Execute Tasks). After fixes, re-run `wf:qa` (loop back to Step A). Do NOT proceed to record. Do NOT self-declare PASS. |
+
+The Worker does not produce its own PASS verdict for this phase. The exit gate is literally the contents of `[ISSUE_ID]_QA.md`.
+
+#### Step D: When QA is genuinely not applicable
+
+A small subset of changes legitimately have nothing for `wf:qa` to verify (e.g., a typo fix in a comment, a CHANGELOG-only commit, formatting-only changes). For those, `wf:qa` itself returns PASS quickly with a "trivial / no scenario to verify" note in `[ISSUE_ID]_QA.md`. **Do not skip this phase to save time** — still spawn `wf:qa` and let it produce that note. The audit artifact is what gives `record` (Phase 9) confidence to publish.
+
+> **Anti-pattern alert**: Pre-v3.30 versions of `execute` exited via Phase 7 → Phase 8 → record without any independent acceptance gate. Test pass ≠ requirements met. If you find yourself thinking "Phase 7.5 is overhead, let me skip just this once", stop — that's exactly the failure mode the gate exists to prevent.
 
 ---
 

@@ -29,15 +29,23 @@ wogus-plugin/  (v3.30.0)
 │   └── marketplace.json       # 카탈로그 (7 plugins)
 │
 ├── plugins/                   # 모든 플러그인
-│   ├── wf/                    # 메인 워크플로우 플러그인
+│   ├── wf/                    # 메인 워크플로우 플러그인 (v3.30.0)
 │   │   ├── .claude-plugin/plugin.json
-│   │   ├── skills/            # 자동 인식
+│   │   ├── git_local_server.py + .mcp.json   # 12 git tools
+│   │   ├── skills/            # 자동 인식 (5개)
 │   │   │   ├── analyze/
-│   │   │   ├── plan/
-│   │   │   ├── execute/
+│   │   │   ├── plan/          # External review gate (wf:wf-review-plan)
+│   │   │   ├── execute/       # Phase 7.5: wf:qa spawn
+│   │   │   ├── qa/            # NEW: independent acceptance gate
 │   │   │   └── record/
-│   │   └── agents/
-│   │       └── requirement-validator.md
+│   │   ├── agents/
+│   │   │   ├── requirement-validator.md
+│   │   │   ├── wf-review-analyze.md          # NEW
+│   │   │   ├── wf-review-plan.md             # NEW
+│   │   │   └── wf-review-record.md           # NEW
+│   │   └── hooks/                            # NEW
+│   │       ├── hooks.json                    # PostToolUse(Write) matcher
+│   │       └── wf-review-gate.sh             # *_REPORT/PLAN/CHANGELOG/REVIEW.md routing
 │   ├── run-ralph/             # Ralph Loop wrapper (choo-choo skill + agents + Stop hook)
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── skills/choo-choo/  # 사용자 트리거: /run-ralph:choo-choo
@@ -64,23 +72,32 @@ Systematic root cause analysis with branch validation and Elon Musk's thinking m
 - **Output**: `[ISSUE_ID]_REPORT.md`
 - **Integration**: First step in workflow
 
-### plan (v3.26.0)
-Create high-quality, thoroughly reviewed implementation plans with 5-Step Algorithm methodology.
+### plan (v3.30.0)
+Create high-quality implementation plans through **external review gate** (replaces v3.26 self-review loop).
 - **5단계 알고리즘**: 요구사항 질의 → 삭제 → 단순화 → 가속 → 자동화
 - **Idiot Index**: 계획 효율성 메트릭 (과잉 설계 방지)
 - **Zero-Context 원칙**: 정확한 파일 경로·코드 스니펫·테스트 커맨드 필수
-- **ralph-loop 통합**: 자동 반복 검토 (optional, graceful degradation)
-- **Iterative review loop** (ZERO 이슈까지 반복, 11개 섹션 체크리스트)
+- **External review gate (v3.30 신규)**: PLAN.md Write → wf-review-gate hook PostToolUse → wf:wf-review-plan agent spawn → LGTM verdict 받을 때까지 Write→Review 사이클. Worker는 자체 LGTM 발행 금지.
+- **AC pre-validation**: requirement-validator Mode 2 호출 (LGTM 후)
 - **브랜치 검증** (feature 브랜치 확인)
-- **Output**: `[FEATURE]_PLAN.md`
+- **Output**: `[FEATURE]_PLAN.md` + `[FEATURE]_PLAN_REVIEW.md` (audit artifact)
 - **Integration**: Second step in workflow
 
-### execute (v3.26.0)
-Execute approved implementation plans with TodoList tracking and auto-recovery.
+### execute (v3.30.0)
+Execute approved implementation plans with TodoList tracking, auto-recovery, and **independent QA gate** (v3.30 신규).
 - **Auto-recovery loop**: 테스트/검증 실패 시 자동 복구 (최대 3회, 8가지 실패 타입)
+- **Phase 7.5 (v3.30 신규)**: AC Achievement Report 직후 `Skill(wf:qa)` 자동 spawn. PASS verdict 받아야 Phase 8 (Testing) → record 진행. Worker 자체 PASS 발행 금지.
 - **브랜치 검증** (보호된 브랜치 경고)
-- **Output**: Code implementation + test results
+- **Output**: Code implementation + test results + `[ISSUE_ID]_QA.md` (외부 검증)
 - **Integration**: Third step in workflow
+
+### qa (v3.30.0 — NEW)
+Independent acceptance verification — runs after execute completes, validates implementation against original REPORT's reproduction scenarios + PLAN's success criteria via actual environment (test runs, API calls, agent-browser UI, DB state).
+- **Dual-mode**: execute가 Phase 7.5에서 자동 spawn / 사용자가 직접 호출
+- **5 phases**: Context collection → Test scenario design → Test execution (pytest / API / UI / DB / build) → Write `[ISSUE_ID]_QA.md` → Verdict return
+- **Bias 차단**: executor와 verifier 분리 ("the executor is never the verifier"). plan의 외부 게이트와 대칭 구조.
+- **Output**: `[ISSUE_ID]_QA.md` with PASS/FAIL verdict + verbatim evidence
+- **Integration**: Step between execute and record
 
 ### record (v3.25.0)
 Consolidate workflow artifacts and update project documentation.
@@ -191,7 +208,7 @@ Claude Code Marketplace로 배포. 7개 독립 플러그인 (wf, run-ralph, seq-
 
 | 버전 | 변경 요약 |
 |------|----------|
-| v3.30.0 | run-ralph(choo-choo) 일반화: 코드 변경 외에 ADR/설계/통합/문서 작업도 1급 task type으로 (Phase 1~3 + references 전반에 framing 보강, Example 4 신규 worked 사례). 매 run의 산출물을 `.ralph/<slug>/`로 격리 (이전 평면 컨벤션은 run 사이에 review-N.md가 덮였음). sentinel은 top-level 유지로 hook 미변경. plugin.json 1.0.0 → 1.1.0. |
+| v3.30.0 | (1) run-ralph(choo-choo) 일반화: 코드 변경 외 ADR/설계/통합/문서 작업도 1급 task type으로. 매 run의 산출물을 `.ralph/<slug>/`로 격리. (2) **wf + arkraft wf2 통합**: Pack A 백본(git MCP / requirement-validator / record)에 Pack B 게이트(외부 wf-review-{analyze,plan,record} agents + wf-review-gate.sh PostToolUse hook + wf:qa skill) 흡수. plan/SKILL.md의 자기검토 루프(`Step A→D`, `REPEAT until zero issues`) 449줄 제거 → 외부 게이트 71줄로 교체. execute/SKILL.md Phase 7.5 신설: `Skill(wf:qa)` spawn으로 acceptance gate. choo-choo Phase 1.5 auto-dispatch: trivial → ralph 직행 / full → wf 5단계 → ralph. wf plugin.json (no version) → 3.30.0. |
 | v3.29.0 | run-ralph 플러그인 신규 추가: Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level AC + iteration 게이트로 안전 실행하는 choo-choo 스킬. 모든 sentinel/프롬프트 경로를 PROJECT_ROOT 절대경로로 anchor하여 Worker가 sub-dir로 cd해도 게이트가 깨지지 않음. Stop hook은 `${CLAUDE_PROJECT_DIR}` 기준으로 검사. |
 | v3.27.0 | ask-yt 플러그인 신규 추가: YouTube 내장 AI(Ask/질문하기) CDP 자동화 |
 
@@ -259,13 +276,15 @@ mcp__plugin_<PLUGIN_NAME>_<SERVER_NAME>__<TOOL_NAME>
 ### Workflow Summary
 
 ```
-analyze → *_REPORT.md
+analyze → *_REPORT.md (external review gate → LGTM)
     ↓
-plan → *_PLAN.md (iterative review until ZERO issues)
+plan    → *_PLAN.md   (external review gate → LGTM)
     ↓
 execute → Code implementation + tests
     ↓
-record → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
+qa      → [ISSUE_ID]_QA.md (independent acceptance, PASS required)
+    ↓
+record  → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 ```
 
 ---
@@ -273,7 +292,7 @@ record → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 ## Notes
 
 - **Current version**: v3.30.0
-- **wf**: 4 skills + agent + git MCP (12개 도구)
+- **wf** (3.30.0): 5 skills (analyze / plan / execute / qa / record) + 4 agents (requirement-validator + wf-review-{analyze,plan,record}) + git MCP (12 도구) + PostToolUse hook (wf-review-gate.sh). plan은 외부 게이트 의존 (자기검토 루프 제거됨), execute Phase 7.5에서 wf:qa 자동 spawn.
 - **run-ralph (1.1.0)**: choo-choo skill + ralph-reviewer/ralph-qa agents + Stop hook (의존: `ralph-loop@claude-plugins-official`). 코드 변경뿐 아니라 ADR/설계/통합/문서 작업도 1급으로 다룸. 매 run의 산출물은 `.ralph/<slug>/` 하위에 격리(이전 평면 컨벤션은 v3.30에서 deprecated). Sentinel은 `.ralph/.report-pending` top-level 유지.
 - **seq-think**: 별도 MCP 플러그인
 - **terraform/atlassian/github/slack**: 독립 플러그인

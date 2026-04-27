@@ -1,7 +1,7 @@
 {
   "name": "run-ralph",
-  "version": "1.1.0",
-  "description": "Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level acceptance criteria + iteration 게이트로 안전하게 돌리는 choo-choo 스킬 + Stop hook 보고 게이트. 코드 변경뿐 아니라 ADR/설계/통합/문서 등 모든 iterative work를 1급으로 다루며, 매 run마다 .ralph/<slug>/로 산출물 격리.",
+  "version": "1.2.0",
+  "description": "Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level acceptance criteria + iteration 게이트로 안전하게 돌리는 choo-choo 스킬 + Stop hook 보고/문서화 게이트. v1.2: Phase 1.5 wf auto-dispatch 활성화 + record-gate Stop hook 신설(코드 변경 후 wf:record 누락 차단).",
   "author": {
     "name": "94wogus",
     "email": "94wogus@quantit.io"

@@ -438,11 +438,15 @@ After user approval, run these **four steps in order** (step 0 captures the proj
    Write(file_path: "<PROJECT_ROOT>/.ralph/<slug>/prompt.md", content: "<full composed prompt>")
    ```
 
-2. **Touch the session-level report-gate sentinel at the top of `.ralph/`** so the Stop hook knows this session owes a Phase 6 report. The sentinel stays at `.ralph/.report-pending` (NOT inside the slug subdirectory) — the hook checks one fixed path:
+2. **Touch the session-level Stop-gate sentinels at the top of `.ralph/`** so the run-ralph hooks know this session owes a Phase 6 report and (potentially) a record/CHANGELOG update. Both sentinels stay at `.ralph/` top level (NOT inside the slug subdirectory) — the hooks check fixed paths:
 
    ```
-   Bash: touch "$PROJECT_ROOT/.ralph/.report-pending"
+   Bash: touch "$PROJECT_ROOT/.ralph/.report-pending" "$PROJECT_ROOT/.ralph/.record-pending"
    ```
+
+   Two sentinels, two gates:
+   - **`.report-pending`** — `run-ralph-report-gate.sh` blocks Stop until Phase 6 report is written + sentinel removed.
+   - **`.record-pending`** — `run-ralph-record-gate.sh` blocks Stop when the branch has code commits ahead of `origin/{base}` but no CHANGELOG.md / changelogs/v*.md change. The hook does its own `git diff` check, so doc-only / experiment-only runs pass silently. `wf:record` skill (recommended) or a manual CHANGELOG edit clears it; if record is genuinely not applicable, `rm` the sentinel.
 
 3. **`cd` to PROJECT_ROOT, then invoke `/ralph-loop` with a short pointer prompt** (single-line, no backticks / `$` / newlines). The pointer text itself is Korean per the authoring conventions:
 
@@ -471,8 +475,13 @@ After user approval, run these **four steps in order** (step 0 captures the proj
 
 **Order within the final message:**
 1. Write the `## Ralph Loop 실행 결과` report block (format below).
-2. `rm "$PROJECT_ROOT/.ralph/.report-pending"` to clear the sentinel so the Stop hook exits cleanly. Use the absolute path — Worker may have `cd`d during the loop.
-3. Emit `<promise>{COMPLETION_PROMISE}</promise>`.
+2. **Decide on record (documentation):**
+   - If the run produced code or config changes (anything outside `*.md` / `changelogs/` / `.ralph/` / `docs/`), invoke `Skill(skill: "wf:record")` BEFORE proceeding. `wf:record` updates README/CHANGELOG/ARCHITECTURE/CLAUDE.md as a single coherent commit and removes `.ralph/.record-pending` itself on success.
+   - If the run is doc-only or genuinely doesn't need a record (experiment, .ralph cleanup, hotfix that will be amended), explicitly remove `.ralph/.record-pending` with a one-line justification noted in the Phase 6 report so the audit trail is honest.
+3. `rm "$PROJECT_ROOT/.ralph/.report-pending"` to clear the report sentinel so `run-ralph-report-gate.sh` exits cleanly. Use the absolute path — Worker may have `cd`d during the loop.
+4. Emit `<promise>{COMPLETION_PROMISE}</promise>`.
+
+> **Why both gates:** `run-ralph-report-gate.sh` enforces the human-readable "what just happened" report (so the user is never left to reconstruct it from `git diff`). `run-ralph-record-gate.sh` enforces the project-level documentation sync (CHANGELOG / README / ARCHITECTURE consistent with the code). Without the second gate, the most common failure mode is "code shipped, CHANGELOG forgotten" — silent doc drift that compounds across runs.
 
 If any of these is skipped, the run-ralph plugin's Stop hook will block Stop and re-inject a reminder.
 
@@ -524,7 +533,11 @@ Before writing the report, gather the ground truth — don't rely on what Ralph 
 - **Don't re-paste the full diff.** Summarize. The user can read `git diff` themselves; your job is to tell them *what changed and why* so they know whether it's worth reading.
 - **Keep it scoped to this run.** Don't re-explain the original task or team composition — the user was there for Phase 1–5. This phase is purely "what happened after I handed off to `/ralph-loop`."
 
-### Report gate hook (safety net)
+### Stop hook safety nets (report + record)
+
+The Phase 6 instructions above are the primary path. Two Stop hooks act as mechanical safety nets if a step is skipped:
+
+#### (1) `run-ralph-report-gate.sh`
 
 The Phase 6 instruction above is the primary path. The plugin's Stop hook is the secondary, mechanical safety net.
 
@@ -541,6 +554,25 @@ The Phase 6 instruction above is the primary path. The plugin's Stop hook is the
 - **Disabling** (if it's ever in the way): disable the `run-ralph` plugin (`/plugin` → uninstall or toggle off). The Phase 6 instruction remains as a weaker fallback.
 - **Orphan sentinel recovery**: if a prior run-ralph session crashed and left `.ralph/.report-pending` behind, the next Phase 5 `touch` is idempotent (no-op on existing file) — the new session will clean it up at its own Phase 6. If you want to run anything *other than* run-ralph first and not be bothered, `rm "$(git rev-parse --show-toplevel)/.ralph/.report-pending"` manually.
 - **`/cancel-ralph` behavior**: cancelling removes `.claude/ralph-loop.local.md` but not the sentinel. Next Stop → hook fires → Worker must still write a Phase 6 report (a short one explaining the cancellation is acceptable) and remove the sentinel. This is intentional: cancellation is still an "end of run" the user should be told about.
+
+#### (2) `run-ralph-record-gate.sh` (v1.2 신규)
+
+The second Stop hook catches the most common harness-failure: **code shipped without the matching record/CHANGELOG update.**
+
+- **Script**: `${CLAUDE_PLUGIN_ROOT}/hooks/run-ralph-record-gate.sh` (bundled; auto-loaded with the plugin).
+- **Sentinel**: `${CLAUDE_PROJECT_DIR}/.ralph/.record-pending` (top level, alongside `.report-pending`).
+- **Decision logic** (the gate does its own `git diff` check, so it's *much* quieter than report-gate):
+  1. `/ralph-loop` still iterating → defer (exit 0).
+  2. `.record-pending` absent → no obligation (exit 0).
+  3. Branch has 0 commits ahead of `origin/{base}` → nothing to record yet (exit 0).
+  4. Ahead-commits touch only `*.md` / `changelogs/` / `.ralph/` / `docs/` → doc-only run, no obligation (exit 0).
+  5. Ahead-commits include `CHANGELOG.md` or `changelogs/v*.md` change → docs already done (exit 0).
+  6. Otherwise → real code shipped, CHANGELOG missing → **block Stop** with a Korean instruction to spawn `wf:record` (or `rm` the sentinel + justify in the Phase 6 report).
+- **Why both gates?** `report-gate` handles "did the user get told what just happened?" `record-gate` handles "did the project's documentation stay in sync with the code?" They're orthogonal failure modes and both cost only milliseconds per Stop.
+- **Sentinel lifecycle**:
+  - Created by Phase 5 step 2 (`touch ".../.record-pending"`).
+  - Removed by `wf:record` skill on success, or by Phase 6 step 2 if record is genuinely not needed (with justification logged in the report).
+- **Disabling**: toggle the `run-ralph` plugin off (`/plugin`). The Phase 6 record-spawn instruction in this SKILL.md remains as a weaker fallback.
 
 ---
 

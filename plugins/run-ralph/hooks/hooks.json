@@ -1,5 +1,5 @@
 {
-  "description": "run-ralph Phase 6 report gate — Stop hook이 .ralph/.report-pending sentinel이 남아있으면 Stop을 block하고 보고서 작성을 요구",
+  "description": "run-ralph Stop hooks — (1) report-gate: Phase 6 보고서 누락 시 block, (2) record-gate: 코드 변경 후 CHANGELOG/record 누락 시 block. 두 게이트는 독립이며 순차 실행. report-gate가 먼저 통과해야 record-gate가 의미를 가짐.",
   "hooks": {
     "Stop": [
       {
@@ -9,6 +9,11 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/run-ralph-report-gate.sh",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/run-ralph-record-gate.sh",
+            "timeout": 15
           }
         ]
       }

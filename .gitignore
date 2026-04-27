@@ -71,6 +71,7 @@ site/
 
 # claude code artifacts
 .ralph
+ralph-loop.local.md
 *_REPORT*.md
 *_PLAN*.md
 *_*REVIEW*.md

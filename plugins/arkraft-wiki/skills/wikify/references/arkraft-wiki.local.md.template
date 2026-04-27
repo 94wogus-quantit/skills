@@ -1,0 +1,42 @@
+---
+# arkraft-wiki settings — copy this file to ONE of:
+#   {project}/.claude/arkraft-wiki.local.md   (per-project, gitignored)
+#   ~/.claude/arkraft-wiki.local.md           (user-global, all projects)
+#
+# wiki_root is required. Everything else is optional.
+
+wiki_root: /Users/me/Project/arkraft/arkraft-wiki
+
+# Optional: override the default 9-arkraft-repo scan list with your absolute paths.
+# When omitted, wikify resolves default names ('arkraft-api', 'arkraft-web', ...) as
+# siblings of wiki_root (i.e., ${parent_of_wiki_root}/{name}).
+#
+# repos:
+#   - /Users/me/Project/arkraft/arkraft-api
+#   - /Users/me/Project/arkraft/arkraft-web
+#   - /Users/me/Project/arkraft/arkraft-agent-alpha
+#   - /Users/me/Project/arkraft/arkraft-agent-insight
+#   - /Users/me/Project/arkraft/arkraft-agent-portfolio
+#   - /Users/me/Project/arkraft/arkraft-agent-report
+#   - /Users/me/Project/arkraft/arkraft-agent-data
+#   - /Users/me/Project/arkraft/arkraft-deploy
+#   - /Users/me/Project/arkraft/arkraft-sdk
+
+# Optional: build command for the wiki repo's Stop hook. Default './build.sh'.
+# Override only if your wiki repo uses something different.
+#
+# build_command: ./build.sh
+---
+
+# arkraft-wiki settings
+
+(Optional notes — anything below the frontmatter is for your reference only.)
+
+## How it's used
+
+When you invoke `/arkraft-wiki:wikify`, the skill reads `wiki_root` from this file
+and hands the wiki authoring task off to `run-ralph:choo-choo` with wiki-specific
+context (section taxonomy, harness checks, repo list).
+
+If `wiki_root` is missing or the directory doesn't exist, the skill stops with
+an actionable error — it won't guess a path.

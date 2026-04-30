@@ -351,11 +351,13 @@ Phase 5 captures `PROJECT_ROOT`, creates `.ralph/<slug>/`, writes `prompt.md` in
    - Reviewer == LGTM AND QA == PASS {AND 커스텀 verdict 모두 통과} AND 모든 Acceptance Criteria 충족
      → 이 iteration의 **같은 메시지 안에** 순서대로:
        a. Phase 6 보고서(`## Ralph Loop 실행 결과` 블록) 작성
-       b. `rm "{PROJECT_ROOT}/.ralph/.report-pending"` 실행 (report-gate hook sentinel 제거 — sentinel은 top-level 유지)
-       c. `<promise>{COMPLETION_PROMISE}</promise>` emit
+       b. `rm "{PROJECT_ROOT}/.ralph/.report-pending"` 실행 (report-gate hook sentinel 제거 — sentinel은 top-level 유지). 이 `rm`이 PostToolUse force-stop hook의 trigger이기도 하므로 ralph-loop state 파일이 같은 turn에 강제 정리됨.
+       c. **마지막 text block으로 단독으로** `<promise>{COMPLETION_PROMISE}</promise>` emit
      셋 중 하나라도 빠지면 run-ralph 플러그인의 Stop hook이 Stop을 block하고 재주입함.
    - 그 외 → 다음 iteration에서 수정. promise emit 절대 금지.
 6. 최신 review/qa 파일이 없거나 outdated면 promise emit 금지 (강제력).
+
+**CRITICAL — promise emit position rule**: `<promise>...</promise>` MUST be the **absolute last text block** of the final iteration's message. NO text, tool call, acknowledgment, recap, or any other content after the promise tag. `claude-plugins-official/ralph-loop` 1.0.0 의 stop-hook은 마지막 assistant text block만 perl-extract 하여 `<promise>` 태그를 찾기 때문에, promise 뒤에 다른 text block이 한 줄이라도 더 붙으면 hook이 promise를 못 잡고 loop가 max-iterations까지 무한 재주입됩니다 (참고: 2026-04-30 디버깅 + `memory/project_ralph_loop_promise_detection_bug.md`). v1.3.0의 PostToolUse force-stop hook은 sentinel rm 시 state 파일을 강제 제거하므로 1차 fallback이지만, **이 position rule이 1차 방어선**입니다 — Worker가 이 규칙을 지키면 두 메커니즘 모두 동작하고, 어겨도 force-stop hook이 받쳐줍니다. 둘 다 어겨야 무한 루프.
 ```
 
 `{PROMPT_PATH}` (예: `<PROJECT_ROOT>/.ralph/<slug>/prompt.md`), `{RUN_DIR}` (예: `<PROJECT_ROOT>/.ralph/<slug>`), `{PROJECT_ROOT}` 세 placeholder 모두 Phase 5에서 캡처한 구체 절대경로로 치환 후 파일에 기록한다. 저장된 프롬프트에 literal placeholder가 남아있으면 안 된다.

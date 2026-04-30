@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal plugin collection repository containing Claude Code Skills, Agents, and custom commands for systematic software development workflows.
 
-**Key Artifacts (v3.33.0):**
+**Key Artifacts (v3.34.0):**
 - **Skills**: Workflow orchestrators for multi-step processes (분석, 계획, 실행, 문서화)
 - **Agents**: AC (Acceptance Criteria) traceability (requirement-validator만 유지)
 - **Custom Commands**: Workflow automation commands (별도 설치)
@@ -24,7 +24,7 @@ Personal plugin collection repository containing Claude Code Skills, Agents, and
 ## Repository Structure
 
 ```
-wogus-plugin/  (v3.33.0)
+wogus-plugin/  (v3.34.0)
 ├── .claude-plugin/
 │   └── marketplace.json       # 카탈로그 (9 plugins)
 │
@@ -46,11 +46,11 @@ wogus-plugin/  (v3.33.0)
 │   │   └── hooks/                            # NEW
 │   │       ├── hooks.json                    # PostToolUse(Write) matcher
 │   │       └── wf-review-gate.sh             # *_REPORT/PLAN/CHANGELOG/REVIEW.md routing
-│   ├── run-ralph/             # Ralph Loop wrapper (choo-choo skill + agents + Stop hook)
+│   ├── run-ralph/             # Ralph Loop wrapper (choo-choo skill + agents + Stop/PostToolUse hooks)
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── skills/choo-choo/  # 사용자 트리거: /run-ralph:choo-choo
 │   │   ├── agents/            # ralph-reviewer, ralph-qa
-│   │   └── hooks/             # report-gate.sh + record-gate.sh + hooks.json (v1.2)
+│   │   └── hooks/             # report-gate.sh + record-gate.sh + force-stop.sh + hooks.json (v1.3)
 │   ├── seq-think/             # Sequential Thinking MCP
 │   ├── terraform/
 │   ├── atlassian/
@@ -218,6 +218,7 @@ Claude Code Marketplace로 배포. 9개 독립 플러그인 (wf, run-ralph, seq-
 
 | 버전 | 변경 요약 |
 |------|----------|
+| v3.34.0 | **run-ralph v1.3.0**: `claude-plugins-official/ralph-loop` 1.0.0 stop-hook 의 `<promise>` 미감지 한계(transcript JSONL 의 control character + last-text-block 추출 위치 문제로 정상 emit 된 promise 태그를 못 잡고 max-iterations 까지 무한 재주입되는 알려진 버그) 우회. PostToolUse Bash matcher hook (`run-ralph-force-stop.sh`) 신설 — Phase 6 의 `rm .ralph/.report-pending` 명령을 trigger 로 사용해 같은 turn 에 ralph-loop state 파일(`.claude/ralph-loop.local.md`) 도 강제 제거 → 다음 Stop 이벤트에서 ralph-loop stop-hook 이 state 부재로 exit 0 → loop 종료. brittle 한 transcript 파싱 자체를 우회. SKILL.md Phase 4 Iteration Workflow 의 판정 게이트에 **promise position rule** 단락 신설: `<promise>...</promise>` 는 final message 의 absolute last text block 으로 단독 출력 (그 뒤 어떤 text/tool 도 금지) — 1차 방어선. force-stop hook 은 1차 fallback. 두 메커니즘 합쳐 2중 안전망 (둘 다 어겨야 무한 루프). 변경: `plugins/run-ralph/hooks/run-ralph-force-stop.sh` 신규, `hooks/hooks.json` PostToolUse entry 추가, `skills/choo-choo/SKILL.md` Phase 4 강화, `plugin.json` 1.2.0 → 1.3.0, `marketplace.json` 3.33.0 → 3.34.0. upstream(`anthropics/claude-plugins-public@main`) 의 stop-hook 도 우리 캐시본과 byte-identical 이라 fix 가 자동으로 들어올 가능성 낮음 — 우리 plugin 단 우회. |
 | v3.33.0 | **`blogpost` plugin 신규** (v1.0.0): multi-agent 블로그 작성 + CC 라이선스 이미지 큐레이션 + S3 sync. `/blogpost:create`는 6-agent 파이프라인(researcher → research-reviewer → image-curator → writer → writing-reviewer → html-renderer)으로 자료 조사·이미지 다운로드·초안·HTML 렌더까지 자동화하고 aws CLI로 폴더째 업로드. `/blogpost:update`는 round-trip 편집 (sync down → 사용자 편집 → 재렌더 → sync up). 버킷/프리픽스는 `~/.claude/blogpost.local.md` frontmatter (`bucket` + `prefix`)로 지정. html-renderer 에이전트가 figure/figcaption + callout + section semantics 부여 후 Jinja layout으로 wrap (markdown→HTML 1:1 변환 금지). 이미지 라이선스 hard rule: Unsplash > Pexels > Wikimedia Commons CC만, 출처 metadata.json 기록 필수. plugins 8 → **9**. |
 | v3.32.0 | **`arkraft-wiki` plugin 신규** (v1.0.0): arkraft-wiki repo에 지식 문서 생성하는 wikify thin wrapper. plugin은 wiki content를 직접 작성하지 않고 wiki section 구조 / lifecycle / harness 검사 항목 / repo scan 목록을 references로 묶어 `Skill(run-ralph:choo-choo, ...)` 위임. wiki repo의 10 hooks + 6 skills는 source of truth (dual-source 방지). `wiki_root`는 `.claude/arkraft-wiki.local.md` settings frontmatter로 사용자별 지정. plugins 7 → 8. |
 | v3.31.0 | run-ralph **record harness** 강화 + Phase 1.5 dispatch cache invalidation. (1) `.ralph/.record-pending` sentinel + `run-ralph-record-gate.sh` Stop hook 신설 — origin 대비 commits에 코드 변경 있는데 CHANGELOG.md / changelogs/v*.md 변경 0이면 Stop block. git diff 자체 검사로 doc-only / experiment-only 작업은 false-positive 0. (2) `run-ralph` plugin.json 1.1.0 → **1.2.0** bump으로 marketplace cache 강제 갱신 (v3.30에서 Phase 1.5 wf auto-dispatch가 SKILL.md에 들어갔으나 plugin version 동결로 사용자 cache가 옛 1.1.0 그대로 사용 중이던 문제 해소). (3) `choo-choo/SKILL.md` Phase 5 step 2에서 두 sentinel 동시 touch, Phase 6 4-step 흐름으로 확장 (record decision step 신설). |
@@ -304,9 +305,9 @@ record  → README, ARCHITECTURE.md, CHANGELOG, CLAUDE docs update
 
 ## Notes
 
-- **Current version**: v3.33.0
+- **Current version**: v3.34.0
 - **wf** (3.30.0): 5 skills (analyze / plan / execute / qa / record) + 4 agents (requirement-validator + wf-review-{analyze,plan,record}) + git MCP (12 도구) + PostToolUse hook (wf-review-gate.sh). plan은 외부 게이트 의존 (자기검토 루프 제거됨), execute Phase 7.5에서 wf:qa 자동 spawn.
-- **run-ralph (1.2.0)**: choo-choo skill + ralph-reviewer/ralph-qa agents + **2 Stop hooks** (report-gate + record-gate). 의존: `ralph-loop@claude-plugins-official`. ADR/설계/통합/문서 작업 1급 지원, 매 run 산출물 `.ralph/<slug>/` 격리, Sentinel은 `.ralph/.report-pending` + `.ralph/.record-pending` 둘 다 top-level. record-gate는 origin 대비 commits에 코드 변경 + CHANGELOG 미수정이면 Stop block (git diff 자체 검사로 doc-only 작업 false-positive 0).
+- **run-ralph (1.3.0)**: choo-choo skill + ralph-reviewer/ralph-qa agents + **2 Stop hooks** (report-gate + record-gate) + **1 PostToolUse hook** (force-stop, Bash matcher — v1.3 신규). 의존: `ralph-loop@claude-plugins-official`. ADR/설계/통합/문서 작업 1급 지원, 매 run 산출물 `.ralph/<slug>/` 격리, Sentinel 은 `.ralph/.report-pending` + `.ralph/.record-pending` 둘 다 top-level. record-gate 는 origin 대비 commits 에 코드 변경 + CHANGELOG 미수정이면 Stop block (git diff 자체 검사로 doc-only 작업 false-positive 0). force-stop hook 은 Phase 6 의 `rm .ralph/.report-pending` 을 trigger 로 사용해 같은 turn 에 ralph-loop state 파일도 강제 제거 — `claude-plugins-official/ralph-loop` 1.0.0 stop-hook 의 `<promise>` 미감지 한계 우회. SKILL.md Phase 4 의 promise position rule (absolute last text block) 이 1차 방어선, force-stop hook 이 1차 fallback.
 - **arkraft-wiki (1.0.0, v3.32)**: wikify thin wrapper. settings (`.claude/arkraft-wiki.local.md`)에서 wiki_root 읽고 wiki section 구조 / lifecycle / harness 검사 항목 / repo scan 목록을 references로 묶어 `Skill(run-ralph:choo-choo, args: ...)` 위임. plugin은 wiki content를 직접 작성 안 함 — wiki repo의 10 PreToolUse/Stop hooks가 source of truth.
 - **blogpost (1.0.0, v3.33 신규)**: multi-agent 블로그 작성 + 이미지 큐레이션 + S3 sync. 6 agents (researcher / research-reviewer / image-curator / writer / writing-reviewer / html-renderer) + 2 commands (create / update) + render.py + Jinja2 layout + sync_s3.sh. 설정: `~/.claude/blogpost.local.md` frontmatter `bucket` + `prefix`. 의존: aws CLI / curl / python3+jinja2. 이미지 라이선스 hard rule (Unsplash/Pexels/Wikimedia CC만), html-renderer가 markdown 1:1 변환 금지하고 figure/callout semantics 부여. v1.0.0 update는 round-trip 수동 편집 fallback.
 - **seq-think**: 별도 MCP 플러그인

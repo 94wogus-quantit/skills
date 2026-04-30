@@ -1,6 +1,18 @@
 {
-  "description": "run-ralph Stop hooks — (1) report-gate: Phase 6 보고서 누락 시 block, (2) record-gate: 코드 변경 후 CHANGELOG/record 누락 시 block. 두 게이트는 독립이며 순차 실행. report-gate가 먼저 통과해야 record-gate가 의미를 가짐.",
+  "description": "run-ralph hooks — Stop gates (1) report-gate: Phase 6 보고서 누락 시 block, (2) record-gate: 코드 변경 후 CHANGELOG/record 누락 시 block. PostToolUse (3) force-stop: Phase 6 sentinel rm을 trigger로 ralph-loop state 파일을 강제 제거 — claude-plugins-official/ralph-loop 1.0.0 stop-hook의 <promise> 미감지 한계 우회 (v1.3 신규).",
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/run-ralph-force-stop.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "*",

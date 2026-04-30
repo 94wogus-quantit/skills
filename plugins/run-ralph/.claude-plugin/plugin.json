@@ -1,7 +1,7 @@
 {
   "name": "run-ralph",
-  "version": "1.2.0",
-  "description": "Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level acceptance criteria + iteration 게이트로 안전하게 돌리는 choo-choo 스킬 + Stop hook 보고/문서화 게이트. v1.2: Phase 1.5 wf auto-dispatch 활성화 + record-gate Stop hook 신설(코드 변경 후 wf:record 누락 차단).",
+  "version": "1.3.0",
+  "description": "Ralph Loop을 multi-agent team(Reviewer + QA) + 3-level acceptance criteria + iteration 게이트로 안전하게 돌리는 choo-choo 스킬 + Stop hook 보고/문서화 게이트. v1.3: PostToolUse force-stop hook 신설 (claude-plugins-official/ralph-loop 1.0.0 stop-hook의 <promise> 미감지 한계 우회 — Phase 6 sentinel rm을 trigger로 state 파일 강제 제거) + SKILL.md Phase 4 promise position rule 강화 (1차 방어선).",
   "author": {
     "name": "94wogus",
     "email": "94wogus@quantit.io"
